@@ -1,0 +1,44 @@
+/* TreeView {
+  flex-grow: 1;
+  height: '100%';
+  width: '100%';
+  overflow-x: 'hidden';
+  overflow-y: 'auto';
+}
+
+Typography {
+  font-size: 12;
+}
+
+.textField {
+  height: 24px;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+} */
+/* FileTree.css */
+.file-tree-item-enter {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.file-tree-item-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.file-tree-item-exit {
+  opacity: 1;
+}
+
+.file-tree-item-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 300ms, transform 300ms;
+}

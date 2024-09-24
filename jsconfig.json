@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "jsx": "react",
+    // "types": ["vite/client"],
+    "paths": {
+      "app/*": ["app/*"], // This will import app
+      "api/*": ["api/*"],
+      "assets/*": ["assets/*"],
+      "styles/*": ["styles/*"],
+      "components/*": ["components/*"],
+      "config/*": ["config/*"],
+      "contexts/*": ["contexts/*"],
+      "hooks/*": ["hooks/*"],
+      "layouts/*": ["layouts/*"],
+      "store/*": ["store/*"],
+      "types/*": ["types/*"],
+      "utils/*": ["utils/*"],
+      "views/*": ["views/*"],
+      // "@/*": ["*"],
+      "@/routes/*": ["routes/*"],
+      "@/config/*": ["config/*"],
+      "@/colors/*": ["assets/themes/base/*"],
+      "@/lib/*": ["lib/*"],
+      "@/humanIcons/*": ["assets/humanIcons/*"],
+    },
+  },
+  "exclude": ["node_modules", "build"],
+  "include": ["src"],
+}
