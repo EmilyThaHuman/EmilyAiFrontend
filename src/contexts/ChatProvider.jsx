@@ -66,6 +66,7 @@ export const ChatProvider = ({ children }) => {
 
   const newActionCreators = {
     updateLocalChatMessages: (message, index = -1) => {
+      dispatch(actions.getChatMessages());
       if (index === -1) {
         dispatch(actions.addChatMessage(message));
       } else {

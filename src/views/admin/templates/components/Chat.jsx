@@ -505,6 +505,8 @@ export default function Chat(props) {
         open={isApiModalOpen}
         onClose={handleApiModalClose}
         setApiKey={setApiKey}
+        inputCode={sessionStorage.getItem('apiKey')}
+        onInputChange={e => setApiKey(e.target.value)}
       />
     </Paper>
   );

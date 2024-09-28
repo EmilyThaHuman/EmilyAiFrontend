@@ -10,7 +10,6 @@ import {
   Paper,
   useMediaQuery,
 } from '@mui/material';
-import { debounce } from 'lodash';
 import React, {
   useCallback,
   useEffect,
@@ -43,6 +42,7 @@ export const MainChat = () => {
   const { params } = useParams(); // Extract the dynamic 'id' parameter from the URL
   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Check if the screen size is mobile
   const [marginLeft, setMarginLeft] = useState(isMobile ? '0px' : '50px');
+
   useEffect(() => {
     setMarginLeft(isMobile ? '0px' : '50px');
   }, [isMobile, isSidebarOpen]);
@@ -152,18 +152,7 @@ export const MainChat = () => {
       }
     };
   }, [controllerRef]);
-  // const submitMessage = useCallback(
-  //   async content => {
-  //     if (content.trim()) {
-  //       setChatMessages(prevMessages => [
-  //         ...prevMessages,
-  //         { role: 'user', content: content.trim() },
-  //       ]);
-  //       await handleSendMessage(content.trim());
-  //     }
-  //   },
-  //   [setChatMessages, handleSendMessage]
-  // );
+
   const handleUpdateMessages = useCallback(() => {
     const combinedMessages = [...chatMessages];
     const organizedMessages = organizeMessages(combinedMessages);

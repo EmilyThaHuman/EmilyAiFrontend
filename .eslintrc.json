@@ -26,7 +26,12 @@
   },
   "plugins": ["react", "react-hooks", "jsx-a11y", "import", "prettier"],
   "rules": {
-    "prettier/prettier": "error",
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
+      }
+    ],
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
     "no-redeclare": "off",

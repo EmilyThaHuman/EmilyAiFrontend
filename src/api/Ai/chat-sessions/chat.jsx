@@ -128,7 +128,7 @@ export const chatApi = {
       },
     });
   },
-  getChatSessionMessages: async props => {
+  getChatSessionMessages: async () => {
     // const { sessionId } = props;
     // console.log('SESSION ID:', sessionId);
     const sessionId = sessionStorage.getItem('sessionId');
@@ -136,7 +136,7 @@ export const chatApi = {
       const data = await apiUtils.get(
         `/chat/sessions/${encodeURIComponent(sessionId)}/messages`
       );
-      return data;
+      return data.messages;
     } catch (error) {
       console.error(`Error fetching messages for chat session with id:`, error);
       throw error;

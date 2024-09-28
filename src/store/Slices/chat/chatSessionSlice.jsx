@@ -122,6 +122,17 @@ export const updateChatMessages = createAsyncThunk(
     }
   }
 );
+export const getChatMessages = createAsyncThunk(
+  `${REDUX_NAME}/getChatSessionMessages`,
+  async ({ sessionId, messages }, { rejectWithValue }) => {
+    try {
+      const data = await chatApi.getChatSessionMessages();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 // export const syncChatMessages = createAsyncThunk(
 //   `${REDUX_NAME}/session/messages`,
 //   async (_, { dispatch, getState }) => {
@@ -258,6 +269,15 @@ export const chatSessionsSlice = createSlice({
         })
         .addCase(syncChatMessages.rejected, (state, action) => {
           console.error('Failed to sync chat messages:', action.payload);
+        })
+        .addCase(getChatMessages.fulfilled, (state, action) => {
+          if (action.payload) {
+            state.chatMessages = action.payload.messages;
+            setLocalSessionData({ ...state, chatMessages: state.chatMessages });
+          }
+        })
+        .addCase(getChatMessages.rejected, (state, action) => {
+          console.error('Failed to get chat messages:', action.payload);
         })
         .addCase(fetchLatestMessages.fulfilled, (state, action) => {
           if (action.payload) {
