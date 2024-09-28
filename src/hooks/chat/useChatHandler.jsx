@@ -84,7 +84,7 @@ export const useChatHandler = () => {
   const [loading, setLoading] = useState(false);
   const [messageCount, setMessageCount] = useState(0); // Initialize message counter
   const [messages, setMessages] = useState(chatMessages);
-  const [accumulatedData, setAccumulatedData] = useState('');
+  // const [accumulatedData, setAccumulatedData] = useState('');
 
   const [stream, setStream] = useState('');
   const initialMessagesRef = useRef([]);
@@ -146,7 +146,7 @@ export const useChatHandler = () => {
                 const jsonString = line.slice(6);
                 try {
                   const jsonData = JSON.parse(jsonString);
-                  console.log('Received JSON data:', jsonData);
+                  // console.log('Received JSON data:', jsonData);
                   if (jsonData.content) {
                     controller.enqueue(jsonData.content);
                   }
@@ -220,16 +220,18 @@ export const useChatHandler = () => {
         };
 
         setMessages(prev => [...prev, assistantMessage]);
+        let localAccumulatedData = ''; // Local variable for accumulation
 
         while (true) {
-          console.log('Entered while loop');
           const { done, value } = await reader.read();
           if (done) break;
 
-          console.log('Received stream chunk:', value);
-          setAccumulatedData(prev => prev + value);
+          localAccumulatedData += value; // Accumulate data in the local variable
+          console.log('Accumulated data:', localAccumulatedData);
           try {
-            const jsonData = JSON.parse(accumulatedData);
+            const jsonData = JSON.parse(localAccumulatedData);
+            console.log('Received JSON data:', jsonData);
+
             if (jsonData && jsonData.content) {
               setMessages(prev => {
                 const updated = [...prev];
@@ -237,11 +239,11 @@ export const useChatHandler = () => {
                 lastMessage.content = jsonData.content;
                 return updated;
               });
-              setAccumulatedData('');
+              localAccumulatedData = ''; // Reset localAccumulatedData after successful parse
             }
           } catch (parseError) {
             // If it's not valid JSON yet, continue accumulating
-            console.log('Accumulating data:', accumulatedData);
+            console.log('Accumulating data:', localAccumulatedData);
           }
           // setMessages(prev => {
           //   const updated = [...prev];
@@ -261,9 +263,10 @@ export const useChatHandler = () => {
           // });
         }
         // Handle any remaining data
-        if (accumulatedData) {
+        // Handle any remaining accumulated data
+        if (localAccumulatedData) {
           try {
-            const jsonData = JSON.parse(accumulatedData);
+            const jsonData = JSON.parse(localAccumulatedData);
             if (jsonData && jsonData.content) {
               setMessages(prev => {
                 const updated = [...prev];

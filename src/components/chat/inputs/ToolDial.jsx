@@ -114,18 +114,22 @@ export const ToolDial = ({ containerRef }) => {
       }
     };
 
-    updatePosition();
+    // Call on mount using requestAnimationFrame to wait for the DOM to be fully ready
+    const rafId = requestAnimationFrame(() => {
+      updatePosition();
+    });
+
+    // Call on window resize
     window.addEventListener('resize', updatePosition);
-    return () => window.removeEventListener('resize', updatePosition);
-  }, [containerRef]);
+
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [containerRef, speedDialOpen]);
 
   const [toolDialStyles, setToolDialStyles] = useState({
-    // position: 'fixed',
-    // bottom: '75px',
-    // right: '10%',
-    // margin: '0',
     zIndex: 1000,
-    // position: 'absolute',
     bottom: 50,
     right: 50,
   });
