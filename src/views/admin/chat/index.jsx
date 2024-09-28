@@ -84,6 +84,8 @@ export const MainChat = () => {
   const { messagesStartRef, messagesEndRef, chatContainerRef, handleScroll } =
     useChatScroll();
   const { scrollToBottom, setIsAtBottom } = useChatScroll();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   /* --- fn() to handle the focus of the chat input --- */
   useLayoutEffect(() => {
     if (promptsMenu.isOpen && sidebarItemRef.current) {
@@ -199,7 +201,7 @@ export const MainChat = () => {
   // if (!open) {
   //   return <CircularProgress />;
   // }
-
+  console.log('chatMessages', messages);
   return (
     <Box
       id="chat-view-container"
@@ -295,6 +297,11 @@ export const MainChat = () => {
                   ))}
                 </Box>
               )}
+              {isSubmitting && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                  <CircularProgress />
+                </Box>
+              )}
               {chatLoading && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
                   <CircularProgress />
@@ -307,6 +314,8 @@ export const MainChat = () => {
               onSend={handleSendMessage}
               isFirstMessage={isFirstMessageReceived}
               inputContent={userInput}
+              isSubmitting={isSubmitting}
+              setIsSubmitting={setIsSubmitting}
               onStop={handleStop}
               onRegenerate={handleRegenerateResponse}
               onChange={insertContentAndSync}

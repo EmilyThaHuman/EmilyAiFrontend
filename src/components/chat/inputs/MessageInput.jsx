@@ -21,7 +21,16 @@ import {
 import { ToolDial } from './ToolDial';
 
 export const MessageInput = React.memo(
-  ({ disabled, inputContent, onSend, onRegenerate, onChange, onStop }) => {
+  ({
+    disabled,
+    isSubmitting,
+    setIsSubmitting,
+    inputContent,
+    onSend,
+    onRegenerate,
+    onChange,
+    onStop,
+  }) => {
     const apiKeyDialog = useDialog();
     const chatStore = useChatStore();
     const { theme } = useMode();
@@ -52,8 +61,13 @@ export const MessageInput = React.memo(
       const content = editor.getText();
       editor.commands.clearContent();
 
-      await handleSendMessage(content);
-    }, [disabled, editor, handleSendMessage, apiKeyDialog]);
+      setIsSubmitting(true);
+      try {
+        await handleSendMessage(content);
+      } finally {
+        setIsSubmitting(false);
+      }
+    }, [disabled, editor, setIsSubmitting, apiKeyDialog, handleSendMessage]);
     const handleIconButtonClick = useCallback(async () => {
       if (!sessionStorage.getItem('apiKey')) {
         console.log('No API Key');
