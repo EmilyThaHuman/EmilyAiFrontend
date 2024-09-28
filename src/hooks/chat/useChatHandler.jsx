@@ -1,61 +1,67 @@
 /* eslint-disable no-constant-condition */
 import { createParser } from 'eventsource-parser';
 import { uniqueId } from 'lodash';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useChatStore, useUserStore } from 'contexts';
 import { cleanUpText, preprocessMarkdown, safeParse } from 'utils/format';
 import { useTipTapEditor } from './useTipTapEditor';
+const logError = (message, error) => {
+  console.error(`${message}:`, error);
+  toast.error(message);
+};
+function convertToMarkdown(jsonContent) {
+  if (
+    !jsonContent ||
+    typeof jsonContent !== 'object' ||
+    typeof jsonContent.content !== 'string'
+  ) {
+    console.error('Invalid input to convertToMarkdown:', jsonContent);
+    return ''; // Return an empty string or some default value
+  }
+  let markdown = jsonContent.content;
 
-function parseToMarkdown(jsonString) {
-  const data = JSON.parse(jsonString);
+  // Remove duplicate words and phrases
+  markdown = markdown.replace(/(\b\w+\b)\s+\1/g, '$1');
 
-  const { text, formatting, codeBlocks } = data.message.content;
+  // Remove extra backslashes and quotation marks
+  markdown = markdown.replace(/\\n/g, '\n').replace(/\\"/g, '"');
 
-  let markdownText = text;
+  // Remove extra spaces
+  markdown = markdown.replace(/\s+/g, ' ');
 
-  formatting.reverse().forEach(fmt => {
-    if (fmt.type === 'header') {
-      const headerMarker = '#'.repeat(fmt.level) + ' ';
-      markdownText =
-        markdownText.slice(0, fmt.start) +
-        headerMarker +
-        markdownText.slice(fmt.start, fmt.end) +
-        '\n' +
-        markdownText.slice(fmt.end);
-    } else if (fmt.type === 'bold') {
-      markdownText =
-        markdownText.slice(0, fmt.start) +
-        '**' +
-        markdownText.slice(fmt.start, fmt.end) +
-        '**' +
-        markdownText.slice(fmt.end);
-    }
+  // Fix code block syntax
+  markdown = markdown
+    .replace(/```jsx/g, '```jsx\n')
+    .replace(/```\n\n/g, '```\n');
+
+  // Fix headers
+  markdown = markdown.replace(/#+\s*([^#\n]+)/g, (match, p1) => {
+    const level = match.trim().split('#').length - 1;
+    return `${'#'.repeat(level)} ${p1.trim()}`;
   });
 
-  // Replace code blocks
-  codeBlocks.reverse().forEach(block => {
-    const codeBlock = `\`\`\`${block.language}\n${block.code}\n\`\`\``;
-    markdownText =
-      markdownText.slice(0, block.start) +
-      codeBlock +
-      markdownText.slice(block.end);
-  });
+  // Fix list items
+  markdown = markdown.replace(/(-\s*[^\n]+)/g, '\n$1');
 
-  return markdownText;
+  // Add newlines before and after code blocks
+  markdown = markdown.replace(/(```[^`]+```)/g, '\n$1\n');
+
+  // Remove any remaining backslashes
+  markdown = markdown.replace(/\\/g, '');
+
+  return markdown.trim();
 }
 export const useChatHandler = () => {
   const controllerRef = useRef(null);
 
   const {
     state: {
-      apiKey,
       userInput,
       sessionHeader,
       sessionId,
       workspaceId,
       isRegenerating,
-      workspaces,
       streamingMessageIndex,
       isStreaming,
       chatMessages,
@@ -68,23 +74,7 @@ export const useChatHandler = () => {
       setFirstMessageReceived,
       setStreamingMessageIndex,
       setIsStreaming,
-      createNewChatSession,
-      setSelectedChatSession,
-      setChatFileItems,
-      setFirstTokenReceived,
-      setChatFiles,
-      setChatImages,
-      setNewMessageFiles,
-      setNewMessageImages,
-      setShowFilesDisplay,
-      setIsPromptPickerOpen,
-      setIsFilePickerOpen,
-      setSelectedTools,
-      setToolInUse,
       setIsRegenerating,
-      setWorkspaces,
-      setSelectedWorkspace,
-      syncChatMessages,
       setChatMessages,
     },
   } = useChatStore();
@@ -93,96 +83,107 @@ export const useChatHandler = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [messageCount, setMessageCount] = useState(0); // Initialize message counter
+  const [messages, setMessages] = useState(chatMessages);
+  const [accumulatedData, setAccumulatedData] = useState('');
+
+  const [stream, setStream] = useState('');
   const initialMessagesRef = useRef([]);
+  const [isMessagesSync, setIsMessagesSync] = useState(true);
 
+  const callback = useCallback(
+    chunk => setStream(currStream => currStream + chunk),
+    []
+  );
+  const handleError = useCallback(error => {
+    console.error('Error:', error);
+    toast.error('An error occurred. Please try again.');
+    setError('An error occurred while processing your request.');
+  }, []);
+  const handleMessageStream = useCallback(
+    async stream => {
+      const reader = stream.getReader();
+      let assistantMessage = {
+        role: 'assistant',
+        content: '',
+        isStreaming: true,
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        setMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1].content += value;
+          return updated;
+        });
+      }
+    },
+    [setMessages]
+  );
   const { insertContentAndSync, clearInput } = useTipTapEditor(userInput);
-
   const fetchMessageStream = useCallback(async payload => {
-    const response = await fetch('http://localhost:3001/api/chat/v1/stream', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`,
-      },
-      body: JSON.stringify(payload),
-      signal: payload.signal,
-    });
+    try {
+      console.log('Fetching message stream with payload:', payload);
+      const response = await fetch('http://localhost:3001/api/chat/v1/stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
-    if (!response.ok) {
-      const result = await response.text();
-      throw new Error(`API error: ${result}`);
-    }
+      if (!response.ok) {
+        throw new Error(`API error: ${await response.text()}`);
+      }
 
-    return new ReadableStream({
-      async start(controller) {
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-
-          const lines = buffer.split('\n');
-          buffer = lines.pop();
-
-          for (const line of lines) {
-            if (line.trim() === 'data: [DONE]') {
-              controller.close();
-              return;
-            }
-            if (line.startsWith('data: ')) {
-              try {
-                const jsonData = JSON.parse(line.slice(6));
-                if (jsonData.type === 'markdown' && jsonData.content) {
-                  controller.enqueue({ content: jsonData.content });
+      return response.body.pipeThrough(new TextDecoderStream()).pipeThrough(
+        new TransformStream({
+          transform(chunk, controller) {
+            chunk.split('\n').forEach(line => {
+              if (line.startsWith('data: ')) {
+                const jsonString = line.slice(6);
+                try {
+                  const jsonData = JSON.parse(jsonString);
+                  console.log('Received JSON data:', jsonData);
+                  if (jsonData.content) {
+                    controller.enqueue(jsonData.content);
+                  }
+                } catch (error) {
+                  console.log('Accumulating data:', jsonString);
+                  // If it's not valid JSON, enqueue it as is
+                  controller.enqueue(jsonString);
                 }
-              } catch (error) {
-                console.error('Error parsing chunk:', error);
               }
-            }
-          }
-        }
-
-        if (buffer.trim()) {
-          try {
-            const jsonData = JSON.parse(buffer.slice(6));
-            if (jsonData.type === 'markdown' && jsonData.content) {
-              controller.enqueue({ content: jsonData.content });
-            }
-          } catch (error) {
-            console.error('Error parsing final buffer:', error);
-          }
-        }
-
-        controller.close();
-      },
-    });
+            });
+          },
+        })
+      );
+    } catch (error) {
+      logError('Error fetching message stream', error);
+      throw error;
+    }
   }, []);
 
   const handleSendMessage = useCallback(
     async content => {
       if (!userId) {
-        setError('Please login to continue');
-        toast.error('Please login to continue');
+        logError('Please login to continue', new Error('User not logged in'));
         return;
       }
 
       if (!content.trim()) {
-        setError('Please enter your message.');
-        toast.error('Please enter your message.');
+        logError('Please enter your message', new Error('Empty message'));
         return;
       }
 
-      setError('');
       setLoading(true);
       setIsStreaming(true);
 
       const userMessage = { role: 'user', content: content.trim() };
       const initialMessages = [...chatMessages, userMessage];
-      setChatMessages(initialMessages);
+      setMessages(initialMessages);
 
       if (controllerRef.current) {
         controllerRef.current.abort();
@@ -207,84 +208,97 @@ export const useChatHandler = () => {
 
       clearInput();
 
-      let currentMessages = [...initialMessages];
-
-      // let assistantMessage = {
-      //   role: 'assistant',
-      //   content: '',
-      //   isStreaming: true,
-      // };
-
-      // let currentMessages = [...initialMessages, assistantMessage];
-      // const assistantMessageIndex = currentMessages.length - 1;
-      // setChatMessages(currentMessages);
-      // setStreamingMessageIndex(assistantMessageIndex);
-
       try {
+        console.log('Sending message with payload:', payload);
         const stream = await fetchMessageStream(payload);
         const reader = stream.getReader();
 
-        let accumulatedContent = '';
-        let assistantMessageIndex = null; // Delay assistant message addition
+        let assistantMessage = {
+          role: 'assistant',
+          content: '',
+          isStreaming: true,
+        };
+
+        setMessages(prev => [...prev, assistantMessage]);
 
         while (true) {
+          console.log('Entered while loop');
           const { done, value } = await reader.read();
           if (done) break;
 
-          if (value && value.content) {
-            accumulatedContent += value.content;
-
-            if (assistantMessageIndex === null) {
-              let assistantMessage = {
-                role: 'assistant',
-                content: '',
-                isStreaming: true,
-              };
-              currentMessages = [...currentMessages, assistantMessage];
-              assistantMessageIndex = currentMessages.length - 1;
-              setStreamingMessageIndex(assistantMessageIndex);
+          console.log('Received stream chunk:', value);
+          setAccumulatedData(prev => prev + value);
+          try {
+            const jsonData = JSON.parse(accumulatedData);
+            if (jsonData && jsonData.content) {
+              setMessages(prev => {
+                const updated = [...prev];
+                const lastMessage = updated[updated.length - 1];
+                lastMessage.content = jsonData.content;
+                return updated;
+              });
+              setAccumulatedData('');
             }
-
-            const updatedMessages = [...currentMessages];
-            updatedMessages[assistantMessageIndex] = {
-              ...updatedMessages[assistantMessageIndex],
-              content: accumulatedContent,
-              isStreaming: true,
-            };
-
-            setChatMessages(updatedMessages);
+          } catch (parseError) {
+            // If it's not valid JSON yet, continue accumulating
+            console.log('Accumulating data:', accumulatedData);
+          }
+          // setMessages(prev => {
+          //   const updated = [...prev];
+          //   const lastMessage = updated[updated.length - 1];
+          //   if (value && typeof value === 'object') {
+          //     lastMessage.content = convertToMarkdown(value);
+          //   } else {
+          //     console.error('Received invalid value:', value);
+          //     lastMessage.content = 'Error: Received invalid data';
+          //   }
+          //   return updated;
+          // });
+          // setMessages(prev => {
+          //   const updated = [...prev];
+          //   updated[updated.length - 1].content += value;
+          //   return updated;
+          // });
+        }
+        // Handle any remaining data
+        if (accumulatedData) {
+          try {
+            const jsonData = JSON.parse(accumulatedData);
+            if (jsonData && jsonData.content) {
+              setMessages(prev => {
+                const updated = [...prev];
+                const lastMessage = updated[updated.length - 1];
+                lastMessage.content = jsonData.content;
+                return updated;
+              });
+            }
+          } catch (parseError) {
+            console.error('Error parsing final accumulated data:', parseError);
           }
         }
 
-        // Finalize the assistant message when streaming is complete
-        if (assistantMessageIndex !== null) {
-          const finalMessages = [...currentMessages];
-          finalMessages[assistantMessageIndex] = {
-            ...finalMessages[assistantMessageIndex],
-            content: parseToMarkdown(
-              finalMessages[assistantMessageIndex].content
-            ),
-            isStreaming: false,
-          };
-          setChatMessages(finalMessages);
-        }
+        setMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1].isStreaming = false;
+          return updated;
+        });
+        setIsMessagesSync(false);
+        console.log('Message stream completed successfully');
       } catch (error) {
         if (controllerRef.current.signal.aborted) {
-          toast.error('Request aborted');
+          logError('Request aborted', error);
         } else {
-          console.error('Error:', error);
-          toast.error('An error occurred while sending the message.');
-          setError('An error occurred while sending the message.');
+          logError('An error occurred while sending the message', error);
         }
       } finally {
         setIsStreaming(false);
         setLoading(false);
         setMessageCount(prev => prev + 1);
-        setIsMessagesUpdated(false);
       }
     },
     [
       userId,
+      setIsStreaming,
       chatMessages,
       sessionId,
       workspaceId,
@@ -292,15 +306,15 @@ export const useChatHandler = () => {
       messageCount,
       clearInput,
       fetchMessageStream,
-      setChatMessages,
-      setError,
-      setIsMessagesUpdated,
-      setIsStreaming,
-      setLoading,
-      setMessageCount,
-      setStreamingMessageIndex,
     ]
   );
+  useEffect(() => {
+    if (!isMessagesSync) {
+      // setMessages(prevMessages => [...prevMessages, newMessage]);
+      setChatMessages(messages);
+      setIsMessagesSync(true);
+    }
+  }, [isMessagesSync, messages, setChatMessages]);
 
   const handleRegenerateResponse = useCallback(async () => {
     setIsRegenerating(true);
@@ -319,6 +333,14 @@ export const useChatHandler = () => {
     if (controllerRef.current) controllerRef.current.abort();
     setIsStreaming(false);
   }, [setIsStreaming]);
+
+  useEffect(() => {
+    return () => {
+      if (controllerRef.current) {
+        controllerRef.current.abort();
+      }
+    };
+  }, []);
 
   return useMemo(
     () => ({
@@ -888,7 +910,7 @@ export default useChatHandler;
 //     // return new ReadableStream({
 //     //   async start(controller) {
 //     //     const parser = createParser(event => {
-//     //       if (event.type === 'event') {
+//     //       if (event.tyFpe === 'event') {
 //     //         const data = event.data;
 //     //         if (data === '[DONE]') {
 //     //           controller.close();

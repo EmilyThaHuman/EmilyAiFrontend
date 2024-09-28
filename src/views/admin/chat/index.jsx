@@ -10,7 +10,6 @@ import {
   Paper,
   useMediaQuery,
 } from '@mui/material';
-import { debounce } from 'lodash';
 import React, {
   useCallback,
   useEffect,
@@ -43,6 +42,7 @@ export const MainChat = () => {
   const { params } = useParams(); // Extract the dynamic 'id' parameter from the URL
   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Check if the screen size is mobile
   const [marginLeft, setMarginLeft] = useState(isMobile ? '0px' : '50px');
+
   useEffect(() => {
     setMarginLeft(isMobile ? '0px' : '50px');
   }, [isMobile, isSidebarOpen]);
@@ -84,6 +84,8 @@ export const MainChat = () => {
   const { messagesStartRef, messagesEndRef, chatContainerRef, handleScroll } =
     useChatScroll();
   const { scrollToBottom, setIsAtBottom } = useChatScroll();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   /* --- fn() to handle the focus of the chat input --- */
   useLayoutEffect(() => {
     if (promptsMenu.isOpen && sidebarItemRef.current) {
@@ -152,18 +154,7 @@ export const MainChat = () => {
       }
     };
   }, [controllerRef]);
-  // const submitMessage = useCallback(
-  //   async content => {
-  //     if (content.trim()) {
-  //       setChatMessages(prevMessages => [
-  //         ...prevMessages,
-  //         { role: 'user', content: content.trim() },
-  //       ]);
-  //       await handleSendMessage(content.trim());
-  //     }
-  //   },
-  //   [setChatMessages, handleSendMessage]
-  // );
+
   const handleUpdateMessages = useCallback(() => {
     const combinedMessages = [...chatMessages];
     const organizedMessages = organizeMessages(combinedMessages);
@@ -210,7 +201,7 @@ export const MainChat = () => {
   // if (!open) {
   //   return <CircularProgress />;
   // }
-
+  console.log('chatMessages', messages);
   return (
     <Box
       id="chat-view-container"
@@ -306,6 +297,11 @@ export const MainChat = () => {
                   ))}
                 </Box>
               )}
+              {isSubmitting && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                  <CircularProgress />
+                </Box>
+              )}
               {chatLoading && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
                   <CircularProgress />
@@ -318,6 +314,8 @@ export const MainChat = () => {
               onSend={handleSendMessage}
               isFirstMessage={isFirstMessageReceived}
               inputContent={userInput}
+              isSubmitting={isSubmitting}
+              setIsSubmitting={setIsSubmitting}
               onStop={handleStop}
               onRegenerate={handleRegenerateResponse}
               onChange={insertContentAndSync}

@@ -14,11 +14,11 @@ import { useUserStore } from 'contexts/UserProvider';
 import { useMode } from 'hooks';
 
 export const ApiModal = ({
-  open,
-  onClose,
-  inputCode,
-  onInputChange,
-  onSubmit,
+  open = false,
+  inputCode = '',
+  onClose = () => {},
+  onInputChange = () => {},
+  onSubmit = () => {},
 }) => {
   const { theme } = useMode();
   const {

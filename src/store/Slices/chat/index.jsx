@@ -63,6 +63,7 @@ import chatSessionReducer, {
   setSyncStatus,
   setUserInput,
   syncChatMessages,
+  getChatMessages,
 } from './chatSessionSlice';
 import collectionReducer, { setCollections } from './collectionSlice';
 import fileReducer, {
@@ -142,6 +143,7 @@ export {
   retrieveRun,
   setAbortController,
   setApiKey,
+  getChatMessages,
   setAssistantImages,
   setAssistants,
   setAtCommand,

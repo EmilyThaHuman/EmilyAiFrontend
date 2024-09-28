@@ -47,11 +47,13 @@ const StyledInfoPanel = styled(Box)(({ theme }) => ({
   width: 280,
   zIndex: 1500, // Ensure it is above the dialog
 }));
-const LoadingSpinner = () => (
+const LoadingSpinner = memo(() => (
   <LoadingOverlay>
     <CircularProgress />
   </LoadingOverlay>
-);
+));
+LoadingSpinner.displayName = 'LoadingSpinner';
+
 const GuestInfoPanel = memo(() => {
   const { theme } = useMode();
   return (
