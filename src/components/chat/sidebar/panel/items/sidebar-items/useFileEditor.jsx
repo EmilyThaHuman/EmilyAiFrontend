@@ -34,7 +34,6 @@ export const useFileEditor = () => {
   };
 
   const hoverFile = file => {
-    console.log('hovered file:', file);
     setHoveredItem(file); // Update the hovered file
   };
 

@@ -5,6 +5,7 @@
   "main": "src/index.jsx",
   "type": "module",
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.63",
     "@codemirror/autocomplete": "^6.18.0",
     "@codemirror/lang-javascript": "^6.2.2",
     "@codemirror/language": "^6.10.2",
@@ -77,6 +78,7 @@
     "@uiw/codemirror-theme-tokyo-night": "^4.22.2",
     "@uiw/react-codemirror": "^4.22.2",
     "@vitejs/plugin-react": "^4.3.1",
+    "ai": "^3.4.7",
     "apexcharts": "^3.49.1",
     "axios": "^1.7.3",
     "base64-js": "^1.5.1",

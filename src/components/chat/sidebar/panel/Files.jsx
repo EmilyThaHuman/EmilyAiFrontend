@@ -1,5 +1,6 @@
 import { Box } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
+import { SidebarPanelContainer } from 'components/chat/styled';
 import { RCTabs } from 'components/themed';
 import { useTabManager } from 'hooks/chat/useTabManager';
 import { EditFile, FileInfo, FileUpsert, useFileEditor } from './items';
@@ -126,7 +127,7 @@ export const Files = props => {
         variant="darkMode"
       />
       <Box mt={2} display="flex" alignItems="center">
-        {renderContent()}
+        <SidebarPanelContainer>{renderContent()}</SidebarPanelContainer>
       </Box>
     </>
   );

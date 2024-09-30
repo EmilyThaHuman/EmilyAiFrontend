@@ -114,6 +114,22 @@ export const AuthPages = () => {
     },
     onSubmit: handleSubmit,
   });
+  const ICON_STYLES = {
+    borderRadius: `${theme.spacing(8)} !important`,
+    borderColor: theme.palette.text.outline,
+    color: theme.palette.text.secondary,
+    '& svg': {
+      color: theme.palette.text.secondary,
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.primary?.main,
+      borderRadius: `${theme.spacing(12)} !important`,
+      borderColor: theme.palette.text.tertiary,
+      '& svg': {
+        color: theme.palette.info.contrastText,
+      },
+    },
+  };
 
   const pageRef = React.createRef();
   const formRef = React.createRef();
@@ -139,6 +155,9 @@ export const AuthPages = () => {
           onChange={formik.handleChange}
           fullWidth={field.fullWidth}
           margin={field.margin}
+          InputLabelProps={{
+            shrink: Boolean(formik.values[field.name]),
+          }}
           sx={{
             backgroundColor: formik.values[field.name]
               ? 'transparent'
@@ -223,18 +242,7 @@ export const AuthPages = () => {
                   variant="body1"
                   color="white"
                 >
-                  <StyledIconContainer
-                    theme={theme}
-                    sx={{
-                      borderRadius: `${theme.spacing(8)} !important`,
-                      '&:hover': {
-                        backgroundColor: theme.palette.primary?.main,
-                        '& svg': {
-                          color: theme.palette.info.contrastText,
-                        },
-                      },
-                    }}
-                  >
+                  <StyledIconContainer theme={theme} sx={ICON_STYLES}>
                     <FacebookIcon color="white" fontSize="inherit" />
                   </StyledIconContainer>
                 </RCTypography>
@@ -246,18 +254,7 @@ export const AuthPages = () => {
                   variant="body1"
                   color="white"
                 >
-                  <StyledIconContainer
-                    theme={theme}
-                    sx={{
-                      borderRadius: `${theme.spacing(8)} !important`,
-                      '&:hover': {
-                        backgroundColor: theme.palette.primary.main,
-                        '& svg': {
-                          color: theme.palette.info.contrastText,
-                        },
-                      },
-                    }}
-                  >
+                  <StyledIconContainer theme={theme} sx={ICON_STYLES}>
                     <GitHubIcon color="white" fontSize="inherit" />
                   </StyledIconContainer>
                 </RCTypography>
@@ -269,18 +266,7 @@ export const AuthPages = () => {
                   variant="body1"
                   color="white"
                 >
-                  <StyledIconContainer
-                    theme={theme}
-                    sx={{
-                      borderRadius: `${theme.spacing(8)} !important`,
-                      '&:hover': {
-                        backgroundColor: theme.palette.primary.main,
-                        '& svg': {
-                          color: theme.palette.info.contrastText,
-                        },
-                      },
-                    }}
-                  >
+                  <StyledIconContainer theme={theme} sx={ICON_STYLES}>
                     <GoogleIcon color="white" />
                   </StyledIconContainer>
                 </RCTypography>

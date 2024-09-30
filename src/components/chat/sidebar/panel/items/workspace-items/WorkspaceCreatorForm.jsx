@@ -133,6 +133,7 @@ export const WorkspaceCreatorForm = () => {
         flexDirection: 'column',
         width: '100%',
         justifyContent: 'space-between',
+        padding: '1rem',
       }}
     >
       <TextFieldSection

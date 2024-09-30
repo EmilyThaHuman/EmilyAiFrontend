@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { FileTreeItem } from './FileTreeItem';
+import { uniqueId } from 'lodash';
 
 export const FileTree = props => {
   const {
@@ -48,7 +49,7 @@ export const FileTree = props => {
                 (item, index) =>
                   item && (
                     <FileTreeItem
-                      key={item.id}
+                      key={uniqueId('file_')}
                       item={item}
                       index={index}
                       path={`${parentPath}${parentPath ? '.' : ''}${index}`}

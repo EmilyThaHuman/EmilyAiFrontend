@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FaUser } from 'react-icons/fa';
 import { AiIcon } from 'assets/humanIcons';
 import { useMode } from 'hooks';
+import { convertToMarkdown } from 'utils/format';
 import { ChatBubbleAvatarWrapper } from '../styled';
 import MessageOptions from './MessageOptions';
 import RenderContent from './RenderContent';
@@ -51,6 +52,7 @@ export const ChatBubble = ({ message, sender }) => {
         <div className={`message-content-${sender}`}>
           <RenderContent
             content={message.content}
+            // content={convertToMarkdown(message.content)}
             maxWidth={maxWidth}
             sender={sender}
           />

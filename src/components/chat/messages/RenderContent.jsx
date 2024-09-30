@@ -7,6 +7,7 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import gfm from 'remark-gfm';
+import { DashboardIcon } from 'assets/humanIcons';
 import { RCDialog } from 'components/themed';
 
 export function SaveSnippetDialog({
@@ -85,9 +86,16 @@ export const RenderContent = ({ content, sender, maxWidth }) => {
     }
   }, []);
 
+  const handlePreviewCode = (code, language) => {
+    console.log('Previewing code:', code, 'Language:', language);
+    setCurrentCode(code);
+    setCurrentLanguage(language === 'jsx' ? 'javascript' : language);
+    setOpenDialog(true);
+  };
+
   const handleOpenDialog = (code, language) => {
     setCurrentCode(code);
-    setCurrentLanguage(language);
+    setCurrentLanguage(language === 'jsx' ? 'javascript' : language);
     setOpenDialog(true);
   };
 
@@ -102,8 +110,9 @@ export const RenderContent = ({ content, sender, maxWidth }) => {
       return;
     }
     const newSnippet = {
+      filename: snippetName,
       name: snippetName,
-      code: currentCode,
+      content: currentCode,
       language: currentLanguage,
     };
     const updatedSnippets = [...snippets, newSnippet];
@@ -156,6 +165,12 @@ export const RenderContent = ({ content, sender, maxWidth }) => {
             {match[1]}
           </Typography>
           <Box>
+            <IconButton
+              size="small"
+              onClick={() => handlePreviewCode(value, match[1])}
+            >
+              <DashboardIcon />
+            </IconButton>
             <IconButton
               size="small"
               onClick={() => handleOpenDialog(value, match[1])}

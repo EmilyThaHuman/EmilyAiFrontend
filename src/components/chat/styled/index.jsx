@@ -125,6 +125,21 @@ export const PanelContainer = styled(Box)(({ theme }) => ({
   borderRadius: '8px',
   // border: '1px solid rgba(255, 255, 255, 0.12)',
 }));
+export const SidebarPanelContainer = ({ children }) => {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        justifyContent: 'space-between',
+        padding: '1rem',
+      }}
+    >
+      {children}
+    </Box>
+  );
+};
 export const AnimatedList = styled(motion.ul)({
   listStyle: 'none',
   padding: 0,

@@ -43,7 +43,7 @@ export const MessageInput = React.memo(
       setNewMessageContentToNextUserMessage,
       setNewMessageContentToPreviousUserMessage,
     } = useChatHistoryHandler();
-    const { editor } = useTipTapEditor(
+    const { editor, insertContentAndSync } = useTipTapEditor(
       isFirstMessage ? 'begin session' : 'continue session'
     );
     const { handleSendMessage } = useChatHandler();
@@ -59,6 +59,7 @@ export const MessageInput = React.memo(
       }
 
       const content = editor.getText();
+      insertContentAndSync(content);
       editor.commands.clearContent();
 
       setIsSubmitting(true);
@@ -68,17 +69,22 @@ export const MessageInput = React.memo(
         setIsSubmitting(false);
       }
     }, [disabled, editor, setIsSubmitting, apiKeyDialog, handleSendMessage]);
-    const handleIconButtonClick = useCallback(async () => {
-      if (!sessionStorage.getItem('apiKey')) {
-        console.log('No API Key');
-        apiKeyDialog.handleOpen();
-      } else if (disabled) {
-        console.log('Already Sending');
-      } else {
-        console.log('Sending');
-        await handleSendMessageWrapper();
-      }
-    }, [apiKeyDialog, disabled, handleSendMessageWrapper]);
+
+    const handleIconButtonClick = useCallback(
+      async e => {
+        if (!sessionStorage.getItem('apiKey')) {
+          console.log('No API Key');
+          apiKeyDialog.handleOpen();
+        } else if (disabled) {
+          console.log('Already Sending');
+        } else {
+          console.log('Sending');
+          setIsSubmitting(true);
+          await handleSendMessageWrapper();
+        }
+      },
+      [apiKeyDialog, disabled, handleSendMessageWrapper, setIsSubmitting]
+    );
 
     return (
       <Card

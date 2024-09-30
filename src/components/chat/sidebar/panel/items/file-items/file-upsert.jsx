@@ -1,7 +1,13 @@
 import { Box, Card, Divider, MenuItem, TextField } from '@mui/material';
 import { useState } from 'react';
 import { attachmentsApi } from 'api/Ai/chat-sessions';
-import { TextAreaAutosizeSection, TextFieldSection } from 'components/themed';
+import { StyledButton } from 'components/chat/styled';
+import {
+  RCSelect,
+  SelectFieldSection,
+  TextAreaAutosizeSection,
+  TextFieldSection,
+} from 'components/themed';
 import { useUserStore } from 'contexts/UserProvider';
 
 export function FileUpsert() {
@@ -35,6 +41,7 @@ export function FileUpsert() {
         url,
         library,
         description,
+        userId: sessionStorage.getItem('userId'),
         workspaceId: sessionStorage.getItem('workspaceId'),
         folderId: fileFolder._id,
       });
@@ -47,14 +54,7 @@ export function FileUpsert() {
   };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        justifyContent: 'space-between',
-      }}
-    >
+    <>
       <div className="UpsertDocsForm">
         <h2>Upsert Documentation</h2>
         <form onSubmit={handleSubmit}>
@@ -67,21 +67,15 @@ export function FileUpsert() {
             fullWidth
           />
           <Divider sx={{ my: 2 }} />
-          <TextField
-            select
-            label="Library"
+          <SelectFieldSection
             value={library}
             onChange={e => setLibrary(e.target.value)}
-            variant="outlined"
-            fullWidth
+            label="Library"
+            placeholder="Select a library"
+            options={reactUILibraries}
+            variant="textfield"
             sx={{ mb: 2 }}
-          >
-            {reactUILibraries.map(option => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </TextField>
+          />
           <Divider sx={{ my: 2 }} />
           <TextAreaAutosizeSection
             label="File Content"
@@ -93,11 +87,13 @@ export function FileUpsert() {
             onChange={e => setDescription(e.target.value)}
           />
           <Divider sx={{ my: 2 }} />
-          <button type="submit">Submit</button>
+          <StyledButton variant="outlined" type="submit">
+            Submit
+          </StyledButton>
         </form>
       </div>
       {message && <p>{message}</p>}
-    </Box>
+    </>
   );
 }
 

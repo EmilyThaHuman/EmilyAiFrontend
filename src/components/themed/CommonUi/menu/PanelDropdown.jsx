@@ -1,13 +1,10 @@
 import { Box, MenuItem, Typography } from '@mui/material';
 import React from 'react';
-import {
-  RCListBox,
-  RCOption,
-  RCPopup,
-  RCSelect,
-  RCSelectRoot,
-} from 'components/themed/HumanUi';
-
+import { RCListBox } from 'components/themed/HumanUi/REVIEW/RCSelect/RCListBox';
+import { RCOption } from 'components/themed/HumanUi/REVIEW/RCSelect/RCOption';
+import { RCPopup } from 'components/themed/HumanUi/REVIEW/RCSelect/RCPopup';
+import { RCSelect } from 'components/themed/HumanUi/REVIEW/RCSelect';
+import { RCSelectRoot } from 'components/themed/HumanUi/REVIEW/RCSelect/RCSelectRoot';
 const DropdownDisplay = ({
   label,
   items,

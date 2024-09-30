@@ -412,7 +412,7 @@ export const handleDocxFile = async (file, editor) => {
 };
 
 export const FileIcon = ({ type, size = 32, iconColor = '#BDBDBD' }) => {
-  if (type.includes('image')) {
+  if (type.includes('image' || 'png' || 'jpg' || 'jpeg')) {
     return <FaFileImage size={size} color={iconColor} />;
   } else if (type.includes('pdf')) {
     return <FaFilePdf size={size} color={iconColor} />;
@@ -426,8 +426,10 @@ export const FileIcon = ({ type, size = 32, iconColor = '#BDBDBD' }) => {
     return <FaFileCode size={size} color={iconColor} />;
   } else if (type.includes('markdown')) {
     return <FaRegFile size={size} color={iconColor} />;
+  } else if (type.includes('javascript' || 'js' || 'jsx' || 'ts' || 'tsx')) {
+    return <FaFileCode size={size} color={iconColor} />;
   } else if (type.includes('txt')) {
-    return <FaRegFile size={size} color={iconColor} />;
+    return <FaFileAlt size={size} color={iconColor} />;
   } else {
     return <FaFile size={size} />;
   }

@@ -47,6 +47,7 @@ export const AdminLayout = props => {
   const params = useParams();
   const chatBotRoute =
     location.pathname.includes(`/admin/workspaces`) ||
+    location.pathname.includes(`/admin/codeEditor`) ||
     location.pathname.includes(`/admin/workspaces/${params.workspaceId}`) ||
     location.pathname.includes(
       `/admin/workspaces/${params.workspaceId}/chat`

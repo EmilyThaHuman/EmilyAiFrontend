@@ -9,6 +9,7 @@ export const WorkspaceFolders = ({ folders }) => {
         flexDirection: 'column',
         width: '100%',
         justifyContent: 'space-between',
+        // padding: '1rem',
       }}
     >
       <Box sx={{ mt: 2 }}>

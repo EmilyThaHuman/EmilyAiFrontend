@@ -42,6 +42,7 @@ export const RCButton = React.forwardRef(
       variant = 'outlined',
       textSizeVariant = 'button',
       textWeightVariant = 'regular',
+      // colorVariant = 'darkMode',
       size = 'medium',
       circular = false,
       iconOnly = false,
@@ -55,9 +56,8 @@ export const RCButton = React.forwardRef(
     const { theme } = useMode();
     const ButtonContent = (
       <RCButtonRoot
-        {...rest}
         ref={ref}
-        color="primary.main"
+        color="primary"
         variant={variant === 'gradient' ? 'contained' : variant}
         size={size}
         theme={theme}
@@ -70,7 +70,9 @@ export const RCButton = React.forwardRef(
           darkMode,
           textSizeVariant,
           textWeightVariant,
+          // colorVariant,
         }}
+        {...rest}
       >
         {children}
       </RCButtonRoot>
@@ -99,6 +101,7 @@ RCButton.propTypes = {
   ]),
   textSizeVariant: PropTypes.oneOf(['button', 'body', 'default', 'header']),
   textWeightVariant: PropTypes.oneOf(['regular', 'bold']),
+  colorVariant: PropTypes.oneOf(['standard', 'darkMode']),
   color: PropTypes.oneOf([
     'white',
     'primary',

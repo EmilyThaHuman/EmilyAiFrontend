@@ -1,6 +1,109 @@
 /* eslint-disable no-case-declarations */
 
 import { Typography } from '@mui/material';
+export function convertToMarkdown(content) {
+  if (!content.includes('<')) {
+    return content;
+  }
+
+  // Split the content into code blocks and non-code blocks
+  const blocks = content.split(/(<pre><code>[\s\S]*?<\/code><\/pre>)/);
+
+  const convertedBlocks = blocks.map((block, index) => {
+    // If it's an odd index, it's a code block, so we leave it as is
+    if (index % 2 !== 0) {
+      return block.replace(
+        /<pre><code>([\s\S]*?)<\/code><\/pre>/g,
+        '```jsx\n$1\n```\n\n'
+      );
+    }
+
+    // For non-code blocks, apply the conversions
+    return block
+      .replace(/<h1>(.*?)<\/h1>/g, '# $1\n\n')
+      .replace(/<h2>(.*?)<\/h2>/g, '## $1\n\n')
+      .replace(/<p>(.*?)<\/p>/g, '$1\n\n')
+      .replace(/<strong>(.*?)<\/strong>/g, '**$1**')
+      .replace(/<em>(.*?)<\/em>/g, '*$1*')
+      .replace(/<code>(.*?)<\/code>/g, '`$1`')
+      .replace(/<a href="(.*?)">(.*?)<\/a>/g, '[$2]($1)')
+      .replace(/<ul>([\s\S]*?)<\/ul>/g, (match, p1) => {
+        return p1.replace(/<li>(.*?)<\/li>/g, '- $1\n');
+      })
+      .replace(/<ol>([\s\S]*?)<\/ol>/g, (match, p1) => {
+        let counter = 1;
+        return p1.replace(/<li>(.*?)<\/li>/g, () => `${counter++}. $1\n`);
+      })
+      .replace(/<[^>]+>/g, ''); // Remove any remaining HTML tags
+  });
+
+  // Join the blocks back together
+  let markdown = convertedBlocks.join('');
+
+  // Trim extra whitespace and newlines
+  markdown = markdown.trim().replace(/\n{3,}/g, '\n\n');
+
+  return markdown;
+}
+
+export function convertHtmlToMarkdown(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  let markdown = '';
+
+  const traverse = node => {
+    switch (node.nodeType) {
+      case Node.ELEMENT_NODE:
+        const element = node;
+        switch (element.tagName.toLowerCase()) {
+          case 'b':
+          case 'strong':
+            markdown += '**';
+            break;
+          case 'i':
+          case 'em':
+            markdown += '_';
+            break;
+          case 'code':
+            markdown += '`';
+            break;
+          case 'pre':
+            markdown += '```';
+            break;
+        }
+        for (const child of element.childNodes) {
+          traverse(child);
+        }
+        switch (element.tagName.toLowerCase()) {
+          case 'b':
+          case 'strong':
+            markdown += '**';
+            break;
+          case 'i':
+          case 'em':
+            markdown += '_';
+            break;
+          case 'code':
+            markdown += '`';
+            break;
+          case 'pre':
+            markdown += '```';
+            break;
+        }
+        break;
+      case Node.TEXT_NODE:
+        markdown += element.nodeValue.replace(/\n/g, ' ');
+        break;
+    }
+  };
+
+  for (const child of doc.body.childNodes) {
+    traverse(child);
+  }
+
+  return markdown.trim();
+}
 export function extractCodeSnippets(data) {
   const codeRegex = /`([^`]+)`/g;
   const snippets = [];

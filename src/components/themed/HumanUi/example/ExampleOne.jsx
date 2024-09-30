@@ -1,6 +1,6 @@
 import React from 'react';
-import RCSelect from '../RCSelect';
-import RCOption from '../RCSelect/RCOption';
+import RCSelect from '../REVIEW/RCSelect';
+import RCOption from '../REVIEW/RCSelect/RCOption';
 
 export const ExampleOne = () => {
   const options = [10, 20, 30];

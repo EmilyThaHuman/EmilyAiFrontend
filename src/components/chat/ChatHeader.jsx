@@ -6,9 +6,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
-  Drawer,
   IconButton,
   InputAdornment,
   Menu,
@@ -30,8 +28,8 @@ import {
   SaveIcon,
   ShareIcon,
 } from 'assets/humanIcons';
-import { useChatStore, useUserStore } from 'contexts';
-import { useChatHandler, useDialog, useMenu, useMode } from 'hooks';
+import { useChatStore } from 'contexts';
+import { useDialog, useMenu, useMode } from 'hooks';
 import { extractPaths, findBreadcrumbs } from 'utils/navigation';
 import { PresetSelect } from './sidebar/panel';
 import RagChatBotSettingsDialog from './sidebar/panel/items/chat-items/chat-session-settings-dialog';

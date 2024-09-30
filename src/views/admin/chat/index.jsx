@@ -198,10 +198,10 @@ export const MainChat = () => {
   //   }
   // }, [chatMessages, chatLoading, chatStreaming, handleUpdateMessages]);
 
-  // if (!open) {
-  //   return <CircularProgress />;
-  // }
-  console.log('chatMessages', messages);
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView();
+  }, [messages]);
+
   return (
     <Box
       id="chat-view-container"

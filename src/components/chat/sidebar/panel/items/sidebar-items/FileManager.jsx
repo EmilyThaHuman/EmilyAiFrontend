@@ -115,6 +115,7 @@ export const FileManagementSidebar = props => {
           fileNameError={fileManagement.fileNameError}
           handleCreateNewFile={fileManagement.handleCreateNewFile}
           fileToUpload={fileManagement.fileToUpload}
+          space={space}
         />
         <NewFolderDialog
           newFolderDialog={newFolderDialog}
@@ -126,6 +127,7 @@ export const FileManagementSidebar = props => {
           handleNewFolderNameChange={fileManagement.handleNewFolderNameChange}
           folderNameError={fileManagement.folderNameError}
           handleCreateNewFolder={fileManagement.handleCreateNewFolder}
+          space={space}
         />
       </SidebarManagerContainer>
     </DndProvider>

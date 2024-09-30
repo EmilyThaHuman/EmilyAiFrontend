@@ -1,18 +1,27 @@
-import { Box, Button, FormControl, MenuItem, Select } from '@mui/material';
+import {
+  Box,
+  Button,
+  Divider,
+  FormControl,
+  MenuItem,
+  Select,
+} from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { PanelContainer } from 'components/chat/styled';
+import { PanelContainer, StyledButton } from 'components/chat/styled';
 import {
   FormSection,
   FormSectionLabel,
-  RCFileInputButton,
   ReusableSwitchControl,
+  SelectFieldSection,
   SliderFieldSection,
   TextAreaAutosizeSection,
   TextFieldSection,
 } from 'components/themed';
 import { useChatStore } from 'contexts/ChatProvider';
+import { useMode } from 'hooks/app';
 
 export const AssistantDisplay = props => {
+  const { theme } = useMode();
   const {
     state: { assistants, selectedAssistant, modelNames },
     actions: { deleteAssistant, setSelectedAssistant, createAssistant },
@@ -41,7 +50,6 @@ export const AssistantDisplay = props => {
   const [formObject, setFormObject] = useState(initialFormObject);
 
   useEffect(() => {
-    // Sync formObject with selectedAssistant when selectedAssistant changes
     setFormObject({
       name: selectedAssistant?.name || '',
       role: selectedAssistant?.role || '',
@@ -72,7 +80,6 @@ export const AssistantDisplay = props => {
   };
 
   const handleSubmit = async () => {
-    // Update the assistant in the store only when the form is submitted
     createAssistant(formObject);
   };
 
@@ -102,9 +109,26 @@ export const AssistantDisplay = props => {
           value={formObject.instructions}
           onChange={handleChange}
         />
-
-        <FormSectionLabel label="Model Name" />
-        <FormControl fullWidth>
+        <Divider sx={{ my: 2 }} />
+        <SelectFieldSection
+          value={formObject.model}
+          onChange={handleChange}
+          label="Model"
+          placeholder="Select a model"
+          options={modelNames}
+          variant="standard"
+          // sx={{
+          //   color: '#ffffff',
+          //   '&.Mui-focused': {
+          //     opacity: 1,
+          //     transform: 'scale(1, 1)',
+          //     transition:
+          //       'opacity 100ms ease-out, transform 100ms cubic-bezier(0.43, 0.29, 0.37, 1.48)',
+          //   },
+          // }}
+        />
+        {/* <FormSectionLabel label="Model Name" /> */}
+        {/* <FormControl fullWidth>
           <Select
             value={formObject.model}
             onChange={handleChange}
@@ -144,7 +168,7 @@ export const AssistantDisplay = props => {
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </FormControl> */}
 
         <FormSection label="Tools">
           <ReusableSwitchControl
@@ -207,23 +231,24 @@ export const AssistantDisplay = props => {
             max={1}
             step={0.01}
           />
-          <Button variant="contained">Switch to v1</Button>
+          <StyledButton variant="contained">Switch to v1</StyledButton>
         </FormSection>
-        <Button
+        <StyledButton
+          theme={theme}
           variant="contained"
           onClick={handleSubmit}
-          sx={{
-            bgcolor: 'rgba(255, 255, 255, 0.1)',
-            color: '#ffffff',
-            '&:hover': {
-              bgcolor: 'rgba(255, 255, 255, 0.2)',
-            },
-            marginTop: '20px',
-            alignSelf: 'center',
-          }}
+          // sx={{
+          //   bgcolor: 'rgba(255, 255, 255, 0.1)',
+          //   color: '#ffffff',
+          //   '&:hover': {
+          //     bgcolor: 'rgba(255, 255, 255, 0.2)',
+          //   },
+          //   marginTop: '20px',
+          //   alignSelf: 'center',
+          // }}
         >
           Save Assistant
-        </Button>
+        </StyledButton>
       </Box>
     </PanelContainer>
   );

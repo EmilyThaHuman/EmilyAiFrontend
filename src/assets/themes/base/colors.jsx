@@ -80,11 +80,12 @@ const MuiModeBasedStyles = {
   },
   text: {
     light: {
+      main: '#212121',
       primary: '#212121',
       secondary: '#3d3d3d',
       tertiary: '#707070',
+      outline: 'grey',
       contrastText: '#ffffff',
-      main: '#212121',
       hover: '#4a4a4a',
       colorText: '#343239',
       colorPrimaryText: rgba('#fff', 0.96),
@@ -93,10 +94,11 @@ const MuiModeBasedStyles = {
       gradient: 'linear-gradient(180deg, #212121, #3d3d3d)',
     },
     dark: {
+      main: '#212121',
       primary: '#212121',
       secondary: '#3d3d3d',
-      main: '#212121',
       tertiary: '#707070',
+      outline: 'grey',
       contrastText: '#ffffff',
       hover: '#4a4a4a',
       colorText: '#343239',

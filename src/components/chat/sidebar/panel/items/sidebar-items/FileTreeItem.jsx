@@ -15,7 +15,7 @@ import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { StyledListItem } from 'components/chat/styled';
 
-export const FileTreeItem = props => {
+export const FileTreeItem = React.forwardRef((props, ref) => {
   const {
     item,
     path,
@@ -112,7 +112,9 @@ export const FileTreeItem = props => {
       )}
     </Draggable>
   );
-};
+});
+
+FileTreeItem.displayName = 'FileTreeItem';
 
 FileTreeItem.propTypes = {
   item: PropTypes.shape({

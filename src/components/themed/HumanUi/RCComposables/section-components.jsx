@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import RCSelect from '../RCSelect';
 import RCSlider from '../RCSlider';
 import RCTextareaAutosize from '../RCTextareaAutosize';
 import RCTextField from '../RCTextField';
@@ -57,20 +58,17 @@ export const SliderFieldSection = ({ label, onChange, ...rest }) => (
 SliderFieldSection.propTypes = {
   label: PropTypes.string,
 };
+export const SelectFieldSection = ({ label, onChange, ...rest }) => (
+  <FormSection label={label}>
+    <RCSelect onChange={onChange} {...rest} />
+  </FormSection>
+);
+SelectFieldSection.propTypes = {
+  label: PropTypes.string,
+};
 export default {
   TextFieldSection,
   TextAreaAutosizeSection,
   SliderFieldSection,
+  SelectFieldSection,
 };
-// export const SwitchControl = ({ label, checked, onChange }) => (
-//   <StyledSwitchFormControlLabel
-//     control={<StyledSwitch checked={checked} onChange={onChange} />}
-//     label={label}
-//   />
-// );
-// export const SwitchControlSection = ({ label, checked, onChange }) => (
-//   <StyledSwitchFormControlLabel
-//     control={<StyledSwitch checked={checked} onChange={onChange} />}
-//     label={label}
-//   />
-// );

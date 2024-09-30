@@ -1,13 +1,22 @@
-import { Button } from '@mui/material';
-import { styled as styledDefault } from 'styled-components';
+import Button from '@mui/material/Button';
+import { styled } from '@mui/material/styles';
 
-const RCButtonRoot = styledDefault(Button)(({ ownerState, theme }) => {
+export const RCButtonRoot = styled(Button)(({ theme, ...ownerState }) => {
   const { palette, functions, borders, boxShadows, typography } = theme;
   const { color, variant, size, circular, iconOnly, darkMode } = ownerState;
   const { white, text, transparent, grey } = palette;
   const { boxShadow, linearGradient, pxToRem, rgba } = functions;
   const { borderRadius } = borders;
   const { colored } = boxShadows;
+
+  const darkmodeStyles = {
+    color: '#fff',
+    borderColor: '#fff',
+    margin: '10px 0',
+    ' &.MuiButton-root': {
+      p: 'unset !important',
+    },
+  };
 
   const containedStyles = () => {
     const backgroundValue = palette[color] ? palette[color]?.main : white?.main;

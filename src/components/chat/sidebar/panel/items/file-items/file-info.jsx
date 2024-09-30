@@ -4,13 +4,13 @@ import { TextFieldSection } from 'components/themed';
 
 export const FileInfo = ({ fileDescription, setFileDescription }) => (
   <Box
-    sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      width: '100%',
-      padding: '1rem',
-      // justifyContent: 'space-between',
-    }}
+  // sx={{
+  //   display: 'flex',
+  //   flexDirection: 'column',
+  //   width: '100%',
+  //   padding: '1rem',
+  //   // justifyContent: 'space-between',
+  // }}
   >
     <div style={{ marginBottom: '16px' }}>
       <TextFieldSection

@@ -1,5 +1,6 @@
 export const LANGUAGE_VERSIONS = {
   javascript: '18.15.0',
+  jsx: '18.15.0',
   typescript: '5.0.3',
   python: '3.10.0',
   java: '15.0.2',
@@ -16,6 +17,76 @@ export const CODE_SNIPPETS = {
     'using System;\n\nnamespace HelloWorld\n{\n\tclass Hello { \n\t\tstatic void Main(string[] args) {\n\t\t\tConsole.WriteLine("Hello World in C#");\n\t\t}\n\t}\n}\n',
   php: "<?php\n\n$name = 'Alex';\necho $name;\n",
 };
+
+export const CODE_SNIPPETS_FILES = [
+  {
+    filename: 'javascript.js',
+    content: `
+function greet(name) {
+	console.log("Hello, " + name + "!");
+}
+
+greet("Alex");
+`,
+  },
+  {
+    filename: 'typescript.ts',
+    content: `
+type Params = {
+	name: string;
+}
+
+function greet(data: Params) {
+	console.log("Hello, " + data.name + "!");
+}
+
+greet({ name: "Alex" });
+`,
+  },
+  {
+    filename: 'python.py',
+    content: `
+def greet(name):
+	print("Hello, " + name + "!")
+
+greet("Alex")
+`,
+  },
+  {
+    filename: 'java.java',
+    content: `
+public class HelloWorld {
+	public static void main(String[] args) {
+		System.out.println("Hello World");
+	}
+}
+`,
+  },
+  {
+    filename: 'csharp.cs',
+    content: `
+using System;
+
+namespace HelloWorld
+{
+	class Hello { 
+		static void Main(string[] args) {
+			Console.WriteLine("Hello World in C#");
+		}
+	}
+}
+`,
+  },
+  {
+    filename: 'php.php',
+    content: `
+<?php
+
+$name = 'Alex';
+echo $name;
+`,
+  },
+];
 
 export const editorConfig = {
   theme: 'vs-dark',

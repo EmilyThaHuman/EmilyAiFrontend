@@ -1,10 +1,34 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { isRouteErrorResponse, useRouteError } from 'react-router-dom';
 import ErrorPage from 'views/error/NotFound';
 
 export function RootBoundary() {
   const error = useRouteError();
   const [errorInfo, setErrorInfo] = useState(null);
+
+  // Function to track repeating errors
+  const trackRepeatingErrors = errorKey => {
+    const errorCount = JSON.parse(localStorage.getItem('errorCount')) || {};
+    errorCount[errorKey] = (errorCount[errorKey] || 0) + 1;
+    localStorage.setItem('errorCount', JSON.stringify(errorCount));
+
+    if (errorCount[errorKey] >= 5) {
+      // Clear localStorage and sessionStorage
+      localStorage.clear();
+      sessionStorage.clear();
+      console.log(
+        'Cleared localStorage and sessionStorage due to repeated errors'
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (errorInfo) {
+      const errorKey = `${errorInfo.status}-${errorInfo.message}`;
+      trackRepeatingErrors(errorKey);
+    }
+  }, [errorInfo]);
+
   if (isRouteErrorResponse(error)) {
     const {
       status,

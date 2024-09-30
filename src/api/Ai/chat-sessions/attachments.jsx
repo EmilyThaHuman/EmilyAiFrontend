@@ -177,7 +177,10 @@ export const attachmentsApi = {
     try {
       const data = await apiUtils.post(
         `/chat/files/upsert-docs`,
-        vectorDocData
+        vectorDocData,
+        {
+          timeout: 90000,
+        }
       );
       return data;
     } catch (error) {

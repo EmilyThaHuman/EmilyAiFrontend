@@ -13,15 +13,7 @@ export const EditFile = ({
   setFileDescription,
   selectedFile,
 }) => (
-  <Box
-    sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      width: '100%',
-      padding: '1rem',
-      // justifyContent: 'space-between',
-    }}
-  >
+  <>
     <FileForm
       fileName={fileName}
       setFileName={setFileName}
@@ -38,7 +30,7 @@ export const EditFile = ({
       </StyledButton>
       <StyledButton variant="outlined">Save</StyledButton>
     </Box>
-  </Box>
+  </>
 );
 
 export default EditFile;
