@@ -31,7 +31,7 @@ export const useFileProcesser = () => {
   const [filesToAccept, setFilesToAccept] = useState(ACCEPTED_FILE_TYPES);
   const fileInputRef = useRef();
   const { editor } = useTipTapEditor();
-  // Memoized function to read files
+
   const readFile = useCallback((file, readAs, callback) => {
     const fileReader = new FileReader();
     fileReader.onload = () => callback(fileReader.result);
@@ -53,7 +53,6 @@ export const useFileProcesser = () => {
     }
   }, []);
 
-  // Memoized function to handle file types
   const handleFileType = useCallback(
     async (file, fileType, editor, setNewMessageImages) => {
       return new Promise((resolve, reject) => {
@@ -94,7 +93,6 @@ export const useFileProcesser = () => {
     [readFile]
   );
 
-  // Memoized function to handle accepted file types
   const handleAcceptedFileType = useCallback(file => {
     const fileExtension = `.${file.name.split('.').pop()}`;
     const acceptedExtensions = flattenArrays(OPENAI_ACCEPTED_FILE_EXTENSIONS);
@@ -111,7 +109,6 @@ export const useFileProcesser = () => {
     return null;
   }, []);
 
-  // Memoized function to handle file selection
   const handleSelectDeviceFile = useCallback(
     async (file, isChatMessageFile = false) => {
       setShowFilesDisplay(true);

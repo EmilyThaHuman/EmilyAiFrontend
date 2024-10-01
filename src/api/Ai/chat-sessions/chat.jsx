@@ -129,8 +129,6 @@ export const chatApi = {
     });
   },
   getChatSessionMessages: async () => {
-    // const { sessionId } = props;
-    // console.log('SESSION ID:', sessionId);
     const sessionId = sessionStorage.getItem('sessionId');
     try {
       const data = await apiUtils.get(
@@ -157,7 +155,6 @@ export const chatApi = {
       throw error;
     }
   },
-
   getAll: async () => {
     try {
       const data = await apiUtils.get('/chat/sessions/users');
@@ -167,19 +164,6 @@ export const chatApi = {
       throw error;
     }
   },
-
-  getById: async sessionId => {
-    try {
-      console.log('FETCHING chat session with id ${sessionId}:', sessionId);
-      const data = await apiUtils.get(`/chat/sessions/${sessionId}`);
-      console.log('Chat session fetched:', data);
-      return data;
-    } catch (error) {
-      console.error(`Error fetching chat session with id ${sessionId}:`, error);
-      throw error;
-    }
-  },
-
   create: async sessionData => {
     try {
       const data = await apiUtils.post('/chat/sessions/create', sessionData);
@@ -189,7 +173,6 @@ export const chatApi = {
       throw error;
     }
   },
-
   update: async (sessionId, sessionData) => {
     try {
       const data = await apiUtils.put(
@@ -205,7 +188,6 @@ export const chatApi = {
       throw error;
     }
   },
-
   updateMessages: async chatMessages => {
     try {
       const data = await apiUtils.put(
@@ -226,25 +208,6 @@ export const chatApi = {
       throw error;
     }
   },
-
-  getMessages: async props => {
-    const { sessionId } = props;
-    console.log('GIVEN ID:', sessionId);
-    try {
-      console.log(
-        'FETCHING messages for chat session with id ${newSessionId}:',
-        sessionId
-      );
-      const data = await apiUtils.get(
-        `/chat/sessions/${encodeURIComponent(sessionId)}/messages`
-      );
-      return data;
-    } catch (error) {
-      console.error(`Error fetching messages for chat session with id:`, error);
-      throw error;
-    }
-  },
-
   delete: async sessionId => {
     try {
       const data = await apiUtils.delete(`/chat/sessions/${sessionId}`);
@@ -254,7 +217,6 @@ export const chatApi = {
       throw error;
     }
   },
-
   rename: async (sessionId, name) => {
     try {
       const data = await apiUtils.put(
@@ -267,7 +229,6 @@ export const chatApi = {
       throw error;
     }
   },
-
   saveMessage: async (sessionId, messages) => {
     try {
       const data = await apiUtils.post(
@@ -291,11 +252,10 @@ export const chatApi = {
       throw error;
     }
   },
-
   clearMessages: async sessionId => {
     try {
       const data = await apiUtils.delete(
-        `/chat/chat/messages/sessions/${sessionId}`
+        `/chat/messages/sessions/${sessionId}`
       );
       return data;
     } catch (error) {

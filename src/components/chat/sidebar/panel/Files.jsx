@@ -4,7 +4,8 @@ import { SidebarPanelContainer } from 'components/chat/styled';
 import { RCTabs } from 'components/themed';
 import { useTabManager } from 'hooks/chat/useTabManager';
 import { EditFile, FileInfo, FileUpsert, useFileEditor } from './items';
-import { FileManagementSidebar } from './items/sidebar-items/FileManager';
+import { FileDirectory } from './items/sidebar-items/components/sidebar-file-directory';
+// import { FileManagementSidebar } from './items/sidebar-items/FileManager';
 
 export const Files = props => {
   const { folders = [], data = {}, space = '', files = [] } = props;
@@ -56,7 +57,7 @@ export const Files = props => {
       case 0:
         return (
           <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <FileManagementSidebar
+            <FileDirectory
               initialFolders={folders}
               initialFiles={files}
               space={space}

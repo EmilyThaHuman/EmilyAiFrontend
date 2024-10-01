@@ -21,7 +21,8 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/system';
 import { motion, AnimatePresence } from 'framer-motion';
-import React, { useState, useEffect, useCallback } from 'react';
+import PropTypes from 'prop-types';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import {
@@ -43,106 +44,257 @@ import {
 } from 'react-icons/fa';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { attachmentsApi } from 'api/Ai/chat-sessions';
+import { SidebarManagerContainer } from 'components/chat/styled';
+import { useFileProcesser } from 'hooks/chat';
+import { useDialog } from 'hooks/ui';
+import { detectLanguage } from 'utils/format';
+import SidebarActions from '../sidebar-items/components/sidebar-actions';
 
-const FileIcon = React.memo(({ type, size = 32, iconColor = '#BDBDBD' }) => {
-  if (type.includes('image' || 'png' || 'jpg' || 'jpeg')) {
-    return <FaFileImage size={size} color={iconColor} />;
-  } else if (type.includes('pdf')) {
-    return <FaFilePdf size={size} color={iconColor} />;
-  } else if (type.includes('csv')) {
-    return <FaFileCsv size={size} color={iconColor} />;
-  } else if (type.includes('docx')) {
-    return <FaFileWord size={size} color={iconColor} />;
-  } else if (type.includes('plain')) {
-    return <FaFileAlt size={size} color={iconColor} />;
-  } else if (type.includes('json')) {
-    return <FaFileCode size={size} color={iconColor} />;
-  } else if (type.includes('markdown')) {
-    return <FaRegFile size={size} color={iconColor} />;
-  } else if (type.includes('javascript' || 'js' || 'jsx' || 'ts' || 'tsx')) {
-    return <FaFileCode size={size} color={iconColor} />;
-  } else if (type.includes('txt')) {
-    return <FaFileAlt size={size} color={iconColor} />;
-  } else {
-    return <FaFile size={size} />;
-  }
-});
-
-FileIcon.displayName = 'FileIcon';
-
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  height: '100%',
-  overflow: 'auto',
-}));
-
-const StyledModal = styled(Modal)(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
-
-const ModalContent = styled(Box)(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: theme.shadows[5],
-  padding: theme.spacing(4),
-  width: '400px',
-  borderRadius: theme.shape.borderRadius,
-}));
-
-const StyledTreeItemRoot = styled(Box)(({ theme }) => ({
-  color: theme.palette.grey[400],
+const StyledTreeItemRoot = styled(Box)(({ theme, isDragging }) => ({
+  color:
+    theme.palette.mode === 'dark'
+      ? theme.palette.grey[400]
+      : theme.palette.grey[800],
   position: 'relative',
+  opacity: isDragging ? 0.5 : 1,
   '& .group': {
     transition: theme.transitions.create('height', {
       duration: theme.transitions.duration.shortest,
     }),
     overflow: 'hidden',
   },
-  ...theme.applyStyles('light', {
-    color: theme.palette.grey[800],
-  }),
 }));
 
-const FileDirectory = () => {
-  const [files, setFiles] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
+const FileTreeItem = ({
+  item,
+  path,
+  isSelected,
+  onDelete,
+  onSelect,
+  onMove,
+  onToggle,
+  children,
+}) => {
+  const isDirectory = Boolean(item.children && item.children.length);
+
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: 'FILE_ITEM',
+    item: { path },
+    collect: monitor => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }));
+
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: 'FILE_ITEM',
+    drop: draggedItem => {
+      if (draggedItem.path !== path) {
+        onMove(draggedItem.path, path);
+      }
+    },
+    collect: monitor => ({
+      isOver: !!monitor.isOver(),
+    }),
+  }));
+
+  return (
+    <div ref={drop}>
+      <StyledTreeItemRoot isDragging={isDragging} ref={drag}>
+        <ListItem
+          button
+          onClick={event => {
+            onSelect(event, item);
+            if (isDirectory) {
+              onToggle();
+            }
+          }}
+          selected={isSelected}
+          style={{
+            backgroundColor: isOver ? '#e0e0e0' : 'transparent',
+          }}
+        >
+          <ListItemIcon>
+            {isDirectory ? (
+              <>
+                {item.isOpen ? <FaChevronDown /> : <FaChevronRight />}
+                <FaFolder size={32} />
+              </>
+            ) : (
+              <FileIcon type={item.type} />
+            )}
+          </ListItemIcon>
+          <ListItemText primary={item.name} />
+          {isDirectory && (
+            <IconButton
+              onClick={e => {
+                e.stopPropagation();
+                onToggle();
+              }}
+            >
+              {item.isOpen ? <ExpandLess /> : <ExpandMore />}
+            </IconButton>
+          )}
+          <IconButton
+            edge="end"
+            aria-label="delete"
+            onClick={e => {
+              e.stopPropagation();
+              onDelete(path);
+            }}
+          >
+            <Delete />
+          </IconButton>
+        </ListItem>
+        {isDirectory && (
+          <Collapse in={item.isOpen} timeout="auto" unmountOnExit>
+            {children}
+          </Collapse>
+        )}
+      </StyledTreeItemRoot>
+    </div>
+  );
+};
+
+FileTreeItem.propTypes = {
+  item: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
+    children: PropTypes.array,
+    isOpen: PropTypes.bool,
+  }).isRequired,
+  path: PropTypes.string.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onSelect: PropTypes.func.isRequired,
+  onMove: PropTypes.func.isRequired,
+  onToggle: PropTypes.func.isRequired,
+  children: PropTypes.node,
+};
+
+export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
+  const { handleSelectDeviceFile, fileInputRef } = useFileProcesser();
+  const newFileDialog = useDialog();
+  const newFolderDialog = useDialog();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [files, setFiles] = useState([...initialFiles]);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [fileName, setFileName] = useState('');
+  const [newFileName, setNewFileName] = useState('');
+  const [fileToUpload, setFileToUpload] = useState(null);
   const [fileContent, setFileContent] = useState('');
   const [fileType, setFileType] = useState('.txt');
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [error, setError] = useState('');
+  const [folders, setFolders] = useState([...initialFolders]);
+  const [selectedFolder, setSelectedFolder] = useState('');
   const [isDirectory, setIsDirectory] = useState(false);
   const [currentPath, setCurrentPath] = useState('');
-  const [action, setAction] = React.useState(null);
-  const [expanded, setExpanded] = React.useState({});
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [hoveredItem, setHoveredItem] = useState(null);
-  const [focusedItem, setFocusedItem] = useState(null);
+  const [action, setAction] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [singleFileLoading, setSingleFileLoading] = false;
 
   useEffect(() => {
-    const storedFiles = JSON.parse(localStorage.getItem('files')) || [];
-    setFiles(storedFiles);
+    const fetchFiles = async () => {
+      try {
+        const response = await attachmentsApi.getAllStoredFiles();
+        setFiles(response.data);
+      } catch (error) {
+        console.error('Error fetching files:', error);
+      }
+    };
+    fetchFiles();
   }, []);
 
-  const isExpandable = React.useMemo(
-    () => reactChildren => {
+  const isExpandable = useMemo(() => {
+    return reactChildren => {
       if (Array.isArray(reactChildren)) {
         return reactChildren.length > 0 && reactChildren.some(isExpandable);
       }
       return Boolean(reactChildren);
+    };
+  }, []);
+
+  const validateName = useCallback(
+    (name, type) => {
+      const existingNames = files.map(item => item.name.toLowerCase());
+      return existingNames.includes(name.toLowerCase())
+        ? `A ${type} with this name already exists.`
+        : '';
     },
-    []
+    [files]
   );
 
-  const handleItemSelection = useCallback((event, itemId, isSelected) => {
-    event.stopPropagation();
-    setSelectedFile(itemId);
-    if (isSelected) {
-      setAction(itemId);
-    }
+  const handleNewFile = useCallback(() => {
+    newFileDialog.handleOpen();
+    setNewFileName('');
+    setFileToUpload(null);
+  }, [newFileDialog]);
+
+  const handleNewFolder = useCallback(() => {
+    newFolderDialog.handleOpen();
+  }, [newFolderDialog]);
+
+  const handleNewFileNameChange = e => {
+    const value = e.target.value;
+    setFileName(value);
+    setError(value ? validateName(value, 'file') : 'File name is required');
+  };
+
+  const handleNewFolderNameChange = e => {
+    const value = e.target.value;
+    setFileName(value);
+    setError(validateName(value, 'folder'));
+  };
+
+  const handleItemSelection = useCallback(
+    (event, item) => {
+      event.stopPropagation();
+      setSelectedFile(item);
+      setAction(item.name);
+      if (isExpandable(item.children)) {
+        setCurrentPath(prevPath =>
+          prevPath ? `${prevPath}/${item.name}` : item.name
+        );
+        setFiles(item.children);
+      } else {
+        handleFileClick(item);
+      }
+    },
+    [setSelectedFile, setAction]
+  );
+
+  const toggleFolder = useCallback(folderId => {
+    setFiles(prevFiles =>
+      prevFiles.map(file =>
+        file.id === folderId ? { ...file, isOpen: !file.isOpen } : file
+      )
+    );
   }, []);
+
+  const handleFileClick = async file => {
+    setSingleFileLoading(true);
+    setSelectedFile(file);
+    try {
+      const response = await attachmentsApi.getStoredFileByName(file.filename);
+      setFileContent(response.data);
+    } catch (error) {
+      console.error('Error fetching file:', error);
+      setFileContent('Error loading file content.');
+    } finally {
+      setSingleFileLoading(false);
+    }
+  };
+
+  const handleUploadItem = useCallback(
+    async event => {
+      const file = event.target.files?.[0];
+      if (file && !files.find(f => f.name === file.name)) {
+        setFileName(file.name);
+        await handleSelectDeviceFile(file, false);
+      }
+    },
+    [files, handleSelectDeviceFile]
+  );
 
   const handleCreateItem = () => {
     if (!fileName.trim()) {
@@ -152,8 +304,19 @@ const FileDirectory = () => {
 
     const fullName = isDirectory ? fileName : fileName + fileType;
     const newItem = isDirectory
-      ? { name: fullName, type: 'directory', children: [] }
-      : { name: fullName, content: fileContent, type: fileType };
+      ? { name: fullName, type: 'directory', children: [], isOpen: false }
+      : {
+          name: fullName,
+          content: fileContent,
+          type: fileType,
+          userId: sessionStorage.getItem('userId'),
+          workspaceId: sessionStorage.getItem('workspaceId'),
+          folderId: selectedFolder?._id || null,
+          fileId: 'local',
+          space: space.toLowerCase(),
+          contentType: fileType,
+          size: new Blob([fileContent]).size,
+        };
 
     const updatedFiles = [...files];
     let currentLevel = updatedFiles;
@@ -176,7 +339,7 @@ const FileDirectory = () => {
     currentLevel.push(newItem);
     setFiles(updatedFiles);
     localStorage.setItem('files', JSON.stringify(updatedFiles));
-    setModalOpen(false);
+    newFileDialog.handleClose();
     resetForm();
   };
 
@@ -268,295 +431,202 @@ const FileDirectory = () => {
     }
   };
 
-  const FileTreeItem = ({
-    item,
-    path,
-    isSelected,
-    onDelete,
-    onSelect,
-    onMove,
-    children,
-  }) => {
-    const [open, setOpen] = useState(false);
-    const isDirectory = isExpandable(item?.children);
+  const renderFileTree = useCallback(
+    (items, path = '') => {
+      return (
+        <List>
+          <AnimatePresence>
+            {items.map(item => {
+              const itemPath = `${path}/${item.name}`;
+              const isSelected = selectedFile?.name === item.name;
 
-    const handleToggle = () => setOpen(!open);
-
-    const handleMouseEnter = () => setHoveredItem(item);
-    const handleMouseLeave = () => setHoveredItem(null);
-    const handleFocus = () => setFocusedItem(item);
-    const handleBlur = () => setFocusedItem(null);
-
-    const [{ isDragging }, drag] = useDrag(() => ({
-      type: 'FILE_ITEM',
-      item: { path },
-      collect: monitor => ({
-        isDragging: !!monitor.isDragging(),
-      }),
-    }));
-
-    const [{ isOver }, drop] = useDrop(() => ({
-      accept: 'FILE_ITEM',
-      drop: draggedItem => {
-        if (draggedItem.path !== path) {
-          onMove(draggedItem.path, path);
-        }
-      },
-      collect: monitor => ({
-        isOver: !!monitor.isOver(),
-      }),
-    }));
-
-    return (
-      <div ref={drop}>
-        <StyledTreeItemRoot isDragging={isDragging} ref={drag}>
-          <div
-            style={{
-              opacity: isDragging ? 0.5 : 1,
-              backgroundColor: isOver
-                ? '#e0e0e0'
-                : isSelected
-                  ? '#f0f0f0'
-                  : 'transparent',
-            }}
-          >
-            <ListItem
-              onClick={event => {
-                if (isDirectory) {
-                  setOpen(!open);
-                  setCurrentPath(path);
-                }
-                onSelect(event);
-              }}
-              selected={isSelected}
-            >
-              <div ref={drag}>
-                <ListItemIcon>
-                  {isDirectory ? (
-                    <>
-                      {open ? <FaChevronDown /> : <FaChevronRight />}
-                      <FaFolder size={32} />
-                    </>
-                  ) : (
-                    <FileIcon type={item.type} />
-                  )}
-                </ListItemIcon>
-              </div>
-              <ListItemText primary={item.name} />
-              <IconButton
-                edge="end"
-                aria-label="delete"
-                onClick={e => {
-                  e.stopPropagation();
-                  onDelete();
-                }}
-              >
-                <FaTrash />
-              </IconButton>
-            </ListItem>
-          </div>
-          {isDirectory && (
-            <Collapse in={open} timeout="auto" unmountOnExit>
-              {children}
-            </Collapse>
-          )}
-        </StyledTreeItemRoot>
-      </div>
-    );
-  };
-  const renderFileTree = (items, path = '') => {
-    return (
-      <List>
-        <AnimatePresence>
-          {items.map(item => {
-            const itemPath = `${path}/${item.name}`;
-            const isSelected = selectedFile === item;
-            const isDirectory = isExpandable(item?.children);
-
-            if (isDirectory) {
               return (
-                <FileTreeItem
+                <motion.div
                   key={itemPath}
-                  item={item}
-                  path={itemPath}
-                  isSelected={isSelected}
-                  onDelete={() => handleDeleteItem(itemPath)}
-                  onSelect={event =>
-                    handleItemSelection(event, item, isSelected)
-                  }
-                  onMove={moveItem}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                 >
-                  {renderFileTree(item.children, itemPath)}
-                </FileTreeItem>
+                  <FileTreeItem
+                    item={item}
+                    path={itemPath}
+                    isSelected={isSelected}
+                    onDelete={() => handleDeleteItem(itemPath)}
+                    onSelect={event => handleItemSelection(event, item)}
+                    onToggle={() => toggleFolder(item.id)}
+                    onMove={moveItem}
+                  >
+                    {item.children && renderFileTree(item.children, itemPath)}
+                  </FileTreeItem>
+                </motion.div>
               );
-            } else {
-              return (
-                <FileTreeItem
-                  key={itemPath}
-                  item={item}
-                  path={itemPath}
-                  isSelected={isSelected}
-                  onDelete={() => handleDeleteItem(itemPath)}
-                  onSelect={event =>
-                    handleItemSelection(event, item, isSelected)
-                  }
-                  onMove={moveItem}
-                />
-              );
-            }
-          })}
-        </AnimatePresence>
-      </List>
-    );
-  };
-  const getLanguage = fileType => {
-    switch (fileType) {
-      case '.js':
-        return 'javascript';
-      case '.jsx':
-        return 'jsx';
-      default:
-        return 'text';
-    }
-  };
+            })}
+          </AnimatePresence>
+        </List>
+      );
+    },
+    [
+      selectedFile,
+      handleDeleteItem,
+      handleItemSelection,
+      toggleFolder,
+      moveItem,
+    ]
+  );
 
+  const filteredFiles = useMemo(() => {
+    const filterFiles = items => {
+      return items.filter(item => {
+        if (item.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+          return true;
+        }
+        if (item.children) {
+          item.children = filterFiles(item.children);
+          return item.children.length > 0;
+        }
+        return false;
+      });
+    };
+    return filterFiles([...files]);
+  }, [files, searchTerm]);
   return (
     <DndProvider backend={HTML5Backend}>
-      <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <Typography variant="h4" gutterBottom>
-          File Directory
-        </Typography>
-        <Typography>
-          {action == null
-            ? 'No item action recorded'
-            : `Last action: ${action}`}
-        </Typography>
-        <Grid container spacing={2} sx={{ flexGrow: 1 }}>
-          <Grid item xs={12} md={4}>
-            <StyledPaper>
-              <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
-                <Button
-                  variant="contained"
-                  startIcon={<FaPlus />}
-                  onClick={() => {
-                    setModalOpen(true);
-                    setIsDirectory(false);
-                  }}
-                >
-                  New File
-                </Button>
-                <Button
-                  variant="contained"
-                  startIcon={<FaFolder />}
-                  onClick={() => {
-                    setModalOpen(true);
-                    setIsDirectory(true);
-                  }}
-                >
-                  New Folder
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={<FaFileImport />}
-                  onClick={handleImportFromCodeSnippets}
-                >
-                  Import
-                </Button>
-              </Box>
-              <TextField
-                fullWidth
-                variant="outlined"
-                placeholder="Search files"
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FaSearch />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{ mb: 2 }}
-              />
-              {renderFileTree(files)}
-            </StyledPaper>
-          </Grid>
-          <Grid item xs={12} md={8}>
-            <StyledPaper>
-              {selectedFile ? (
-                <>
-                  <Typography variant="h6" gutterBottom>
-                    {selectedFile.name}
-                  </Typography>
-                  <SyntaxHighlighter
-                    language={getLanguage(selectedFile.type)}
-                    style={docco}
+      <SidebarManagerContainer>
+        <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+          <Typography variant="h4" gutterBottom>
+            File Directory
+          </Typography>
+          <Typography>
+            {action == null
+              ? 'No item action recorded'
+              : `Last action: ${action}`}
+          </Typography>
+          <SidebarActions
+            handleNewFile={handleNewFile}
+            handleNewFolder={handleNewFolder}
+            space={space}
+          />
+          <Grid container spacing={2} sx={{ flexGrow: 1 }}>
+            {/* <Grid item xs={12} md={4}>
+              <StyledPaper>
+                <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<FaPlus />}
+                    onClick={() => {
+                      setModalOpen(true);
+                      setIsDirectory(false);
+                    }}
                   >
-                    {selectedFile.content}
-                  </SyntaxHighlighter>
-                </>
-              ) : (
-                <Typography variant="body1">
-                  Select a file to view its content
-                </Typography>
-              )}
-            </StyledPaper>
-          </Grid>
-        </Grid>
-
-        <StyledModal
-          open={modalOpen}
-          onClose={() => {
-            setModalOpen(false);
-            resetForm();
-          }}
-        >
-          <ModalContent>
-            <Typography variant="h6" gutterBottom>
-              Create New {isDirectory ? 'Folder' : 'File'}
-            </Typography>
-            <TextField
-              fullWidth
-              label={isDirectory ? 'Folder Name' : 'File Name'}
-              value={fileName}
-              onChange={e => setFileName(e.target.value)}
-              error={!!error}
-              helperText={error}
-              sx={{ mb: 2 }}
-            />
-            {!isDirectory && (
-              <>
-                <FormControl fullWidth sx={{ mb: 2 }}>
-                  <InputLabel>File Type</InputLabel>
-                  <Select
-                    value={fileType}
-                    onChange={e => setFileType(e.target.value)}
-                    label="File Type"
+                    New File
+                  </Button>
+                  <Button
+                    variant="contained"
+                    startIcon={<FaFolder />}
+                    onClick={() => {
+                      setModalOpen(true);
+                      setIsDirectory(true);
+                    }}
                   >
-                    <MenuItem value=".txt">.txt</MenuItem>
-                    <MenuItem value=".js">.js</MenuItem>
-                    <MenuItem value=".jsx">.jsx</MenuItem>
-                  </Select>
-                </FormControl>
+                    New Folder
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<FaFileImport />}
+                    onClick={handleImportFromCodeSnippets}
+                  >
+                    Import
+                  </Button>
+                </Box>
                 <TextField
                   fullWidth
-                  label="File Content"
-                  multiline
-                  rows={4}
-                  value={fileContent}
-                  onChange={e => setFileContent(e.target.value)}
+                  variant="outlined"
+                  placeholder="Search files"
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <FaSearch />
+                      </InputAdornment>
+                    ),
+                  }}
                   sx={{ mb: 2 }}
                 />
-              </>
-            )}
-            <Button variant="contained" onClick={handleCreateItem}>
-              Create {isDirectory ? 'Folder' : 'File'}
-            </Button>
-          </ModalContent>
-        </StyledModal>
-      </Box>
+                {renderFileTree(filteredFiles)}
+              </StyledPaper>
+            </Grid> */}
+            <FileViewerDialog
+              open={open}
+              onClose={handleClose}
+              selectedFile={selectedFile}
+            />
+          </Grid>
+
+          <CreateItemDialog
+            open={open}
+            onClose={handleClose}
+            isDirectory={isDirectory}
+            fileName={fileName}
+            onFileNameChange={handleFileNameChange}
+            error={error}
+            fileType={fileType}
+            onFileTypeChange={e => setFileType(e.target.value)}
+            fileContent={fileContent}
+            onFileContentChange={e => setFileContent(e.target.value)}
+            onCreateItem={handleCreateItem}
+          />
+        </Box>
+      </SidebarManagerContainer>
     </DndProvider>
   );
 };
 
 export default FileDirectory;
+// export const FileDirectory = props => {
+//   const { space, initialFiles, initialFolders } = props;
+//   const { handleSelectDeviceFile, fileInputRef } = useFileProcesser();
+
+//   const [modalOpen, setModalOpen] = useState(false);
+//   const [searchTerm, setSearchTerm] = useState('');
+//   // file state
+//   const [files, setFiles] = useState([...initialFiles]);
+//   const [selectedFile, setSelectedFile] = useState(null);
+//   const [fileName, setFileName] = useState('');
+//   const [fileContent, setFileContent] = useState('');
+//   const [fileType, setFileType] = useState('.txt');
+//   const [newFileName, setNewFileName] = useState('');
+//   const [newFolderName, setNewFolderName] = useState('');
+//   const [fileToUpload, setFileToUpload] = useState(null);
+//   // directory state
+//   const [folders, setFolders] = useState([...initialFolders]);
+//   const [selectedFolder, setSelectedFolder] = useState('');
+//   const [isDirectory, setIsDirectory] = useState(false);
+//   const [currentPath, setCurrentPath] = useState('');
+//   const [expandedFolders, setExpandedFolders] = useState({});
+//   const [fileStructure, setFileStructure] = useState([]);
+//   // event state
+//   const [action, setAction] = React.useState(null);
+//   const [error, setError] = useState('');
+//   const [folderOpen, setFolderOpen] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const [expanded, setExpanded] = React.useState({});
+//   const [selectedItem, setSelectedItem] = useState(null);
+//   const [hoveredItem, setHoveredItem] = useState(null);
+//   const [focusedItem, setFocusedItem] = useState(null);
+//   const [openDialog, setOpenDialog] = useState(false);
+
+//   useEffect(() => {
+//     const storedFiles = JSON.parse(localStorage.getItem('files')) || [];
+//     setFiles(storedFiles);
+
+//     const fetchFiles = async () => {
+//       try {
+//         const response = await attachmentsApi.getAllFiles();
+//         setFiles(response.data);
+//       } catch (error) {
+//         console.error('Error fetching files:', error);
+//       }
+//     };
+//     fetchFiles();
+//   }, []);

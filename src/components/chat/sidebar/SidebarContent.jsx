@@ -26,7 +26,7 @@ const SidebarContent = ({
   buttonRef,
   dataList,
 }) => {
-  const getFoldersBySpace = useCallback(
+  const findFolders = useCallback(
     space => user.folders?.filter(folder => folder.space === space) || [],
     [user.folders]
   );
@@ -51,7 +51,7 @@ const SidebarContent = ({
         content = (
           <ChatSession
             space="chatSessions"
-            folders={getFoldersBySpace('chatSessions')}
+            folders={findFolders('chatSessions')}
             files={files}
             data={chatSessions}
           />
@@ -61,7 +61,7 @@ const SidebarContent = ({
         content = (
           <Assistants
             space="assistants"
-            folders={getFoldersBySpace('assistants')}
+            folders={findFolders('assistants')}
             files={files}
             data={assistants}
           />
@@ -71,7 +71,7 @@ const SidebarContent = ({
         content = (
           <Prompts
             space="prompts"
-            folders={getFoldersBySpace('prompts')}
+            folders={findFolders('prompts')}
             files={files}
             data={prompts}
           />
@@ -81,7 +81,7 @@ const SidebarContent = ({
         content = (
           <Files
             space="files"
-            folders={getFoldersBySpace('files')}
+            folders={findFolders('files')}
             files={files}
             data={files}
           />
@@ -101,7 +101,7 @@ const SidebarContent = ({
     workspaces,
     folders,
     chatSessions,
-    getFoldersBySpace,
+    findFolders,
     files,
     assistants,
     prompts,
@@ -110,9 +110,16 @@ const SidebarContent = ({
 
   const { space, icon, content } = renderContent();
   return (
-    <Box display="flex" flexDirection="column" height="100%">
-      <SidebarContentHeader space={space} icon={icon} onSave={onSave} />
+    <Box
+      display="flex"
+      flexDirection="column"
+      height="100%"
+      maxHeight="100%"
+      maxWidth="100%"
+    >
       <Box flexGrow={1} overflow="auto" justifyContent="center">
+        <SidebarContentHeader space={space} icon={icon} onSave={onSave} />
+
         {content}
         <SidebarContentFooter
           item={content.props.data}
