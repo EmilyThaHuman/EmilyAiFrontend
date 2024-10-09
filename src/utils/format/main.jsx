@@ -1,6 +1,30 @@
 /* eslint-disable no-case-declarations */
-
+import path from 'path';
 import { Typography } from '@mui/material';
+import { getFileExtension } from '@/lib/fileUtils';
+export function detectLanguage(fileName) {
+  const extension = getFileExtension(fileName.toLowerCase());
+  const languageMap = {
+    '.js': 'JavaScript',
+    '.jsx': 'JavaScript (React)',
+    '.ts': 'TypeScript',
+    '.tsx': 'TypeScript (React)',
+    '.py': 'Python',
+    '.rb': 'Ruby',
+    '.java': 'Java',
+    '.cs': 'C#',
+    '.go': 'Go',
+    '.php': 'PHP',
+    '.swift': 'Swift',
+    '.kt': 'Kotlin',
+    '.rs': 'Rust',
+    '.html': 'HTML',
+    '.css': 'CSS',
+    '.scss': 'SCSS',
+    '.less': 'LESS',
+  };
+  return languageMap[extension] || 'Unknown';
+}
 export function convertToMarkdown(content) {
   if (!content.includes('<')) {
     return content;

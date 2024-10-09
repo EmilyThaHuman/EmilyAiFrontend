@@ -14,10 +14,10 @@ const SidebarContentFooter = ({
     <Box
       sx={{
         p: 2,
-        display: 'flex',
-        justifyContent: 'space-between',
-        borderTop: '1px solid #e0e0e0',
-        ml: '100%',
+        // display: 'flex',
+        // justifyContent: 'space-between',
+        // borderTop: '1px solid #e0e0e0',
+        // ml: '100%',
         // max
       }}
     >

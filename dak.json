@@ -1,0 +1,251 @@
+
+[
+    {
+        "name":  "aaron-bond.better-comments@3.0.2",
+        "version":  null
+    },
+    {
+        "name":  "abdoseadaa.node-js-snippet@1.1.3",
+        "version":  null
+    },
+    {
+        "name":  "aip-template.aip-react-component-generator@0.0.2",
+        "version":  null
+    },
+    {
+        "name":  "aiqubit.claude@0.1.0",
+        "version":  null
+    },
+    {
+        "name":  "alefragnani.bookmarks@13.5.0",
+        "version":  null
+    },
+    {
+        "name":  "alefragnani.project-manager@12.8.0",
+        "version":  null
+    },
+    {
+        "name":  "amazonwebservices.amazon-q-vscode@1.27.0",
+        "version":  null
+    },
+    {
+        "name":  "burkeholland.simple-react-snippets@1.2.8",
+        "version":  null
+    },
+    {
+        "name":  "christian-kohler.npm-intellisense@1.4.5",
+        "version":  null
+    },
+    {
+        "name":  "christian-kohler.path-intellisense@2.9.0",
+        "version":  null
+    },
+    {
+        "name":  "davidanson.vscode-markdownlint@0.56.0",
+        "version":  null
+    },
+    {
+        "name":  "dbaeumer.vscode-eslint@3.0.10",
+        "version":  null
+    },
+    {
+        "name":  "devzstudio.mern-snippets@1.5.0",
+        "version":  null
+    },
+    {
+        "name":  "dsznajder.es7-react-js-snippets@4.4.3",
+        "version":  null
+    },
+    {
+        "name":  "eamodio.gitlens@15.5.1",
+        "version":  null
+    },
+    {
+        "name":  "ecmel.vscode-html-css@2.0.10",
+        "version":  null
+    },
+    {
+        "name":  "editorconfig.editorconfig@0.16.6",
+        "version":  null
+    },
+    {
+        "name":  "equinusocio.vsc-material-theme@34.7.5",
+        "version":  null
+    },
+    {
+        "name":  "equinusocio.vsc-material-theme-icons@3.8.8",
+        "version":  null
+    },
+    {
+        "name":  "esbenp.prettier-vscode@11.0.0",
+        "version":  null
+    },
+    {
+        "name":  "formulahendry.auto-close-tag@0.5.15",
+        "version":  null
+    },
+    {
+        "name":  "formulahendry.auto-rename-tag@0.1.10",
+        "version":  null
+    },
+    {
+        "name":  "formulahendry.code-runner@0.12.2",
+        "version":  null
+    },
+    {
+        "name":  "github.github-vscode-theme@6.3.4",
+        "version":  null
+    },
+    {
+        "name":  "github.vscode-github-actions@0.27.0",
+        "version":  null
+    },
+    {
+        "name":  "gruntfuggly.todo-tree@0.0.226",
+        "version":  null
+    },
+    {
+        "name":  "humao.rest-client@0.26.0",
+        "version":  null
+    },
+    {
+        "name":  "ionutvmi.path-autocomplete@1.25.0",
+        "version":  null
+    },
+    {
+        "name":  "jonathanlewis.vs-code-gen-mongo-id@1.0.1",
+        "version":  null
+    },
+    {
+        "name":  "leizongmin.node-module-intellisense@1.5.0",
+        "version":  null
+    },
+    {
+        "name":  "mikecunneen.default-keys-macos@1.0.0",
+        "version":  null
+    },
+    {
+        "name":  "mohamed-khaled.mern-snippets@0.1.1",
+        "version":  null
+    },
+    {
+        "name":  "mongodb.mongodb-vscode@1.7.0",
+        "version":  null
+    },
+    {
+        "name":  "ms-azuretools.vscode-docker@1.29.2",
+        "version":  null
+    },
+    {
+        "name":  "ms-vscode-remote.remote-containers@0.384.0",
+        "version":  null
+    },
+    {
+        "name":  "ms-vscode-remote.remote-ssh@0.114.3",
+        "version":  null
+    },
+    {
+        "name":  "ms-vscode-remote.remote-ssh-edit@0.87.0",
+        "version":  null
+    },
+    {
+        "name":  "ms-vscode-remote.remote-wsl@0.88.4",
+        "version":  null
+    },
+    {
+        "name":  "ms-vscode-remote.vscode-remote-extensionpack@0.25.0",
+        "version":  null
+    },
+    {
+        "name":  "ms-vscode.makefile-tools@0.11.13",
+        "version":  null
+    },
+    {
+        "name":  "ms-vscode.remote-explorer@0.4.3",
+        "version":  null
+    },
+    {
+        "name":  "ms-vscode.remote-server@1.5.2",
+        "version":  null
+    },
+    {
+        "name":  "ms-vsliveshare.vsliveshare@1.0.5941",
+        "version":  null
+    },
+    {
+        "name":  "ms-windows-ai-studio.windows-ai-studio@0.4.0",
+        "version":  null
+    },
+    {
+        "name":  "nvma.material-ui-doc-example-snippets@0.0.1",
+        "version":  null
+    },
+    {
+        "name":  "ofhumanbondage.react-proptypes-intellisense@1.0.3",
+        "version":  null
+    },
+    {
+        "name":  "pkief.material-icon-theme@5.11.1",
+        "version":  null
+    },
+    {
+        "name":  "planbcoding.vscode-react-refactor@1.1.3",
+        "version":  null
+    },
+    {
+        "name":  "prisma.prisma@5.20.0",
+        "version":  null
+    },
+    {
+        "name":  "purecodeai.purecode-ai@0.4.0",
+        "version":  null
+    },
+    {
+        "name":  "roerohan.mongo-snippets-for-node-js@1.3.12",
+        "version":  null
+    },
+    {
+        "name":  "rvest.vs-code-prettier-eslint@6.0.0",
+        "version":  null
+    },
+    {
+        "name":  "saoudrizwan.claude-dev@1.9.7",
+        "version":  null
+    },
+    {
+        "name":  "streetsidesoftware.code-spell-checker@3.0.1",
+        "version":  null
+    },
+    {
+        "name":  "styled-components.vscode-styled-components@1.7.8",
+        "version":  null
+    },
+    {
+        "name":  "tomoki1207.pdf@1.2.2",
+        "version":  null
+    },
+    {
+        "name":  "vscodeshift.material-ui-snippets@3.3.8",
+        "version":  null
+    },
+    {
+        "name":  "vscodeshift.mui-snippets@1.0.1",
+        "version":  null
+    },
+    {
+        "name":  "xabikos.javascriptsnippets@1.8.0",
+        "version":  null
+    },
+    {
+        "name":  "yandeu.five-server@0.3.1",
+        "version":  null
+    },
+    {
+        "name":  "yzhang.markdown-all-in-one@3.6.2",
+        "version":  null
+    },
+    {
+        "name":  "zhang-renyang.claude-vscode@1.0.3",
+        "version":  null
+    }
+]

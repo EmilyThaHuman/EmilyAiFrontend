@@ -20,6 +20,25 @@ export const useChatSessionHandler = () => {
     },
   } = useChatStore();
 
+  const handleCreateNewWorkspace = useCallback(
+    async workspaceData => {
+      try {
+        const savedWorkspace = await workspacesApi.create(workspaceData);
+        setWorkspaces([...workspaces, savedWorkspace]);
+        setSelectedWorkspace(savedWorkspace);
+        navigate(`/admin/workspaces/${params.workspaceId}}`);
+      } catch (err) {
+        console.error('Error saving workspace:', err);
+      }
+    },
+    [
+      navigate,
+      params.workspaceId,
+      setSelectedWorkspace,
+      setWorkspaces,
+      workspaces,
+    ]
+  );
   const handleGetSession = useCallback(async () => {
     try {
       if (!workspaceId) {
@@ -40,7 +59,6 @@ export const useChatSessionHandler = () => {
       throw error;
     }
   }, [sessionId, setSelectedChatSession, setSessionId, workspaceId]);
-
   const handleGetSessionMessages = useCallback(async () => {
     try {
       if (!sessionId) {
@@ -55,27 +73,6 @@ export const useChatSessionHandler = () => {
       console.error('Error fetching session messages:', error);
     }
   }, [sessionId, syncChatMessages]);
-
-  const handleCreateNewWorkspace = useCallback(
-    async workspaceData => {
-      try {
-        const savedWorkspace = await workspacesApi.create(workspaceData);
-        setWorkspaces([...workspaces, savedWorkspace]);
-        setSelectedWorkspace(savedWorkspace);
-        navigate(`/admin/workspaces/${params.workspaceId}}`);
-      } catch (err) {
-        console.error('Error saving workspace:', err);
-      }
-    },
-    [
-      navigate,
-      params.workspaceId,
-      setSelectedWorkspace,
-      setWorkspaces,
-      workspaces,
-    ]
-  );
-
   const handleCreateNewSession = useCallback(
     async (userId, apiKey) => {
       try {

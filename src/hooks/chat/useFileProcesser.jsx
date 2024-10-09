@@ -12,6 +12,7 @@ export const ACCEPTED_FILE_TYPES = [
   'text/markdown',
   'application/pdf',
   'text/plain',
+  'text/javascript',
 ].join(',');
 const { OPENAI_ACCEPTED_FILE_TYPES, OPENAI_ACCEPTED_FILE_EXTENSIONS } =
   constants;
@@ -28,170 +29,168 @@ export const useFileProcesser = () => {
       setUseRetrieval,
     },
   } = useChatStore();
-  const [filesToAccept, setFilesToAccept] = useState(ACCEPTED_FILE_TYPES);
+  const [filesToAccept] = useState(ACCEPTED_FILE_TYPES);
   const fileInputRef = useRef();
   const { editor } = useTipTapEditor();
-  // Memoized function to read files
-  const readFile = useCallback((file, readAs, callback) => {
-    const fileReader = new FileReader();
-    fileReader.onload = () => callback(fileReader.result);
-    fileReader.onerror = error =>
-      console.error(`Error reading file ${file.name}:`, error);
 
-    switch (readAs) {
-      case 'ArrayBuffer':
-        fileReader.readAsArrayBuffer(file);
-        break;
-      case 'DataURL':
-        fileReader.readAsDataURL(file);
-        break;
-      case 'Text':
-        fileReader.readAsText(file);
-        break;
-      default:
-        throw new Error(`Unsupported read type: ${readAs}`);
-    }
+  const generateUniqueId = () => '_' + Math.random().toString(36).substr(2, 9);
+
+  const readFile = useCallback((file, readAs) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.onload = () => resolve(fileReader.result);
+      fileReader.onerror = error =>
+        reject(`Error reading file ${file.name}: ${error.message}`);
+
+      switch (readAs) {
+        case 'ArrayBuffer':
+          fileReader.readAsArrayBuffer(file);
+          break;
+        case 'DataURL':
+          fileReader.readAsDataURL(file);
+          break;
+        case 'Text':
+          fileReader.readAsText(file);
+          break;
+        default:
+          reject(new Error(`Unsupported read type: ${readAs}`));
+      }
+    });
   }, []);
 
-  // Memoized function to handle file types
   const handleFileType = useCallback(
-    async (file, fileType, editor, setNewMessageImages) => {
-      return new Promise((resolve, reject) => {
+    async (file, fileType) => {
+      try {
         switch (fileType) {
-          case 'image':
-            readFile(file, 'DataURL', dataUrl => {
-              setNewMessageImages(prev => [
-                ...prev,
-                { name: file.name, url: dataUrl },
-              ]);
-              resolve(dataUrl);
+          case 'image': {
+            const dataUrl = await readFile(file, 'DataURL');
+            setNewMessageImages(prev => [
+              ...prev,
+              { name: file.name, url: dataUrl },
+            ]);
+            return dataUrl;
+          }
+          case 'pdf': {
+            const arrayBuffer = await readFile(file, 'ArrayBuffer');
+            // Implement actual PDF parsing here
+            const content = `Extracted text from ${file.name}`;
+            return content;
+          }
+          case 'docx': {
+            const arrayBuffer = await readFile(file, 'ArrayBuffer');
+            const { value: content } = await mammoth.extractRawText({
+              arrayBuffer,
             });
-            break;
-          case 'pdf':
-            readFile(file, 'ArrayBuffer', arrayBuffer => {
-              const content = `PDF file content of ${file.name}`;
-              resolve(content);
-            });
-            break;
-          case 'docx':
-            readFile(file, 'ArrayBuffer', async arrayBuffer => {
-              const { value: content } = await mammoth.extractRawText({
-                arrayBuffer,
-              });
-              resolve(content);
-            });
-            break;
-          case 'text':
-            readFile(file, 'Text', text => {
-              resolve(text);
-            });
-            break;
+            return content;
+          }
+          case 'text': {
+            const text = await readFile(file, 'Text');
+            return text;
+          }
           default:
-            reject(new Error('Unsupported file type'));
+            throw new Error('Unsupported file type');
         }
-      });
+      } catch (error) {
+        throw new Error(
+          `Failed to process file ${file.name}: ${error.message}`
+        );
+      }
     },
-    [readFile]
+    [readFile, setNewMessageImages]
   );
 
-  // Memoized function to handle accepted file types
   const handleAcceptedFileType = useCallback(file => {
-    const fileExtension = `.${file.name.split('.').pop()}`;
-    const acceptedExtensions = flattenArrays(OPENAI_ACCEPTED_FILE_EXTENSIONS);
-    const acceptedTypes = flattenArrays(OPENAI_ACCEPTED_FILE_TYPES);
+    const fileExtension = `.${file.name.split('.').pop().toLowerCase()}`;
+    const acceptedExtensions = OPENAI_ACCEPTED_FILE_EXTENSIONS;
+    const acceptedTypes = OPENAI_ACCEPTED_FILE_TYPES;
 
-    for (const key in acceptedExtensions) {
-      if (
-        acceptedExtensions[key].includes(fileExtension) ||
-        acceptedTypes[key].includes(file.type)
-      ) {
+    for (const [key, extensions] of Object.entries(acceptedExtensions)) {
+      if (extensions.includes(fileExtension)) {
         return key;
       }
     }
+
+    for (const [key, types] of Object.entries(acceptedTypes)) {
+      if (types.includes(file.type)) {
+        return key;
+      }
+    }
+
     return null;
   }, []);
 
-  // Memoized function to handle file selection
+  const validateFileSize = useCallback((file, maxSizeMB = 5) => {
+    const fileSizeMB = file.size / (1024 * 1024);
+    return fileSizeMB <= maxSizeMB;
+  }, []);
+
   const handleSelectDeviceFile = useCallback(
     async (file, isChatMessageFile = false) => {
-      setShowFilesDisplay(true);
-      if (isChatMessageFile) {
-        setShowFilesDisplay(true);
-      } else {
-        setShowFilesDisplay(false);
-      }
+      setShowFilesDisplay(isChatMessageFile);
       setUseRetrieval(true);
-      if (file) {
-        try {
-          const fileType = handleAcceptedFileType(file);
-          const originalFileType = file.type;
-          const fileName = file.name;
-          const fileSize = `${(file.size / 1024).toFixed(1)} KB`;
 
-          if (!fileType) {
-            console.error(`Unsupported file type ${file.type}`);
-            return;
-          }
+      if (!file) return;
 
-          const newFile = {
-            id: 'loading',
-            name: fileName,
-            type: fileType,
-            size: fileSize,
-            originalFileType: originalFileType,
-            // file: file,
-          };
+      if (!validateFileSize(file)) {
+        toast.error(`File ${file.name} exceeds the maximum size limit.`, {
+          duration: 5000,
+        });
+        return;
+      }
 
-          setNewMessageFiles([...newMessageFiles, newFile]);
+      const fileType = handleAcceptedFileType(file);
+      if (!fileType) {
+        toast.error(`Unsupported file type ${file.type}`, {
+          duration: 5000,
+        });
+        return;
+      }
 
-          const content = await handleFileType(
-            file,
-            fileType,
-            editor,
-            setNewMessageImages
-          );
+      const fileId = generateUniqueId();
+      const newFile = {
+        id: fileId,
+        name: file.name,
+        type: fileType,
+        size: `${(file.size / 1024).toFixed(1)} KB`,
+        originalFileType: file.type,
+      };
 
-          const processedFile = {
-            ...newFile,
-            data: content,
-          };
-          console.log('Processed file:', processedFile);
-          // setFiles([...files, processedFile]);
-          // setChatFiles([...chatFiles, processedFile]);
-          if (isChatMessageFile) {
-            setChatFiles([...chatFiles, processedFile]);
-            setNewMessageFiles(
-              newMessageFiles.map(file =>
-                file.id === 'loading' ? processedFile : file
-              )
-            );
-          } else {
-            setFiles([...files, processedFile]);
-          }
-          // setNewMessageFiles(
-          //   newMessageFiles.map(file =>
-          //     file.id === 'loading' ? processedFile : file
-          //   )
-          // );
-        } catch (error) {
-          toast.error(`Failed to upload. ${error.message}`, {
-            duration: 10000,
-          });
+      setNewMessageFiles(prevFiles => [...prevFiles, newFile]);
 
-          // Handle error and rollback based on isChatMessageFile
-          if (isChatMessageFile) {
-            setNewMessageImages(prev =>
-              prev.filter(img => img.messageId !== 'temp')
-            );
-            setChatFiles(prev => prev.filter(file => file.id !== 'loading'));
-          } else {
-            setNewMessageImages(prev =>
-              prev.filter(img => img.messageId !== 'temp')
-            );
-            setNewMessageFiles(prev =>
-              prev.filter(file => file.id !== 'loading')
-            );
-          }
+      try {
+        const content = await handleFileType(file, fileType);
+
+        const processedFile = {
+          ...newFile,
+          data: content,
+        };
+
+        if (isChatMessageFile) {
+          setChatFiles(prevFiles => [...prevFiles, processedFile]);
+        } else {
+          setFiles(prevFiles => [...prevFiles, processedFile]);
+        }
+
+        // Update newMessageFiles with the processed file
+        setNewMessageFiles(prevFiles =>
+          prevFiles.map(fileItem =>
+            fileItem.id === fileId ? processedFile : fileItem
+          )
+        );
+      } catch (error) {
+        toast.error(error.message, {
+          duration: 10000,
+        });
+
+        // Rollback state changes
+        setNewMessageImages(prev => prev.filter(img => img.id !== fileId));
+        setNewMessageFiles(prev =>
+          prev.filter(fileItem => fileItem.id !== fileId)
+        );
+        if (isChatMessageFile) {
+          setChatFiles(prev => prev.filter(fileItem => fileItem.id !== fileId));
+        } else {
+          setFiles(prev => prev.filter(fileItem => fileItem.id !== fileId));
         }
       }
     },
@@ -199,27 +198,24 @@ export const useFileProcesser = () => {
       setShowFilesDisplay,
       setUseRetrieval,
       handleAcceptedFileType,
-      newMessageFiles,
+      handleFileType,
       setNewMessageFiles,
       setNewMessageImages,
-      files,
+      setChatFiles,
       setFiles,
-      setChatFiles, // Add the setChatFiles function here
-      chatFiles, // Add the chatFiles array here
-      handleFileType,
-      editor,
+      validateFileSize,
     ]
   );
-  // Memoized function to handle file removal
+
   const handleRemoveFile = useCallback(
     fileId => {
-      setFiles(prevFiles => prevFiles.filter(file => file._id !== fileId));
-      setChatFiles(prevFiles => prevFiles.filter(file => file._id !== fileId));
+      setFiles(prevFiles => prevFiles.filter(file => file.id !== fileId));
+      setChatFiles(prevFiles => prevFiles.filter(file => file.id !== fileId));
       setNewMessageFiles(prevFiles =>
-        prevFiles.filter(file => file._id !== fileId)
+        prevFiles.filter(file => file.id !== fileId)
       );
       setNewMessageImages(prevImages =>
-        prevImages.filter(image => image.messageId !== fileId)
+        prevImages.filter(image => image.id !== fileId)
       );
     },
     [setFiles, setChatFiles, setNewMessageFiles, setNewMessageImages]

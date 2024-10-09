@@ -88,7 +88,7 @@ export const StyledListItem = styled(
 }));
 
 StyledListItem.propTypes = {
-  file: PropTypes.object.isRequired,
+  item: PropTypes.object.isRequired,
   isHovered: PropTypes.bool,
   isFocused: PropTypes.bool,
   isSelected: PropTypes.bool,

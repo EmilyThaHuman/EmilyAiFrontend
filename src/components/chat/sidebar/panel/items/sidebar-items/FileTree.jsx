@@ -1,7 +1,7 @@
+import { uniqueId } from 'lodash';
 import React, { useCallback } from 'react';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { FileTreeItem } from './FileTreeItem';
-import { uniqueId } from 'lodash';
 
 export const FileTree = props => {
   const {

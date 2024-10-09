@@ -32,7 +32,6 @@ import {
   useTipTapEditor,
 } from 'hooks';
 import 'styles/ChatStyles.css';
-import { filterMessagesWithContent, organizeMessages } from 'utils/format';
 
 export const MainChat = () => {
   const { theme } = useMode();
@@ -74,10 +73,7 @@ export const MainChat = () => {
     handleRegenerateResponse,
     handleStop,
   } = useChatHandler();
-  const { handleGetSessionMessages, handleCreateNewSession } =
-    useChatSessionHandler();
-  // const actionData = useActionData();
-  // const [open, setOpen] = useState(!actionData);
+  const { handleGetSession, handleCreateNewSession } = useChatSessionHandler();
   const promptsMenu = useMenu();
   const dialogRef = useRef(null);
   const sidebarItemRef = useRef(null);
@@ -113,14 +109,9 @@ export const MainChat = () => {
     }
 
     if ((!chatMessages || chatMessages.length === 0) && sessionId) {
-      await handleGetSessionMessages();
+      await handleGetSession();
     }
-  }, [
-    sessionId,
-    chatMessages,
-    handleCreateNewSession,
-    handleGetSessionMessages,
-  ]);
+  }, [sessionId, chatMessages, handleCreateNewSession, handleGetSession]);
 
   useEffect(() => {
     initializeSession();
@@ -129,7 +120,7 @@ export const MainChat = () => {
   /* --- fn() to handle the scroll to bottom --- */
   useEffect(() => {
     const fetchData = async () => {
-      await handleGetSessionMessages();
+      await handleGetSession();
       scrollToBottom();
       setIsAtBottom(true);
     };
@@ -139,7 +130,7 @@ export const MainChat = () => {
     }
   }, [
     params?.workspaceId,
-    handleGetSessionMessages,
+    handleGetSession,
     scrollToBottom,
     setIsAtBottom,
     chatLoading,
@@ -154,49 +145,6 @@ export const MainChat = () => {
       }
     };
   }, [controllerRef]);
-
-  const handleUpdateMessages = useCallback(() => {
-    const combinedMessages = [...chatMessages];
-    const organizedMessages = organizeMessages(combinedMessages);
-    let uniqueMessages = filterMessagesWithContent(organizedMessages);
-
-    if (!chatLoading && !chatStreaming) {
-      const secondLastIndex = uniqueMessages.length - 2;
-      if (
-        secondLastIndex >= 0 &&
-        uniqueMessages[secondLastIndex].isStreaming === true &&
-        uniqueMessages[secondLastIndex].role === 'assistant'
-      ) {
-        uniqueMessages.splice(secondLastIndex, 1);
-      }
-
-      setChatMessages(uniqueMessages);
-
-      if (
-        workspaceId &&
-        sessionId &&
-        uniqueMessages.length > 0 &&
-        !isMessagesUpdated
-      ) {
-        setIsMessagesUpdated(true);
-      }
-    }
-  }, [
-    chatMessages,
-    chatLoading,
-    chatStreaming,
-    workspaceId,
-    sessionId,
-    isMessagesUpdated,
-    setChatMessages,
-    setIsMessagesUpdated,
-  ]);
-  /* --- fn() to handle the chat messages --- */
-  // useEffect(() => {
-  //   if (!chatLoading && !chatStreaming) {
-  //     handleUpdateMessages(); // Only update if not loading or streaming
-  //   }
-  // }, [chatMessages, chatLoading, chatStreaming, handleUpdateMessages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView();
@@ -297,6 +245,7 @@ export const MainChat = () => {
                   ))}
                 </Box>
               )}
+              <div ref={messagesEndRef} />
               {isSubmitting && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                   <CircularProgress />
@@ -307,7 +256,6 @@ export const MainChat = () => {
                   <CircularProgress />
                 </Box>
               )}
-              <div ref={messagesEndRef} />
             </Box>
             <MessageInput
               disabled={chatLoading || chatStreaming || false}

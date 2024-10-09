@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import foldersApi from 'api/workspaces/folders';
+import { workspacesApi } from 'api/workspaces';
 import { getLocalData, setLocalData } from '../helpers';
 
 const LOCAL_NAME = 'folderStore';
@@ -15,7 +15,7 @@ export const createFolder = createAsyncThunk(
   'folders/create',
   async (folderData, { rejectWithValue }) => {
     try {
-      const data = await foldersApi.create(folderData);
+      const data = await workspacesApi.createWorkspaceFolder(folderData);
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -25,9 +25,9 @@ export const createFolder = createAsyncThunk(
 
 export const deleteFolder = createAsyncThunk(
   'folders/delete',
-  async (folderData, { rejectWithValue }) => {
+  async (folderId, { rejectWithValue }) => {
     try {
-      const data = await foldersApi.delete(folderData);
+      const data = await workspacesApi.deleteWorkspaceFolder(folderId);
       return data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -39,7 +39,7 @@ export const updateFolder = createAsyncThunk(
   'folders/update',
   async (folderData, { rejectWithValue }) => {
     try {
-      const data = await foldersApi.update(folderData);
+      const data = await workspacesApi.syncFolders(folderData);
       return data;
     } catch (error) {
       return rejectWithValue(error.message);

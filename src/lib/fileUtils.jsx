@@ -240,8 +240,8 @@ export const isFileTypeAllowed = (file, allowedTypes) => {
  * @returns {string} - The file extension.
  */
 export const getFileExtension = props => {
-  console.log('fileName:', fileName);
-  return fileName?.split('.').pop().toLowerCase();
+  console.log('fileName:', props.fileName);
+  return props.fileName?.split('.').pop().toLowerCase();
 };
 
 /**

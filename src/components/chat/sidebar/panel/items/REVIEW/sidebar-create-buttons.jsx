@@ -24,7 +24,7 @@ const SidebarCreateButtons = ({ contentType, hasData }) => {
   const handleCreateFolder = async () => {
     if (!profile || !selectedWorkspace) return;
 
-    const createdFolder = await foldersApi.create({
+    const createdFolder = await foldersApi.createWorkspaceFolder({
       user_id: profile.user_id,
       workspace_id: selectedWorkspace.id,
       name: 'New Folder',
