@@ -25,12 +25,6 @@ export const FileInfoTooltip = ({ item }) => {
       <p>
         <strong>Size:</strong> {item.size ? formatFileSize(item.size) : 'N/A'}
       </p>
-      <p>
-        <strong>Last Modified:</strong>{' '}
-        {item.metadata.lastModified
-          ? new Date(item.metadata.lastModified).toLocaleString()
-          : 'N/A'}
-      </p>
     </div>
   );
 };

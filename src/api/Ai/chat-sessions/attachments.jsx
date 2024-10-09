@@ -33,7 +33,8 @@ export const attachmentsApi = {
   // -------------------------- //
   // --- Storage Functions ---  //
   // -------------------------- //
-  uploadFile: async (file, payload) => {
+  // In your upload service code
+  uploadFile: async (file, payload, onUploadProgress) => {
     try {
       const { name, userId, fileId, workspaceId, folderId, space } = payload;
       const SIZE_LIMIT = 10 * 1024 * 1024; // 10MB size limit
@@ -56,14 +57,6 @@ export const attachmentsApi = {
         folderId,
         space,
       });
-      // const formData = new FormData();
-      // formData.append('file', file);
-      // formData.append('name', name);
-      // formData.append('userId', userId);
-      // formData.append('workspaceId', workspaceId);
-      // formData.append('folderId', folderId);
-      // formData.append('fileId', fileId);
-      // formData.append('space', space);
 
       // API request
       const response = await apiUtils.post('/chat/files/upload', formData, {
@@ -75,22 +68,14 @@ export const attachmentsApi = {
             (progressEvent.loaded * 100) / progressEvent.total
           );
           console.log(`Upload Progress: ${percentCompleted}%`);
+          if (onUploadProgress) {
+            onUploadProgress(progressEvent);
+          }
         },
       });
 
-      // const response = await apiUtils.post('/chat/files/upload', formData, {
-      //   headers: {
-      //     'Content-Type': 'multipart/form-data',
-      //   },
-      //   onUploadProgress: progressEvent => {
-      //     const percentCompleted = Math.round(
-      //       (progressEvent.loaded * 100) / progressEvent.total
-      //     );
-      //     console.log(`Upload Progress: ${percentCompleted}%`);
-      //     // Optional: Update a progress state here if needed for a progress bar
-      //   },
-      // });
       console.log('UPDATED', response);
+
       // Check if the response is valid and contains a file path
       if (!response?.message || !response?.file) {
         throw new Error('No response or file path received from the server');
@@ -101,11 +86,12 @@ export const attachmentsApi = {
       return response.file;
     } catch (error) {
       handleError(error, 'uploading file');
+      throw error; // Rethrow the error to be handled in the calling function
     }
   },
   getFileFromStorage: async filePath => {
     try {
-      const response = await apiUtils.get(`/chat/files/${filePath}`, {
+      const response = await apiUtils.get(`/chat/files${filePath}`, {
         responseType: 'blob',
       });
       return URL.createObjectURL(response.data);
@@ -126,7 +112,7 @@ export const attachmentsApi = {
   getAllStoredFiles: async () => {
     try {
       const response = await apiUtils.get('/chat/files');
-      return response.data;
+      return response.files;
     } catch (error) {
       console.error('Error fetching all stored files:', error);
       throw error;
@@ -166,7 +152,27 @@ export const attachmentsApi = {
   },
   getStoredFileById: async fileId => {
     try {
-      const response = await apiUtils.get(`/chat/files/${fileId}`);
+      const response = await apiUtils.get(`/chat/files/fileId/${fileId}`, {
+        responseType: 'blob',
+      });
+      return response;
+    } catch (error) {
+      console.error('Error fetching file:', error.message || error);
+      throw error;
+    }
+  },
+  getStoredFileByPath: async filePath => {
+    try {
+      const response = await apiUtils.get(`/chat/files/path${filePath}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching file:', error.message || error);
+      throw error;
+    }
+  },
+  getStoredFileByUserId: async userId => {
+    try {
+      const response = await apiUtils.get(`/chat/files/user/${userId}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching file:', error.message || error);
@@ -279,7 +285,6 @@ export const attachmentsApi = {
       throw error;
     }
   },
-
   updateMessage: async (id, messageData) => {
     try {
       const data = await apiUtils.put(`/chat/messages/${id}`, messageData);

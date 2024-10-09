@@ -12,7 +12,7 @@ import {
 } from 'react-icons/fa';
 
 export const FileIcon = React.memo(
-  ({ type, size = 32, iconColor = '#BDBDBD' }) => {
+  ({ type, size = 28, iconColor = '#BDBDBD' }) => {
     const iconMap = {
       image: FaFileImage,
       pdf: FaFilePdf,

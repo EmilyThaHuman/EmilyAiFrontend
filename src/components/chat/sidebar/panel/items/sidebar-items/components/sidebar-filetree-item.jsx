@@ -1,45 +1,76 @@
-import { ExpandMore, ExpandLess, Delete, Edit } from '@mui/icons-material';
+import {
+  Folder as FolderIcon,
+  ExpandLess,
+  ExpandMore,
+  Delete,
+  Edit,
+} from '@mui/icons-material';
 import {
   Box,
   ListItemText,
   ListItemIcon,
   IconButton,
   Collapse,
+  ListItem,
+  Tooltip,
+  ListItemButton,
 } from '@mui/material';
 import { styled } from '@mui/system';
 import PropTypes from 'prop-types';
 import { useDrag, useDrop } from 'react-dnd';
-import { FaFolder, FaChevronRight, FaChevronDown } from 'react-icons/fa';
 import { FileIcon } from 'components/chat/files';
-import { StyledListItem } from 'components/chat/styled';
+import FileInfoTooltip from '../FileInfoTooltip';
 
-const StyledTreeItemRoot = styled(Box)(({ theme, isDragging }) => ({
+const StyledListItemButton = styled(ListItemButton)(
+  ({ theme, isSelected }) => ({
+    backgroundColor: isSelected ? theme.palette.action.selected : 'transparent',
+    '&:hover': {
+      backgroundColor: theme.palette.action.hover,
+    },
+    '&:focus': {
+      backgroundColor: theme.palette.action.focus,
+    },
+  })
+);
+
+// Wrapper component to include the tooltip
+const ListItemWithTooltip = ({ item, ...otherProps }) => (
+  <Tooltip title={<FileInfoTooltip item={item} />} placement="right" arrow>
+    <StyledListItemButton {...otherProps} />
+  </Tooltip>
+);
+
+ListItemWithTooltip.propTypes = {
+  item: PropTypes.object.isRequired,
+};
+
+// Styled root component
+const StyledTreeItemRoot = styled(Box, {
+  shouldForwardProp: prop => prop !== 'isDragging',
+})(({ theme, isDragging }) => ({
   color:
     theme.palette.mode === 'dark'
       ? theme.palette.grey[400]
       : theme.palette.grey[800],
   position: 'relative',
   opacity: isDragging ? 0.5 : 1,
-  '& .group': {
-    transition: theme.transitions.create('height', {
-      duration: theme.transitions.duration.shortest,
-    }),
-    overflow: 'hidden',
-  },
 }));
 
 export const FileTreeItem = ({
   item,
   path,
+  isHovered,
+  isFocused,
   isSelected,
+  isLoading,
   onDelete,
+  onHover,
+  onFocus,
   onSelect,
   onMove,
   onToggle,
   children,
 }) => {
-  const isDirectory = Boolean(item.children && item.children.length);
-
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'FILE_ITEM',
     item: { path },
@@ -61,40 +92,37 @@ export const FileTreeItem = ({
   }));
 
   return (
-    <div ref={drop}>
-      <StyledTreeItemRoot isDragging={isDragging} ref={drag}>
-        <StyledListItem
-          button
+    <StyledTreeItemRoot isDragging={isDragging} ref={drag}>
+      <div ref={drop}>
+        <ListItemWithTooltip
+          item={item}
+          isSelected={isSelected}
+          // In FileTreeItem component
           onClick={event => {
-            onSelect(event, item);
-            if (isDirectory) {
-              onToggle();
+            event.stopPropagation();
+            if (item.isDirectory) {
+              onToggle(item.id);
+            } else {
+              onSelect(item);
             }
           }}
-          item={item}
-          isHovered={isOver}
-          isFocused={isSelected}
-          isSelected={isSelected}
+          onMouseEnter={() => onHover(item.id)}
+          onMouseLeave={() => onHover(null)}
+          onFocus={() => onFocus(item.id)}
+          onBlur={() => onFocus(null)}
           style={{
             backgroundColor: isOver ? '#e0e0e0' : 'transparent',
           }}
         >
           <ListItemIcon>
-            {isDirectory ? (
-              <>
-                {item.isOpen ? <FaChevronDown /> : <FaChevronRight />}
-                <FaFolder size={32} />
-              </>
-            ) : (
-              <FileIcon type={item.type} />
-            )}
+            {item.isDirectory ? <FolderIcon /> : <FileIcon type={item.type} />}
           </ListItemIcon>
           <ListItemText primary={item.name} />
-          {isDirectory && (
+          {item.isDirectory && (
             <IconButton
               onClick={e => {
                 e.stopPropagation();
-                onToggle();
+                onToggle(item._id);
               }}
             >
               {item.isOpen ? <ExpandLess /> : <ExpandMore />}
@@ -105,32 +133,45 @@ export const FileTreeItem = ({
             aria-label="delete"
             onClick={e => {
               e.stopPropagation();
+              console.log('Edit clicked');
+            }}
+          >
+            <Edit />
+          </IconButton>
+          <IconButton
+            edge="end"
+            aria-label="delete"
+            onClick={e => {
+              e.stopPropagation();
               onDelete(path);
             }}
           >
             <Delete />
           </IconButton>
-        </StyledListItem>
-        {isDirectory && (
+        </ListItemWithTooltip>
+        {item.isDirectory && (
           <Collapse in={item.isOpen} timeout="auto" unmountOnExit>
             {children}
           </Collapse>
         )}
-      </StyledTreeItemRoot>
-    </div>
+      </div>
+    </StyledTreeItemRoot>
   );
 };
 
 FileTreeItem.propTypes = {
   item: PropTypes.shape({
+    id: PropTypes.string.isRequired, // Use 'id' consistently
     name: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
-    children: PropTypes.array,
+    type: PropTypes.string,
     isOpen: PropTypes.bool,
+    isDirectory: PropTypes.bool,
   }).isRequired,
   path: PropTypes.string.isRequired,
   isSelected: PropTypes.bool.isRequired,
   onDelete: PropTypes.func.isRequired,
+  onHover: PropTypes.func.isRequired,
+  onFocus: PropTypes.func.isRequired,
   onSelect: PropTypes.func.isRequired,
   onMove: PropTypes.func.isRequired,
   onToggle: PropTypes.func.isRequired,

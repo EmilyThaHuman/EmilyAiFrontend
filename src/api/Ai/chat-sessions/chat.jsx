@@ -140,16 +140,16 @@ export const chatApi = {
       throw error;
     }
   },
-  getChatSessionByChatSessionId: async (workspaceId, chatSessionId) => {
+  getChatSessionByChatSessionId: async (workspaceId, sessionId) => {
     try {
       const data = await apiUtils.get(
-        `/chat/workspaces/${workspaceId}/chatSessions/${chatSessionId}`
+        `/chat/workspaces/${workspaceId}/chatSessions/${sessionId}`
       );
       console.log('Chat session fetched:', data);
       return data;
     } catch (error) {
       console.error(
-        `Error fetching chat session with id ${chatSessionId} in workspace ${workspaceId}:`,
+        `Error fetching chat session with id ${sessionId} in workspace ${workspaceId}:`,
         error
       );
       throw error;
