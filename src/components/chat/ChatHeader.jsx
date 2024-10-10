@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/no-autofocus */
+import { FullscreenExit } from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -18,7 +19,9 @@ import {
   Typography,
   useMediaQuery,
 } from '@mui/material';
+import { Fullscreen } from 'lucide-react';
 import React, { useState } from 'react';
+
 import routes from '@/routes/index';
 import {
   CodeIcon,
@@ -31,6 +34,7 @@ import {
 import { useChatStore } from 'contexts';
 import { useDialog, useMenu, useMode } from 'hooks';
 import { extractPaths, findBreadcrumbs } from 'utils/navigation';
+
 import { PresetSelect } from './sidebar/panel';
 import RagChatBotSettingsDialog from './sidebar/panel/items/chat-items/chat-session-settings-dialog';
 
@@ -87,6 +91,7 @@ export const ChatHeader = props => {
   const shareDialog = useDialog();
   const chatPresetsDialog = useDialog();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Check if the screen size is mobile
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const mobileMenu = useMenu();
   const pathName = window.location.pathname;
   const linkPaths = extractPaths(routes);
@@ -103,6 +108,14 @@ export const ChatHeader = props => {
   const [anchorEl, setAnchorEl] = useState(null);
   const handleMenuOpen = event => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
+  const handleFullscreenToggle = () => {
+    setIsFullscreen(!isFullscreen);
+    if (!isFullscreen) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
   const handlePresetChange = event => {
     const selectedPresetName = event.target.value;
     const preset = presets.find(p => p.name === selectedPresetName);
@@ -163,7 +176,13 @@ export const ChatHeader = props => {
           >
             View code
           </Button>
-          <Button
+          <IconButton
+            onClick={handleFullscreenToggle}
+            sx={{ color: '#ffffff' }}
+          >
+            {isFullscreen ? <FullscreenExit /> : <Fullscreen />}
+          </IconButton>
+          {/* <Button
             startIcon={<ShareIcon />}
             onClick={shareDialog.handleOpen}
             sx={{ color: '#ffffff' }}
@@ -172,7 +191,7 @@ export const ChatHeader = props => {
           </Button>
           <IconButton onClick={handleMenuOpen} sx={{ color: '#ffffff' }}>
             <MoreVertIcon />
-          </IconButton>
+          </IconButton> */}
           <Menu
             anchorEl={anchorEl}
             keepMounted

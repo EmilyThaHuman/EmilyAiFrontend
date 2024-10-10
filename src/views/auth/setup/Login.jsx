@@ -4,31 +4,52 @@
 // import TextField from '@mui/material/TextField';
 // import Typography from '@mui/material/Typography';
 // import axios from 'axios';
-// import { redirect } from 'next/navigation';
+// import { useFormik } from 'formik';
 // import React, { useState, useEffect } from 'react';
+// import { redirect, useNavigate } from 'react-router-dom';
 
 // import { userApi } from 'api/user';
-
-// import { Brand } from '@/components/ui/brand';
-// import { useNavigate } from 'react-router-dom';
+// import { authConfigs } from 'config/form-configs';
+// import { useUserStore } from 'contexts/UserProvider';
+// import { useMode } from 'hooks/app';
+// import { Brand } from 'layouts/navigation';
 
 // export const metadata = {
 //   title: 'Login',
 // };
 
-// export default function Login({ searchParams }) {
+// export default function Login({ searchParams = {} }) {
 //   const [errorMessage, setErrorMessage] = useState('');
 //   const [isLoading, setIsLoading] = useState(false);
 //   const navigate = useNavigate();
 //   const {
-//     state: { profile, isAuthenticated, userRequest },
-//     actions: { handleAuthSubmit, setProfile },
+//     state: { profile, authSession, isAuthenticated, userRequest },
+//     actions: { handleAuthSubmit, setProfile, setAuthSession },
 //   } = useUserStore();
 //   const { theme } = useMode();
 //   const [error, setError] = useState('');
 //   const [activeStep, setActiveStep] = useState(1);
 //   const [isSignup, setIsSignup] = useState(false);
 //   const [loading, setLoading] = useState(false);
+//   const formik = useFormik({
+//     initialValues: {
+//       username: '',
+//       password: '',
+//       email: '',
+//       isSignup: false,
+//     },
+//     onSubmit: async values => {
+//       try {
+//         if (values.isSignup) {
+//           await handleSignUp(values);
+//         } else {
+//           await handleSignIn(values);
+//         }
+//       } catch (error) {
+//         console.error('Authentication failed:', error);
+//       }
+//     },
+//   });
 
 //   // Function to check session from MongoDB through Axios
 //   // Check session status on component mount
@@ -53,14 +74,25 @@
 //     }
 //   }, [isAuthenticated]);
 
-//   const signIn = async formData => {
-//     const email = formData.get('email');
-//     const password = formData.get('password');
-
+//   const handleSubmit = React.useCallback(
+//     async values => {
+//       setIsLoading(true);
+//       try {
+//         await handleAuthSubmit(values);
+//       } catch (error) {
+//         console.error('Authentication error:', error);
+//         // Handle error (e.g., show error message)
+//       } finally {
+//         setIsLoading(false);
+//       }
+//     },
+//     [handleAuthSubmit]
+//   );
+//   const handleSignIn = async values => {
 //     try {
-//       const response = await axios.post('/api/login', { email, password });
-//       if (response.data && response.data.session) {
-//         redirect(`/${response.data.session.homeWorkspaceId}/chat`);
+//       await handleSubmit(values);
+//       if (authSession) {
+//         redirect(`/${authSession.workspaceId}/chat`);
 //       }
 //     } catch (error) {
 //       setErrorMessage(
@@ -69,13 +101,10 @@
 //     }
 //   };
 
-//   const signUp = async formData => {
-//     const email = formData.get('email');
-//     const password = formData.get('password');
-
+//   const handleSignUp = async values => {
 //     try {
-//       const response = await axios.post('/api/signup', { email, password });
-//       if (response.data && response.data.success) {
+//       await handleSubmit(values);
+//       if (authSession) {
 //         redirect('/setup');
 //       }
 //     } catch (error) {
@@ -97,6 +126,46 @@
 //       );
 //     }
 //   };
+//   const pageRef = React.createRef();
+//   const formRef = React.createRef();
+//   const formFieldsConfigs = React.useMemo(
+//     () => ({
+//       authConfigs: authConfigs,
+//     }),
+//     []
+//   );
+//   const renderFormFields = () => {
+//     return formFieldsConfigs['authConfigs'].map(field => {
+//       if (field.conditional && !formik.values[field.conditional]) {
+//         return null;
+//       }
+//       return (
+//         <TextField
+//           key={field.name}
+//           label={field.label}
+//           name={field.name}
+//           type={field.type}
+//           value={formik.values[field.name]}
+//           onChange={formik.handleChange}
+//           fullWidth={field.fullWidth}
+//           margin={field.margin}
+//           InputLabelProps={{
+//             shrink: Boolean(formik.values[field.name]),
+//           }}
+//           sx={{
+//             backgroundColor: formik.values[field.name]
+//               ? 'transparent'
+//               : 'inherit',
+//             '& .MuiInputBase-input': {
+//               backgroundColor: formik.values[field.name]
+//                 ? 'transparent'
+//                 : 'inherit',
+//             },
+//           }}
+//         />
+//       );
+//     });
+//   };
 
 //   return (
 //     <Box
@@ -110,40 +179,10 @@
 //       px={3}
 //       py={5}
 //     >
-//       <form
-//         onSubmit={e => {
-//           e.preventDefault();
-//           const formData = new FormData(e.target);
-//           signIn(formData);
-//         }}
-//       >
+//       <form onSubmit={formik.handleSubmit}>
 //         <Brand />
 
-//         <Typography variant="h6" component="label" htmlFor="email" mt={4}>
-//           Email
-//         </Typography>
-//         <TextField
-//           fullWidth
-//           margin="normal"
-//           id="email"
-//           name="email"
-//           type="email"
-//           placeholder="you@example.com"
-//           required
-//         />
-
-//         <Typography variant="h6" component="label" htmlFor="password">
-//           Password
-//         </Typography>
-//         <TextField
-//           fullWidth
-//           margin="normal"
-//           id="password"
-//           name="password"
-//           type="password"
-//           placeholder="••••••••"
-//           required
-//         />
+//         {renderFormFields()}
 
 //         <Button
 //           type="submit"
@@ -152,30 +191,26 @@
 //           fullWidth
 //           sx={{ mt: 2 }}
 //         >
-//           Login
+//           {formik.values.isSignup ? 'Sign Up' : 'Login'}
 //         </Button>
 
 //         <Button
-//           onClick={e => {
-//             e.preventDefault();
-//             const formData = new FormData(e.target.form);
-//             signUp(formData);
-//           }}
+//           onClick={() =>
+//             formik.setFieldValue('isSignup', !formik.values.isSignup)
+//           }
 //           variant="outlined"
 //           fullWidth
 //           sx={{ mt: 2 }}
 //         >
-//           Sign Up
+//           {formik.values.isSignup
+//             ? 'Already have an account? Login'
+//             : 'Sign Up'}
 //         </Button>
 
 //         <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
 //           <Typography variant="body2">Forgot your password?</Typography>
 //           <Button
-//             onClick={e => {
-//               e.preventDefault();
-//               const formData = new FormData(e.target.form);
-//               handleResetPassword(formData);
-//             }}
+//             onClick={() => handleResetPassword(formik.values)}
 //             color="primary"
 //             sx={{ ml: 1 }}
 //           >

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { isRouteErrorResponse, useRouteError } from 'react-router-dom';
+
 import ErrorPage from 'views/error/NotFound';
 
 export function RootBoundary() {

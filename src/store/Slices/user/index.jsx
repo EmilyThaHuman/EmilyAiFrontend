@@ -14,6 +14,7 @@ import userReducer, {
   setEnvKeyMap,
   setSelectedProfileImage,
   addEnvToUser,
+  setAuthSession,
 } from './userSlice';
 
 // Exporting all actions and thunks
@@ -33,6 +34,7 @@ export {
   setIsAuthenticated,
   setUserOpenAiSettings,
   setAuthUserData,
+  setAuthSession,
 };
 
 // Exporting reducers

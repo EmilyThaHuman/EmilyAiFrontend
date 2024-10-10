@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+
 import {
   handleAuthSubmit,
   logout,
@@ -10,6 +11,7 @@ import {
   setSelectedProfileImage,
   setIsAuthenticated,
   fetchUserProfileImage,
+  setAuthSession,
 } from 'store/Slices';
 
 const UserContext = createContext(null);
@@ -19,6 +21,7 @@ export const UserProvider = ({ children }) => {
   const dispatch = useDispatch();
 
   const actions = {
+    setAuthSession,
     setProfile,
     setSelectedProfileImage,
     getUserProfileImage: username => dispatch(fetchUserProfileImage(username)),

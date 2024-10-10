@@ -2,6 +2,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { Box, Container, Paper, Typography } from '@mui/material';
 import React from 'react';
+
 import { RCButton } from 'components/index';
 
 export class ErrorFallback extends React.Component {

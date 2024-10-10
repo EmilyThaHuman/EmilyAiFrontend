@@ -11,6 +11,16 @@ export const userApi = {
       throw error;
     }
   },
+  getSession: async () => {
+    try {
+      const data = await apiUtils.get(`/user/session`);
+      console.log('Session data:', data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching session:', error);
+      throw error;
+    }
+  },
   addEnvToUser: async (userId, apiKey) => {
     try {
       const data = await apiUtils.post(`/user/${userId}/addApiKey`, {

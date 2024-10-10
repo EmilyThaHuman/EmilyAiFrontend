@@ -1,6 +1,14 @@
 import { createBrowserHistory } from 'history';
-import React, { lazy, Suspense } from 'react';
-import { Navigate, createBrowserRouter, redirect } from 'react-router-dom';
+import React, { lazy, Suspense, useState } from 'react';
+import {
+  Form,
+  Navigate,
+  createBrowserRouter,
+  redirect,
+  useActionData,
+} from 'react-router-dom';
+
+import { chatApi } from 'api/Ai/chat-sessions';
 import {
   AdminPanelSettingsRoundedIcon,
   AiIcon,
@@ -16,6 +24,91 @@ import { LoadingIndicator } from 'components/index';
 import { Loadable } from 'layouts/navigation/navbar/components';
 import { dispatch, setField } from 'store/index';
 
+/* *** Router Utils *** */
+const NewChatForm = () => {
+  const actionData = useActionData();
+  const [firstPrompt, setFirstPrompt] = useState('');
+
+  return (
+    <Form method="post">
+      <h2>Start a New Chat</h2>
+      {actionData?.errors && (
+        <ul>
+          {actionData.errors.map((error, index) => (
+            <li key={index}>{error.message}</li>
+          ))}
+        </ul>
+      )}
+      <textarea
+        name="firstPrompt"
+        value={firstPrompt}
+        onChange={e => setFirstPrompt(e.target.value)}
+        placeholder="Enter your first prompt..."
+        required
+      />
+      <button type="submit">Create Chat</button>
+    </Form>
+  );
+};
+
+/* *** Create Chat Action *** */
+export async function createChatAction({ request }) {
+  const formData = await request.formData();
+  const firstPrompt = formData.get('firstPrompt');
+
+  // Basic validation
+  if (!firstPrompt || firstPrompt.trim() === '') {
+    return { errors: [{ message: 'First prompt is required.' }] };
+  }
+
+  try {
+    // Generate chat title
+    const title = await chatApi.generateChatTitle(firstPrompt);
+
+    if (!title) {
+      return { errors: [{ message: 'Failed to generate chat title.' }] };
+    }
+
+    // Create chat session
+    const newChat = await chatApi.createChatSession({
+      title,
+      firstPrompt,
+      sessionId: sessionStorage.getItem('sessionId'),
+      workspaceId: sessionStorage.getItem('workspaceId'),
+      regenerate: false,
+      prompt: firstPrompt,
+      userId: sessionStorage.getItem('userId'),
+      clientApiKey: sessionStorage.getItem('apiKey'),
+    });
+
+    // Redirect to the new chat session
+    return redirect(`/admin/workspaces/home/chat/${newChat.id}`);
+  } catch (error) {
+    return { errors: [{ message: error.message }] };
+  }
+}
+/* *** Logout Action *** */
+export async function logoutAction() {
+  try {
+    // clear session storage
+    sessionStorage.clear();
+    // clear local storage
+    localStorage.clear();
+    // refresh the page
+    window.location.reload();
+    // dispatch({ type: 'LOGOUT' }); // Dispatch the logout action
+    // navigate('/auth/sign-in'); // Navigate to the sign-in page
+    return redirect('/');
+  } catch (error) {
+    console.error('Logout failed:', error);
+    // Even if logout fails, clear local storage and redirect
+    sessionStorage.clear();
+    localStorage.clear();
+    dispatch({ type: 'LOGOUT' });
+    return redirect('/auth/sign-in');
+    // return { errors: [{ message: error.message }] };
+  }
+}
 /* *** Error Utils *** */
 const RootErrorBoundary = Loadable(
   lazy(() => import('utils/app/RouterErrorBoundary.jsx'))
@@ -43,18 +136,6 @@ export const customHistory = createBrowserHistory();
 customHistory.listen((location, action) => {
   console.log(`[History]: ${action} - ${location.pathname}`);
 });
-
-export async function logoutAction() {
-  // clear session storage
-  sessionStorage.clear();
-  // clear local storage
-  localStorage.clear();
-  // refresh the page
-  window.location.reload();
-  // dispatch({ type: 'LOGOUT' }); // Dispatch the logout action
-  // navigate('/auth/sign-in'); // Navigate to the sign-in page
-  return redirect('/');
-}
 
 // =========================================================
 // Route Actions
@@ -222,6 +303,46 @@ const adminRoutes = [
                     ),
                     icon: <AiIcon />,
                   },
+                  // {
+                  //   name: 'New Chat',
+                  //   title: 'NewChat',
+                  //   path: 'new',
+                  //   breadcrumb: 'New Chat',
+                  //   element: (
+                  //     <Suspense fallback={<LoadingIndicator />}>
+                  //       <NewChatForm />
+                  //     </Suspense>
+                  //   ),
+                  //   icon: <AiIcon />,
+                  //   action: async ({ request }) => {
+                  //     const formData = await request.formData();
+                  //     const firstPrompt = formData.get('firstPrompt');
+
+                  //     try {
+                  //       // Make API call to create a new chat session
+                  //       const response =
+                  //         await chatApi.getNewChatSessionWithCompletion(
+                  //           '/chats',
+                  //           {
+                  //             firstPrompt,
+                  //           }
+                  //         );
+                  //       const { chatId } = response.data;
+
+                  //       // Redirect to the new chat session
+                  //       return redirect(
+                  //         `/admin/workspaces/${chatId}/chat/${chatId}`
+                  //       );
+                  //     } catch (error) {
+                  //       console.error('Error creating chat session:', error);
+                  //       return {
+                  //         errors: [
+                  //           { message: 'Failed to create chat session.' },
+                  //         ],
+                  //       };
+                  //     }
+                  //   },
+                  // },
                   {
                     name: 'Chat Session',
                     title: 'ChatSession',
@@ -235,6 +356,46 @@ const adminRoutes = [
                     icon: <DocumentScannerRoundedIcon />,
                     description: 'Chat Sessions',
                     collapse: false,
+                    loader: async ({ params }) => {
+                      const { workspaceId, sessionId } = params;
+                      try {
+                        const chat = await chatApi.getChatSession(sessionId);
+                        return { chatSession: chat };
+                      } catch (error) {
+                        throw new Response(error.message, { status: 404 });
+                      }
+                    },
+                    // action: async ({ request, params }) => {
+                    //   const { sessionId } = params;
+                    //   const formData = await request.formData();
+                    //   const message = formData.get('message');
+
+                    //   if (!message || message.trim() === '') {
+                    //     return {
+                    //       errors: [{ message: 'Message cannot be empty.' }],
+                    //     };
+                    //   }
+
+                    //   try {
+                    //     // Update chat session with new message via API
+                    //     await updateChatSession(sessionId, message);
+
+                    //     // Optionally, you can refetch the chat session or handle AI response
+                    //     return redirect(
+                    //       `/admin/workspaces/${params.workspaceId}/chat/${sessionId}`
+                    //     );
+                    //   } catch (error) {
+                    //     return { errors: [{ message: error.message }] };
+                    //   }
+                    // },
+                  },
+                  {
+                    name: 'New Chat',
+                    title: 'NewChat',
+                    path: 'new',
+                    breadcrumb: 'New Chat',
+                    element: <NewChatForm />,
+                    action: createChatAction,
                   },
                 ],
               },

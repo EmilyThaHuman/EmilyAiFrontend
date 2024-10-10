@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import {
   AccountCircleRoundedIcon,
   AiIcon,
@@ -21,6 +22,7 @@ import {
 } from 'assets/humanIcons';
 import { useAppStore, useChatStore, useUserStore } from 'contexts';
 import { useMode } from 'hooks';
+
 import SidebarContent from './SidebarContent';
 import SidebarTabs from './SidebarTabs';
 

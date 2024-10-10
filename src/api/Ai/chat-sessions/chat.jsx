@@ -164,6 +164,69 @@ export const chatApi = {
       throw error;
     }
   },
+  generateChatTitle: ({ firstPrompt }) => {
+    try {
+      const data = apiUtils.post(
+        '/chat/sessions/generate-title',
+        JSON.stringify({
+          firstPrompt,
+        })
+      );
+      return data;
+    } catch (error) {
+      console.error('Error generating chat title:', error);
+      throw error;
+    }
+  },
+  createChatSession: async ({
+    title,
+    firstPrompt,
+    sessionId,
+    workspaceId,
+    regenerate,
+    prompt,
+    userId,
+    clientApiKey,
+  }) => {
+    try {
+      console.log('Creating chat session with data:', {
+        title,
+        firstPrompt,
+        sessionId,
+        workspaceId,
+        regenerate,
+        prompt,
+        userId,
+        clientApiKey,
+      });
+      const data = await apiUtils.post(
+        '/chat/sessions/create-session',
+        JSON.stringify({
+          title,
+          firstPrompt,
+          sessionId,
+          workspaceId,
+          regenerate,
+          prompt,
+          userId,
+          clientApiKey,
+        })
+      );
+      return data;
+    } catch (error) {
+      console.error(`Error fetching chat session with id ${sessionId}:`, error);
+      throw error;
+    }
+  },
+  getChatSession: async sessionId => {
+    try {
+      const data = await apiUtils.get(`/chat/sessions/${sessionId}`);
+      return data;
+    } catch (error) {
+      console.error(`Error fetching chat session with id ${sessionId}:`, error);
+      throw error;
+    }
+  },
   create: async sessionData => {
     try {
       const data = await apiUtils.post('/chat/sessions/create', sessionData);

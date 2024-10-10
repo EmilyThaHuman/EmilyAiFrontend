@@ -1,8 +1,10 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { useNavigate } from 'react-router-dom';
+
 import staticDataApi from 'api/static/staticData';
 import { authApi, userApi } from 'api/user';
 import avatar5 from 'assets/img/avatars/avatar5.png'; // Fallback avatar
+
 import {
   setAssistants,
   setChatMessages,
@@ -35,15 +37,117 @@ const initialState = getLocalData(LOCAL_NAME, REDUX_NAME);
 function setLocalUserData(data) {
   setLocalData(LOCAL_NAME, data);
 }
-
-function dispatchUserUpdates(dispatch, updatedUserData) {
-  console.log('Dispatching user updates:', updatedUserData);
-  dispatch(setUser(updatedUserData));
-  dispatch(setEnvKeyMap(updatedUserData.profile.envKeyMap));
-  dispatch(setProfile(updatedUserData.profile));
-  dispatch(setWorkspaces(updatedUserData.workspaces));
-  dispatch(setSelectedWorkspace(updatedUserData.workspaces[0]));
-  dispatch(setChatSessions(updatedUserData.chatSessions));
+/**
+ * Function to remove all array data from an object.
+ * It recursively traverses the object and removes arrays while preserving other properties.
+ * @param {Object} data - The input object from which to remove array data.
+ * @returns {Object} - The modified object with arrays removed.
+ */
+function removeArrayData(data) {
+  if (Array.isArray(data)) {
+    // If the current value is an array, return an empty array.
+    return [];
+  } else if (typeof data === 'object' && data !== null) {
+    // Recursively process each key in the object.
+    const result = {};
+    for (const key in data) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        const value = data[key];
+        // Recursively call the function to handle nested objects.
+        result[key] = removeArrayData(value);
+      }
+    }
+    return result;
+  } else {
+    // Return the value as-is if it is neither an array nor an object.
+    return data;
+  }
+}
+function removeEmptyArrayFields(folderData) {
+  // Iterate over each key in the object
+  for (const key in folderData) {
+    // Check if the value is an array and is empty
+    if (Array.isArray(folderData[key]) && folderData[key].length === 0) {
+      delete folderData[key]; // Remove the empty array field
+    }
+  }
+  return folderData;
+}
+function dispatchUserUpdates(dispatch, userData, profileData, workspacesData) {
+  console.log('Dispatching user updates:', userData);
+  const workspaceFolders = workspacesData[0].folders;
+  const leanFolderArray = [];
+  const folderMap =
+    workspaceFolders &&
+    workspaceFolders.reduce((acc, folder) => {
+      const leanFolder = {
+        _id: folder._id,
+        userId: folder.userId,
+        workspaceId: folder.workspaceId,
+        name: folder.name,
+        description: folder.description,
+        path: folder.path,
+        space: folder.space,
+        [`${folder.space}`]: [`${folder.space}`],
+        // space: folder.space,
+        // [`${folder.space}`]:
+        //   folder.space === 'files' ||
+        //   folder.space === 'prompts' ||
+        //   folder.space === 'assistants'
+        //     ? folder[`${folder.space}`]
+        //     : [],
+      };
+      leanFolderArray.push(leanFolder);
+      console.table(
+        'folder:',
+        leanFolder,
+        'space:',
+        folder.space,
+        'value:',
+        folder[`${folder.space}`].slice(0, 2)
+      );
+      acc[folder.space] = leanFolder;
+      return acc;
+    }, {});
+  console.log('folderMap:', folderMap);
+  const filteredSpaces = removeArrayData(workspacesData);
+  const leanSpaces = {
+    ...filteredSpaces[0],
+    assistants: folderMap.assistants.assistants,
+    chatSessions: workspacesData[0].chatSessions || {
+      sessionId: workspacesData[0].chatSessions,
+      messages: [],
+    },
+    files: folderMap.files.files,
+    collections: folderMap.collections.collections,
+    prompts: folderMap.prompts.prompts,
+    models: folderMap.models.models,
+    presets: folderMap.presets.presets,
+    tools: folderMap.tools.tools,
+  };
+  // const leanSpaces = {
+  //   ...filteredSpaces[0],
+  //   assistants: folderMap.assistants.assistants,
+  //   chatSessions: workspacesData[0].chatSessions,
+  //   files: folderMap.files.files,
+  //   collections: folderMap.collections.collections,
+  //   prompts: folderMap.prompts.prompts,
+  //   models: folderMap.models.models,
+  //   presets: folderMap.presets.presets,
+  //   tools: folderMap.tools.tools,
+  // };
+  dispatch(setUser(userData));
+  dispatch(setProfile(profileData));
+  dispatch(setWorkspaces(leanSpaces));
+  dispatch(setSelectedWorkspace(leanSpaces[0]));
+  dispatch(setChatSessions(workspacesData[0].chatSessions));
+  dispatch(setFolders(leanFolderArray));
+  dispatch(setFiles(folderMap['files'].files));
+  dispatch(setCollections(folderMap['collections'].collections));
+  dispatch(setPrompts(folderMap['prompts'].prompts));
+  dispatch(setPresets(folderMap['presets'].presets));
+  dispatch(setModels(folderMap['models'].models));
+  dispatch(setAssistants(folderMap['assistants'].assistants));
   dispatch(setIsAuthenticated(true));
 }
 
@@ -60,18 +164,27 @@ export const handleAuthSubmit = createAsyncThunk(
         console.log('res data:', data);
 
         const updatedUserData = {
-          ...data.user,
+          // ...data.user,
           userId: data.user._id,
+          username: data.user.username,
+          email: data.user.email,
           isAuthenticated: true,
+          // profile: data.user.profile,
+          // workspaces: data.user.workspaces,
         };
-        if (isSignup) {
-          updatedUserData.authUserRegisterData = {
-            hasOnboarded: true,
-            dateJoined: new Date().toISOString(),
-          };
-        }
+        const workspacesData = {
+          ...data.user.workspaces,
+        };
+        const profileData = {
+          ...data.user.profile,
+        };
 
-        dispatchUserUpdates(dispatch, updatedUserData);
+        dispatchUserUpdates(
+          dispatch,
+          updatedUserData,
+          profileData,
+          workspacesData
+        );
         sessionStorage.setItem(
           'workspaceId',
           updatedUserData.workspaces[0]._id
@@ -296,6 +409,11 @@ export const userSlice = createSlice({
       setLocalUserData({ ...state, userInfo: defaultUserInfo });
       state.userInfo = defaultUserInfo;
     },
+    setAuthSession: (state, action) => {
+      console.log('AUTH SESSION', action.payload);
+      state.authSession = action.payload;
+      setLocalUserData({ ...state, authSession: action.payload });
+    },
     setUser: (state, action) => {
       const user = action.payload;
       console.log('USER SLICE ACTION PAYLOAD:', user);
@@ -347,7 +465,8 @@ export const userSlice = createSlice({
       })
       .addCase(handleAuthSubmit.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user;
+        console.log('USER AUTH SUCCESS PAYLOAD:', action.payload.user);
+        // state.user = action.payload.user;
       })
       .addCase(handleAuthSubmit.rejected, state => {
         state.loading = false;
@@ -378,6 +497,7 @@ export const {
   setProfile,
   setSelectedProfileImage,
   setEnvKeyMap,
+  setAuthSession,
 } = userSlice.actions;
 
 export default userSlice.reducer;
