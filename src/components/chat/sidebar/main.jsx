@@ -27,11 +27,21 @@ import SidebarContent from './SidebarContent';
 import SidebarTabs from './SidebarTabs';
 
 export const ChatSidebar = () => {
+  const { theme } = useMode();
+  const navigate = useNavigate();
   const {
-    state: { user, isAuthenticated },
+    state: { user, isAuthenticated, profile },
   } = useUserStore();
   const {
-    state: { apiKey, chatSessions, workspaces, prompts, files, assistants },
+    state: {
+      apiKey,
+      chatSessions,
+      workspaces,
+      prompts,
+      files,
+      assistants,
+      selectedWorkspace,
+    },
     actions: {
       updateWorkspace,
       updateChatSession,
@@ -41,21 +51,21 @@ export const ChatSidebar = () => {
       updateUser,
     },
   } = useChatStore();
-
   const {
     state: { isSidebarOpen },
     actions: { setSidebarOpen },
   } = useAppStore();
-  const { theme } = useMode();
-  const navigate = useNavigate();
-  const [tab, setTab] = useState(null);
-
+  // -- --
+  const folders = selectedWorkspace.folders;
+  // -- --
   const sideBarWidthRef = useRef(null);
   const buttonRef = useRef(null);
   const isValidApiKey = Boolean(apiKey);
   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Check if the screen size is mobile
   const isXs = useMediaQuery(theme.breakpoints.down('xs')); // Check if the screen size is mobile
   const isMd = useMediaQuery(theme.breakpoints.down('md')); // New md media query
+  // -- --
+  const [tab, setTab] = useState(null);
 
   useEffect(() => {
     if (isXs && tab !== null) {
@@ -124,7 +134,7 @@ export const ChatSidebar = () => {
         component: 'User',
         icon: <AccountCircleRoundedIcon />,
         onClick: () => handleSidebarOpen(5),
-        data: user,
+        data: { ...user, ...profile },
       },
       {
         id: 6,
@@ -144,6 +154,7 @@ export const ChatSidebar = () => {
       user,
       navigate,
       handleSidebarOpen,
+      profile,
     ]
   );
 
@@ -208,9 +219,7 @@ export const ChatSidebar = () => {
           handleSidebarOpen={handleSidebarOpen}
           isXs={isXs}
           isSidebarOpen={isSidebarOpen}
-          isValidApiKey={
-            isValidApiKey || user.profile.openai.apiKey ? true : false
-          }
+          isValidApiKey={isValidApiKey || profile.openai.apiKey ? true : false}
           isAuthenticated={isAuthenticated}
           isMobile={isMobile}
           sideBarWidthRef={sideBarWidthRef}
@@ -241,7 +250,7 @@ export const ChatSidebar = () => {
             tab={tab}
             user={user}
             workspaces={workspaces}
-            folders={user.folders}
+            folders={folders}
             files={files}
             chatSessions={chatSessions}
             assistants={assistants}

@@ -13,30 +13,32 @@ import {
   useNavigate,
   useNavigation,
 } from 'react-router-dom';
-// import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { toast } from 'sonner';
+
 import './transition-styles.css';
 import { LoadingContainer } from 'components/index';
-// Memoize the debounceLoading function
-const useDebounce = delay => {
-  return useMemo(() => {
-    return func => {
-      let timer;
-      return (...args) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => func.apply(this, args), delay);
-      };
-    };
-  }, [delay]);
+
+const useDebounce = (func, delay) => {
+  const debounceRef = useRef(null);
+
+  return useCallback(
+    (...args) => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => func(...args), delay);
+    },
+    [delay, func]
+  );
 };
-// Function to check if the current path is an auth route
-const authRoutesSet = new Set([
+
+// Authentication Routes for redirection logic
+const AUTH_ROUTES = [
+  '/auth',
   '/auth/sign-in',
   '/auth/sign-up',
   '/auth/reset-password',
-]);
-const isAuthRoute = path => authRoutesSet.has(path);
+];
 
+// Page transition settings
 const pageVariants = {
   initial: { opacity: 0, x: '-100%' },
   in: { opacity: 1, x: 0 },
@@ -49,21 +51,56 @@ const pageTransition = {
   duration: 0.5,
 };
 
+// Custom hook to manage authentication and routing transitions
+const useAuthNavigation = navigate => {
+  const isAuthenticated = useMemo(
+    () => !!sessionStorage.getItem('accessToken'),
+    []
+  );
+  const isWorkspaceValid = useMemo(
+    () => !!sessionStorage.getItem('workspaceId'),
+    []
+  );
+  const isChatValid = useMemo(() => !!sessionStorage.getItem('sessionId'), []);
+
+  useEffect(() => {
+    const accessToken = sessionStorage.getItem('accessToken');
+    const workspaceId = sessionStorage.getItem('workspaceId');
+    const sessionId = sessionStorage.getItem('sessionId');
+
+    // Wait until session storage values are loaded
+    if (!accessToken || !workspaceId || !sessionId) return;
+
+    if (!accessToken && !AUTH_ROUTES.includes(window.location.pathname)) {
+      navigate('/auth/auth-default');
+    } else if (accessToken && !workspaceId) {
+      navigate('/');
+    } else if (accessToken && workspaceId && !sessionId) {
+      navigate(`/admin/workspace/${workspaceId}`);
+    } else if (accessToken && workspaceId && sessionId) {
+      if (
+        window.location.pathname.includes(`/admin/workspace/${workspaceId}`)
+      ) {
+        navigate(`/chat/${sessionId}`);
+      } else {
+        navigate(window.location.pathname);
+      }
+    }
+  }, [navigate, isAuthenticated, isWorkspaceValid, isChatValid]);
+};
+
 export const RouterLayout = props => {
   const { ...rest } = props;
   const prevPathRef = useRef(null);
-  const nodeRef = useRef(null);
   const navigation = useNavigation();
   const navigate = useNavigate();
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
 
-  const debounce = useDebounce(300);
-  const debouncedSetLoading = useCallback(debounce(setIsLoading), [debounce]);
-  const isAuthenticated = useMemo(
-    () => !!sessionStorage.getItem('accessToken'),
-    []
-  );
+  const debounceSetLoading = useDebounce(setIsLoading, 300);
+
+  // Manage authentication and workspace/chat transitions
+  useAuthNavigation(navigate);
 
   const handleNavigation = useCallback(() => {
     const previousPath = prevPathRef.current;
@@ -73,36 +110,25 @@ export const RouterLayout = props => {
       toast.success(`Navigated to ${currentPath}`);
       prevPathRef.current = currentPath;
     }
-    debouncedSetLoading(true);
-    // Use requestAnimationFrame for smoother transitions
-    requestAnimationFrame(() => debouncedSetLoading(false));
-  }, [debouncedSetLoading, location.pathname]);
+
+    debounceSetLoading(true);
+    requestAnimationFrame(() => debounceSetLoading(false));
+  }, [debounceSetLoading, location.pathname]);
 
   const handleLoading = useCallback(() => {
     if (navigation.state === 'loading') {
-      localStorage.setItem('NavHistory', JSON.stringify(navigation.history));
       toast.info('Loading...');
-      debouncedSetLoading(true);
+      debounceSetLoading(true);
     } else {
-      debouncedSetLoading(false);
+      debounceSetLoading(false);
     }
-  }, [debouncedSetLoading, navigation.history, navigation.state]);
+  }, [debounceSetLoading, navigation.state]);
 
+  // Apply navigation and loading state logic
   useEffect(() => {
     handleNavigation();
     handleLoading();
-
-    if (!isAuthenticated && !isAuthRoute(location.pathname)) {
-      navigate('/auth/sign-in');
-    }
-  }, [
-    location.pathname,
-    navigation.state,
-    handleNavigation,
-    handleLoading,
-    isAuthenticated,
-    navigate,
-  ]);
+  }, [handleNavigation, handleLoading]);
 
   return (
     <LoadingContainer isLoading={isLoading}>
@@ -118,25 +144,24 @@ export const RouterLayout = props => {
           <Outlet {...rest} />
         </motion.div>
       </AnimatePresence>
-      {/* <TransitionGroup component={null}>
-        <CSSTransition
-          key={location.pathname}
-          classNames="slide"
-          // classNames="page"
-          timeout={700}
-          nodeRef={nodeRef}
-          // onEnter={() => debouncedSetLoading(true)}
-          // onExited={() => debouncedSetLoading(false)}
-          // enter={true}
-          // exit={true}
-        >
-          <div ref={nodeRef} className="page">
-            <Outlet {...rest} />
-          </div>
-        </CSSTransition>
-      </TransitionGroup> */}
     </LoadingContainer>
   );
+};
+
+// Metadata export for app configuration
+export const appMetadata = {
+  appName: 'EmilyAiFrontend',
+  version: '1.0.0',
+  environment: process.env.NODE_ENV || 'development',
+  main: 'src/index.jsx',
+  browserslist: {
+    production: ['>0.2%', 'not dead', 'not op_mini all'],
+    development: [
+      'last 1 chrome version',
+      'last 1 firefox version',
+      'last 1 safari version',
+    ],
+  },
 };
 
 export default RouterLayout;

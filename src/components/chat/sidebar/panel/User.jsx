@@ -1,6 +1,7 @@
 import { UserIcon } from '@heroicons/react/24/outline';
 import { Box, IconButton, Typography } from '@mui/material';
 import React, { useState } from 'react';
+
 import { StyledButton } from 'components/chat/styled';
 import {
   RCTabs,
@@ -9,6 +10,7 @@ import {
 } from 'components/themed';
 import { useUserStore } from 'contexts';
 import { useTabManager } from 'hooks/chat/useTabManager';
+
 import { ApiKeys } from './items/user-items';
 
 export const User = props => {

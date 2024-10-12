@@ -156,8 +156,10 @@ export const settingsApi = {
   },
   getAllPrompts: async () => {
     try {
-      const data = await apiUtils.get('/chat/prompts');
-      return data;
+      const data = await apiUtils.get(
+        `/chat/prompts/${sessionStorage.getItem('userId')}`
+      );
+      return data.prompts;
     } catch (error) {
       console.error('Error fetching chat prompts:', error);
       throw error;

@@ -2,6 +2,7 @@
 import { Box, CssBaseline } from '@mui/material';
 import { useState } from 'react';
 import { Outlet, useNavigation } from 'react-router-dom';
+
 import { SidebarContext } from 'contexts/SidebarProvider';
 
 // =========================================================
@@ -10,6 +11,7 @@ import { SidebarContext } from 'contexts/SidebarProvider';
 export const AuthLayout = () => {
   const [toggleSidebar, setToggleSidebar] = useState(false);
   const authBg = '#f5f5f5';
+  const blackestBG = '#000000';
   return (
     <Box>
       <SidebarContext.Provider
@@ -21,7 +23,7 @@ export const AuthLayout = () => {
         <CssBaseline />
         <Box
           sx={{
-            backgroundColor: authBg,
+            backgroundColor: blackestBG,
             float: 'right',
             minHeight: '100vh',
             height: '100%',

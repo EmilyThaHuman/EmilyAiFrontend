@@ -18,6 +18,7 @@ import React, {
   useState,
 } from 'react';
 import { useActionData, useParams } from 'react-router-dom';
+
 import { ChatHeader, MessageInput } from 'components/chat';
 import { MessageBox } from 'components/chat/messages';
 import { RANDOM_PROMPTS } from 'config/data-configs';

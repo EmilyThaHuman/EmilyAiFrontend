@@ -1,6 +1,5 @@
-import SignIn from './signIn';
-import SignUp from './signUp';
-
+import { AuthDefault } from './default';
+import { Login, AuthStepper, Signup } from './setup';
 // ==============================|| AUTH VIEWS ||============================== //
 
-export { SignIn, SignUp };
+export { AuthDefault, Login, Signup, AuthStepper };

@@ -83,7 +83,7 @@ export const RCButtonRoot = styled(Button)(({ theme, ...ownerState }) => {
       : boxShadow([0, 0], [0, 3.2], white?.main, 0.5);
     let borderColorValue = palette?.[color]?.main || rgba(white.main, 0.75);
 
-    return {
+    const lightMode = {
       color: colorValue,
       background: transparent?.main,
       borderColor: borderColorValue,
@@ -98,6 +98,30 @@ export const RCButtonRoot = styled(Button)(({ theme, ...ownerState }) => {
         opacity: 0.85,
       },
     };
+
+    const darkModeStyles = {
+      color: '#fff',
+      borderColor: '#fff',
+      margin: '10px 0',
+      '&.MuiButton-root': {
+        p: 'unset !important',
+      },
+      '&.MuiButtonBase-root': {
+        color: '#fff',
+        borderColor: '#fff',
+      },
+    };
+
+    // Return dark mode styles if darkMode is true, otherwise return light mode styles
+    if (darkMode) {
+      return {
+        ...darkModeStyles,
+      };
+    } else {
+      return {
+        ...lightMode,
+      };
+    }
   };
 
   const gradientStyles = () => {

@@ -11,7 +11,7 @@ import React, { useRef } from 'react';
 
 export const SETUP_STEP_COUNT = 3;
 
-const StepContainer = ({
+export const StepContainer = ({
   stepDescription,
   stepNum,
   stepTitle,
@@ -32,14 +32,27 @@ const StepContainer = ({
 
   return (
     <Card
-      sx={{ maxHeight: 'calc(100vh - 60px)', width: 600, overflow: 'auto' }}
+      sx={{
+        maxHeight: 'calc(100vh - 60px)',
+        width: 600,
+        overflow: 'auto',
+        backgroundColor: 'black',
+        color: 'white',
+        p: 4,
+        borderRadius: 2,
+        maxWidth: 500,
+        mx: 'auto',
+        border: '1px solid white',
+      }}
       onKeyDown={handleKeyDown}
     >
       <CardHeader
         title={
-          <Box display="flex" justifyContent="space-between">
-            <Typography variant="h6">{stepTitle}</Typography>
-            <Typography variant="body2">
+          <Box display="flex" justifyContent="space-between" color="#fff">
+            <Typography variant="h6" color="#fff">
+              {stepTitle}
+            </Typography>
+            <Typography variant="body2" color="#fff">
               {stepNum} / {SETUP_STEP_COUNT}
             </Typography>
           </Box>
@@ -47,26 +60,6 @@ const StepContainer = ({
         subheader={stepDescription}
       />
       <CardContent>{children}</CardContent>
-      <CardActions sx={{ justifyContent: 'space-between' }}>
-        {showBackButton && (
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => onShouldProceed(false)}
-          >
-            Back
-          </Button>
-        )}
-        {showNextButton && (
-          <Button
-            size="small"
-            ref={buttonRef}
-            onClick={() => onShouldProceed(true)}
-          >
-            Next
-          </Button>
-        )}
-      </CardActions>
     </Card>
   );
 };

@@ -1,14 +1,15 @@
 import { createBrowserHistory } from 'history';
 import React, { lazy, Suspense, useState } from 'react';
 import {
+  createBrowserRouter,
   Form,
   Navigate,
-  createBrowserRouter,
   redirect,
   useActionData,
 } from 'react-router-dom';
 
 import { chatApi } from 'api/Ai/chat-sessions';
+import { workspacesApi } from 'api/workspaces';
 import {
   AdminPanelSettingsRoundedIcon,
   AiIcon,
@@ -51,6 +52,23 @@ const NewChatForm = () => {
   );
 };
 
+/* *** Fetch Workspace Loader *** */
+export async function workspaceLoader({ params }) {
+  const { workspaceId } = params;
+
+  try {
+    const workspace = await workspacesApi.getWorkspace(workspaceId);
+    if (!workspace) {
+      throw new Response('Workspace Not Found', { status: 404 });
+    }
+    return { workspace };
+  } catch (error) {
+    throw new Response(error.message || 'Failed to load workspace', {
+      status: error.status || 500,
+    });
+  }
+}
+
 /* *** Create Chat Action *** */
 export async function createChatAction({ request }) {
   const formData = await request.formData();
@@ -87,6 +105,7 @@ export async function createChatAction({ request }) {
     return { errors: [{ message: error.message }] };
   }
 }
+
 /* *** Logout Action *** */
 export async function logoutAction() {
   try {
@@ -109,6 +128,7 @@ export async function logoutAction() {
     // return { errors: [{ message: error.message }] };
   }
 }
+
 /* *** Error Utils *** */
 const RootErrorBoundary = Loadable(
   lazy(() => import('utils/app/RouterErrorBoundary.jsx'))
@@ -122,8 +142,10 @@ const RouterLayout = Loadable(lazy(() => import('layouts/router')));
 /* *** Views *** */
 const HeroDocs = Loadable(lazy(() => import('views/land/heroDocs')));
 
-const SignInCentered = Loadable(lazy(() => import('views/auth/signIn')));
-const SignUpCentered = Loadable(lazy(() => import('views/auth/signUp')));
+const AuthDefault = Loadable(lazy(() => import('views/auth/default')));
+const SignInMain = Loadable(lazy(() => import('views/auth/setup/Login')));
+const SignUpMain = Loadable(lazy(() => import('views/auth/setup/Signup')));
+const SetUpMain = Loadable(lazy(() => import('views/auth/setup/AuthStepper')));
 
 const MainDashboard = Loadable(lazy(() => import('views/admin/default')));
 const UserProfile = Loadable(lazy(() => import('views/admin/profile')));
@@ -257,7 +279,7 @@ const adminRoutes = [
           {
             name: 'Active Workspace',
             title: 'ActiveWorkspace',
-            path: ':workspaceId', // Dynamic route for workspace
+            path: ':workspaceId',
             breadcrumb: 'Active Workspace',
             element: (
               <Suspense fallback={<LoadingIndicator />}>
@@ -266,11 +288,12 @@ const adminRoutes = [
             ),
             icon: <HomeIcon />,
             description: 'Active Workspace',
+            loader: workspaceLoader,
             collapse: true,
             children: [
               {
                 index: true,
-                element: <Navigate to="/admin/workspaces/:workspaceId/chat" />, // Fallback to Workspace Chat
+                element: <Navigate to="/admin/workspaces/:workspaceId/chat" />,
               },
               {
                 name: 'Chat',
@@ -289,7 +312,7 @@ const adminRoutes = [
                     index: true,
                     element: (
                       <Navigate to="/admin/workspaces/:workspaceId/chat/:sessionId" />
-                    ), // Fallback to Workspace Chat Session
+                    ),
                   },
                   {
                     name: 'Chat',
@@ -303,46 +326,6 @@ const adminRoutes = [
                     ),
                     icon: <AiIcon />,
                   },
-                  // {
-                  //   name: 'New Chat',
-                  //   title: 'NewChat',
-                  //   path: 'new',
-                  //   breadcrumb: 'New Chat',
-                  //   element: (
-                  //     <Suspense fallback={<LoadingIndicator />}>
-                  //       <NewChatForm />
-                  //     </Suspense>
-                  //   ),
-                  //   icon: <AiIcon />,
-                  //   action: async ({ request }) => {
-                  //     const formData = await request.formData();
-                  //     const firstPrompt = formData.get('firstPrompt');
-
-                  //     try {
-                  //       // Make API call to create a new chat session
-                  //       const response =
-                  //         await chatApi.getNewChatSessionWithCompletion(
-                  //           '/chats',
-                  //           {
-                  //             firstPrompt,
-                  //           }
-                  //         );
-                  //       const { chatId } = response.data;
-
-                  //       // Redirect to the new chat session
-                  //       return redirect(
-                  //         `/admin/workspaces/${chatId}/chat/${chatId}`
-                  //       );
-                  //     } catch (error) {
-                  //       console.error('Error creating chat session:', error);
-                  //       return {
-                  //         errors: [
-                  //           { message: 'Failed to create chat session.' },
-                  //         ],
-                  //       };
-                  //     }
-                  //   },
-                  // },
                   {
                     name: 'Chat Session',
                     title: 'ChatSession',
@@ -365,29 +348,6 @@ const adminRoutes = [
                         throw new Response(error.message, { status: 404 });
                       }
                     },
-                    // action: async ({ request, params }) => {
-                    //   const { sessionId } = params;
-                    //   const formData = await request.formData();
-                    //   const message = formData.get('message');
-
-                    //   if (!message || message.trim() === '') {
-                    //     return {
-                    //       errors: [{ message: 'Message cannot be empty.' }],
-                    //     };
-                    //   }
-
-                    //   try {
-                    //     // Update chat session with new message via API
-                    //     await updateChatSession(sessionId, message);
-
-                    //     // Optionally, you can refetch the chat session or handle AI response
-                    //     return redirect(
-                    //       `/admin/workspaces/${params.workspaceId}/chat/${sessionId}`
-                    //     );
-                    //   } catch (error) {
-                    //     return { errors: [{ message: error.message }] };
-                    //   }
-                    // },
                   },
                   {
                     name: 'New Chat',
@@ -485,14 +445,23 @@ const authRoutes = [
     children: [
       {
         index: true,
-        element: <Navigate to="sign-in" replace />,
+        element: <Navigate to="auth-default" replace />,
+      },
+      {
+        name: 'Auth Default',
+        title: 'Auth Default',
+        path: 'auth-default',
+        breadcrumb: 'Auth',
+        element: <AuthDefault />,
+        icon: <LockIcon />,
+        collapse: false,
       },
       {
         name: 'Sign In',
         title: 'SignIn',
         path: 'sign-in',
         breadcrumb: 'Sign In',
-        element: <SignInCentered />,
+        element: <SignInMain />,
         icon: <LockIcon />,
         collapse: false,
         onLoginSuccess: (token, userData) => {
@@ -507,7 +476,7 @@ const authRoutes = [
         title: 'SignUp',
         path: 'sign-up',
         breadcrumb: 'Sign Up',
-        element: <SignUpCentered />,
+        element: <SignUpMain />,
         icon: <PersonAddIcon />,
         collapse: false,
         onSignupSuccess: (token, userData) => {
@@ -516,6 +485,15 @@ const authRoutes = [
           localStorage.setItem('user', JSON.stringify(userData));
           dispatch(setField({ field: 'isAuthenticated', value: true }));
         },
+      },
+      {
+        name: 'SetUp',
+        title: 'SetUp',
+        path: 'setup',
+        breadcrumb: 'SetUp',
+        element: <SetUpMain />,
+        icon: <PersonAddIcon />,
+        collapse: false,
       },
       {
         name: 'Logout',

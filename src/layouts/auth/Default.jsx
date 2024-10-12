@@ -1,6 +1,7 @@
 import { Box, Grid, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
+
 import { ChevronLeft } from 'assets/humanIcons';
 import { useMode } from 'hooks';
 import FooterAdmin from 'layouts/navigation/footer/FooterAdmin';

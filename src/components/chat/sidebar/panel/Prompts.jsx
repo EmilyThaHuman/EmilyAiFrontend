@@ -1,8 +1,10 @@
 import { Box, IconButton, Typography, useMediaQuery } from '@mui/material';
 import { uniqueId } from 'lodash';
+import { Pencil } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { FaSave } from 'react-icons/fa';
+
 import { settingsApi } from 'api/Ai/chat-items';
 import { attachmentsApi } from 'api/Ai/chat-sessions';
 import { RCTabs } from 'components/themed';
@@ -10,12 +12,14 @@ import { useChatStore } from 'contexts/ChatProvider';
 import { useMode } from 'hooks';
 import { useFileStructure } from 'hooks/chat/useFileStructure';
 import { useTabManager } from 'hooks/chat/useTabManager';
+
 import {
   AddPrompt,
   EditPrompt,
   FileManagementSidebar,
   PromptSuggest,
 } from './items';
+import { FileDirectory } from './items/sidebar-items/components';
 import { useFileManagement } from './items/sidebar-items/useFileManagement';
 
 export const Prompts = props => {
@@ -38,6 +42,8 @@ export const Prompts = props => {
   const [isLoading, setIsLoading] = useState(fileStructureLoading);
   const [editingPrompt, setEditingPrompt] = useState(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // --- method to fetch static promtps from json file --- //
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -256,11 +262,13 @@ export const Prompts = props => {
       case 0:
         return (
           <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <FileManagementSidebar
+            <FileDirectory
               initialFolders={folders}
-              initialFiles={promptFiles}
+              initialItems={data}
               space={space}
-              onEditPrompt={handleEditPrompt}
+              icon={<Pencil />}
+              // onEditPrompt={handleEditPrompt}
+              // icon={<FileIcon type={selectedFile?.type || 0} />}
             />
           </ErrorBoundary>
         );

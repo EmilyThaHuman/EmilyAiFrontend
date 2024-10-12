@@ -1,7 +1,9 @@
 // components/EditFile.js
 import { Box } from '@mui/material';
 import React from 'react';
+
 import { StyledButton } from 'components/chat/styled';
+
 import FileForm from './file-form';
 
 export const EditFile = ({

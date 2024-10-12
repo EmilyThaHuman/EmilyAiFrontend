@@ -1,5 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+
 import { workspacesApi } from 'api/workspaces';
+
 import { getLocalData, setLocalData } from '../helpers';
 
 const LOCAL_NAME = 'workspaceStore';
@@ -38,9 +40,15 @@ export const workspaceSlice = createSlice({
   initialState,
   reducers: {
     setWorkspaceId: (state, action) => {
-      state.workspaceId = action.payload;
-      sessionStorage.setItem('workspaceId', action.payload);
-      setLocalWorkspaceData({ ...state, workspaceId: action.payload });
+      let workspaceId;
+      if (action.payload && action.payload !== '') {
+        workspaceId = action.payload;
+      } else {
+        console.log('No workspace ID provided. Using default workspace ID.');
+      }
+      state.workspaceId = workspaceId;
+      sessionStorage.setItem('workspaceId', workspaceId);
+      setLocalWorkspaceData({ ...state, workspaceId: workspaceId });
     },
     setWorkspaces: (state, action) => {
       console.log('SETTING: WORKSPACES', action.payload);

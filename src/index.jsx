@@ -2,8 +2,10 @@ import CssBaseline from '@mui/material/CssBaseline';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider as ReduxProvider } from 'react-redux';
+
 import App from 'app/App';
 import { store } from 'store'; // Assuming you have configured your store here
+
 import { ColorModeProvider, ToastProvider } from './contexts';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import 'styles/index.css'; // Assuming you have a global.css file

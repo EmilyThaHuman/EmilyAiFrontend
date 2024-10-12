@@ -122,6 +122,7 @@ import {
 
 // MATERIAL DESIGN
 import { MdAddTask, MdHome } from 'react-icons/md';
+import OpenAISVG from './openai-svg';
 
 // IBM CARBON ICONS
 // import AI from 'assets/humanIcons/ibm-carbon-icons/32/AI';
@@ -131,6 +132,7 @@ export {
   ActivityIcon,
   UpArrowIcon,
   DownArrowIcon,
+  OpenAISVG,
   // GENERAL
   StopCircleIcon,
   CancelOutlinedIcon,
@@ -249,6 +251,7 @@ const reedThaHumansIconLibrary = {
   ActivityIcon,
   UpArrowIcon,
   DownArrowIcon,
+  OpenAISVG,
   //
   AccountCircleRoundedIcon,
   AccountCircleIcon,

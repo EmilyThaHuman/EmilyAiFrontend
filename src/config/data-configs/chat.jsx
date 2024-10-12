@@ -1,4 +1,4 @@
-const CHAT_CONFIG = {
+export const CHAT_CONFIG = {
   Chat: {
     SubTitle: count => `Total of ${count} conversations`,
     Actions: {

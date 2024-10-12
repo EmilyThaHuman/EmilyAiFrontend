@@ -9,3 +9,5 @@ export * from './useFileProcesser';
 export * from './useFileUpload';
 export * from './usePromptAndCommand';
 export * from './useTipTapEditor';
+export * from './useDynamicState';
+export * from './useWorkspaceHandler';

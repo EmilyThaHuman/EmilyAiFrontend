@@ -82,15 +82,15 @@ const DialogBox = ({ dialog, title, subtitle, children, handleAction }) => (
 
 export const ChatHeader = props => {
   const { theme } = useMode();
-  const chatStore = useChatStore();
-  const { selectedPreset, presets, sessionHeader, sessionId, workspaceId } =
-    chatStore.state;
-  const { setSelectedPreset, setSessionHeader } = chatStore.actions;
+  const {
+    state: { selectedPreset, presets, selectedWorkspace },
+    actions: { setSelectedPreset },
+  } = useChatStore();
   const codeDialog = useDialog();
   const saveDialog = useDialog();
   const shareDialog = useDialog();
   const chatPresetsDialog = useDialog();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Check if the screen size is mobile
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mobileMenu = useMenu();
   const pathName = window.location.pathname;
@@ -106,7 +106,6 @@ export const ChatHeader = props => {
     }
   });
   const [anchorEl, setAnchorEl] = useState(null);
-  const handleMenuOpen = event => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
   const handleFullscreenToggle = () => {
     setIsFullscreen(!isFullscreen);
@@ -130,9 +129,9 @@ export const ChatHeader = props => {
           alignItems: 'center',
           justifyContent: 'space-between',
           bgcolor: '#1C1C1C',
-          // padding: '10px',
           borderRadius: '8px',
           border: '1px solid rgba(255, 255, 255, 0.12)',
+          maxHeight: '64px',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -148,7 +147,19 @@ export const ChatHeader = props => {
             {isMobile ? <MenuIcon /> : <EditIcon />}
           </IconButton>
           <Typography variant="h6" sx={{ color: '#ffffff', marginLeft: '8px' }}>
-            {header.length === 0 ? 'Playground' : header.toLocaleUpperCase()}
+            <Box
+              display="flex"
+              height="100vh"
+              width="100%"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Typography variant="h4">{selectedWorkspace?.name}</Typography>
+              <Typography variant="body1" color="textSecondary">
+                {header || 'Chat'}
+              </Typography>
+            </Box>
           </Typography>
         </Box>
         <Box

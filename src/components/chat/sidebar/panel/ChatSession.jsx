@@ -8,12 +8,16 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { FaSignOutAlt } from 'react-icons/fa';
+
 import { workspacesApi } from 'api/workspaces';
+import { ChatIcon } from 'assets/humanIcons';
 import { ChatBotIcon } from 'assets/humanIcons/custom';
 import { RCTabs } from 'components/themed';
 import { useChatStore } from 'contexts/ChatProvider';
 import { useTabManager } from 'hooks/chat/useTabManager';
+
 import { ConversationTab, SessionSettings } from './items';
+import { FileDirectory } from './items/sidebar-items/components';
 import { FileManagementSidebar } from './items/sidebar-items/FileManager';
 
 export const ChatSession = props => {
@@ -103,10 +107,12 @@ export const ChatSession = props => {
       case 0:
         return (
           <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <FileManagementSidebar
+            <FileDirectory
               initialFolders={folders}
-              initialFiles={files}
+              initialItems={data}
               space={space}
+              icon={<ChatIcon />}
+              // icon={<FileIcon type={selectedFile?.type || 0} />}
             />
           </ErrorBoundary>
         );

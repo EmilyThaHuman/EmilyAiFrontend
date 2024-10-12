@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { useNavigate } from 'react-router-dom';
+import { replace, useNavigate } from 'react-router-dom';
 
 import staticDataApi from 'api/static/staticData';
 import { authApi, userApi } from 'api/user';
@@ -37,119 +37,6 @@ const initialState = getLocalData(LOCAL_NAME, REDUX_NAME);
 function setLocalUserData(data) {
   setLocalData(LOCAL_NAME, data);
 }
-/**
- * Function to remove all array data from an object.
- * It recursively traverses the object and removes arrays while preserving other properties.
- * @param {Object} data - The input object from which to remove array data.
- * @returns {Object} - The modified object with arrays removed.
- */
-function removeArrayData(data) {
-  if (Array.isArray(data)) {
-    // If the current value is an array, return an empty array.
-    return [];
-  } else if (typeof data === 'object' && data !== null) {
-    // Recursively process each key in the object.
-    const result = {};
-    for (const key in data) {
-      if (Object.prototype.hasOwnProperty.call(data, key)) {
-        const value = data[key];
-        // Recursively call the function to handle nested objects.
-        result[key] = removeArrayData(value);
-      }
-    }
-    return result;
-  } else {
-    // Return the value as-is if it is neither an array nor an object.
-    return data;
-  }
-}
-function removeEmptyArrayFields(folderData) {
-  // Iterate over each key in the object
-  for (const key in folderData) {
-    // Check if the value is an array and is empty
-    if (Array.isArray(folderData[key]) && folderData[key].length === 0) {
-      delete folderData[key]; // Remove the empty array field
-    }
-  }
-  return folderData;
-}
-function dispatchUserUpdates(dispatch, userData, profileData, workspacesData) {
-  console.log('Dispatching user updates:', userData);
-  const workspaceFolders = workspacesData[0].folders;
-  const leanFolderArray = [];
-  const folderMap =
-    workspaceFolders &&
-    workspaceFolders.reduce((acc, folder) => {
-      const leanFolder = {
-        _id: folder._id,
-        userId: folder.userId,
-        workspaceId: folder.workspaceId,
-        name: folder.name,
-        description: folder.description,
-        path: folder.path,
-        space: folder.space,
-        [`${folder.space}`]: [`${folder.space}`],
-        // space: folder.space,
-        // [`${folder.space}`]:
-        //   folder.space === 'files' ||
-        //   folder.space === 'prompts' ||
-        //   folder.space === 'assistants'
-        //     ? folder[`${folder.space}`]
-        //     : [],
-      };
-      leanFolderArray.push(leanFolder);
-      console.table(
-        'folder:',
-        leanFolder,
-        'space:',
-        folder.space,
-        'value:',
-        folder[`${folder.space}`].slice(0, 2)
-      );
-      acc[folder.space] = leanFolder;
-      return acc;
-    }, {});
-  console.log('folderMap:', folderMap);
-  const filteredSpaces = removeArrayData(workspacesData);
-  const leanSpaces = {
-    ...filteredSpaces[0],
-    assistants: folderMap.assistants.assistants,
-    chatSessions: workspacesData[0].chatSessions || {
-      sessionId: workspacesData[0].chatSessions,
-      messages: [],
-    },
-    files: folderMap.files.files,
-    collections: folderMap.collections.collections,
-    prompts: folderMap.prompts.prompts,
-    models: folderMap.models.models,
-    presets: folderMap.presets.presets,
-    tools: folderMap.tools.tools,
-  };
-  // const leanSpaces = {
-  //   ...filteredSpaces[0],
-  //   assistants: folderMap.assistants.assistants,
-  //   chatSessions: workspacesData[0].chatSessions,
-  //   files: folderMap.files.files,
-  //   collections: folderMap.collections.collections,
-  //   prompts: folderMap.prompts.prompts,
-  //   models: folderMap.models.models,
-  //   presets: folderMap.presets.presets,
-  //   tools: folderMap.tools.tools,
-  // };
-  dispatch(setUser(userData));
-  dispatch(setProfile(profileData));
-  dispatch(setWorkspaces(leanSpaces));
-  dispatch(setSelectedWorkspace(leanSpaces[0]));
-  dispatch(setChatSessions(workspacesData[0].chatSessions));
-  dispatch(setFolders(leanFolderArray));
-  dispatch(setFiles(folderMap['files'].files));
-  dispatch(setCollections(folderMap['collections'].collections));
-  dispatch(setPrompts(folderMap['prompts'].prompts));
-  dispatch(setPresets(folderMap['presets'].presets));
-  dispatch(setModels(folderMap['models'].models));
-  dispatch(setAssistants(folderMap['assistants'].assistants));
-  dispatch(setIsAuthenticated(true));
-}
 
 export const handleAuthSubmit = createAsyncThunk(
   'auth/handleAuthSubmit',
@@ -160,40 +47,38 @@ export const handleAuthSubmit = createAsyncThunk(
         ? await authApi.signup(username, email, password)
         : await authApi.login(email || username, password);
 
+      if (!data.accessToken) {
+        console.log('Error:', data.message);
+        return rejectWithValue(data.message);
+      }
       if (data?.accessToken) {
         console.log('res data:', data);
 
         const updatedUserData = {
-          // ...data.user,
           userId: data.user._id,
           username: data.user.username,
           email: data.user.email,
           isAuthenticated: true,
-          // profile: data.user.profile,
-          // workspaces: data.user.workspaces,
+          profile: data.user.profile,
         };
-        const workspacesData = {
-          ...data.user.workspaces,
-        };
-        const profileData = {
-          ...data.user.profile,
-        };
-
-        dispatchUserUpdates(
-          dispatch,
-          updatedUserData,
-          profileData,
-          workspacesData
+        dispatch(setUser(updatedUserData));
+        dispatch(setProfile(updatedUserData.profile));
+        dispatch(setIsAuthenticated(true));
+        dispatch(
+          setAuthSession({
+            accessToken: data.accessToken,
+            refreshToken: data.refreshToken,
+            expiresIn: data.expiresIn,
+          })
         );
-        sessionStorage.setItem(
-          'workspaceId',
-          updatedUserData.workspaces[0]._id
-        );
-        sessionStorage.setItem(
-          'sessionId',
-          updatedUserData.workspaces[0].chatSessions[0]?._id
-        );
-        window.location.href = '/admin/dashboard';
+        setWorkspaceId(data.workspaceId);
+        setSessionId(data.chatSessionId);
+        if (isSignup) {
+          window.location.href = `setup`;
+        }
+        // else {
+        //   window.location.replace(`admin/workspaces/${data.workspaceId}`);
+        // }
         return {
           user: updatedUserData,
         };
@@ -261,26 +146,6 @@ export const fetchUserProfileImage = createAsyncThunk(
 
       const response = await staticDataApi.getProfileImage(imgWithExt);
       console.log('Image response:', response);
-      // Convert the blob to a URL
-      // const imageSrc = URL.createObjectURL(response);
-      // Convert the buffer to a base64 string if needed
-      // const buffer = Buffer.from(response.data, 'binary').toString('base64');
-      // const imageSrc = `data:image/png;base64,${buffer}`;
-      // dispatch(
-      //   setUser(prevUser => ({
-      //     ...prevUser,
-      //     profileImageName: 'avatar1.png',
-      //     profileImage: response,
-      //     isImageRetrieved: true,
-      //   }))
-      // );
-      // dispatch(
-      //   setProfile(prevProfile => ({
-      //     ...prevProfile,
-      //     imagePath: response,
-      //   }))
-      // );
-      // dispatch(setSelectedProfileImage(response));
       return response;
     } catch (error) {
       console.error('Error fetching profile image:', error);
@@ -296,7 +161,6 @@ export const setAuthUserData = createAsyncThunk(
       const storedUserData = JSON.parse(localStorage.getItem(LOCAL_NAME));
 
       if (!storedUserData) {
-        // throw new Error('No user data found in local storage');
         console.log('No user data found in local storage');
         return;
       }
@@ -342,22 +206,22 @@ export const setAuthUserData = createAsyncThunk(
       dispatch(setHomeWorkSpace(updatedHomeWorkSpace));
       dispatch(setSelectedWorkspace(updatedHomeWorkSpace));
       dispatch(setWorkspaceId(updatedHomeWorkSpace._id));
-      dispatch(setChatSessions(workspaces[0]?.chatSessions));
-      const currentChatSession = updatedHomeWorkSpace?.chatSessions[0];
-      dispatch(setSelectedChatSession(currentChatSession));
-      dispatch(setChatMessages(currentChatSession?.messages));
-      dispatch(setPresets(presets));
-      dispatch(setSelectedPreset(presets[0]));
-      dispatch(setPrompts(prompts));
-      dispatch(setSelectedPrompt(prompts[0]));
-      dispatch(setModels(models));
-      dispatch(setCollections(collections));
-      dispatch(setFolders(folders));
-      dispatch(setFiles(files));
-      dispatch(setAssistants(assistants));
-      dispatch(setSelectedAssistant(assistants[0]));
-      dispatch(setTools(tools));
-      dispatch(setSelectedTools(tools));
+      // dispatch(setChatSessions(workspaces[0]?.chatSessions));
+      // const currentChatSession = updatedHomeWorkSpace?.chatSessions[0];
+      // dispatch(setSelectedChatSession(currentChatSession));
+      // dispatch(setChatMessages(currentChatSession?.messages));
+      // dispatch(setPresets(presets));
+      // dispatch(setSelectedPreset(presets[0]));
+      // dispatch(setPrompts(prompts));
+      // dispatch(setSelectedPrompt(prompts[0]));
+      // dispatch(setModels(models));
+      // dispatch(setCollections(collections));
+      // dispatch(setFolders(folders));
+      // dispatch(setFiles(files));
+      // dispatch(setAssistants(assistants));
+      // dispatch(setSelectedAssistant(assistants[0]));
+      // dispatch(setTools(tools));
+      // dispatch(setSelectedTools(tools));
       return {
         ...storedUserData.user,
         profileImage: imageUrl,
@@ -384,11 +248,7 @@ export const addEnvToUser = createAsyncThunk(
         sessionStorage.getItem('userId'),
         apiKey
       );
-      // dispatch(setApiKey(apiKey));
-      // dispatch(setChatRequestData(response.message));
       return response;
-      // await dispatch(addApiKey(apiKey));
-      // dispatch(setChatRequestData({ message: 'Added API key successfully' }));
     } catch (error) {
       rejectWithValue(error.response.data);
     }

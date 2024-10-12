@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+
 import { SendIcon, StopCircleIcon } from 'assets/humanIcons';
 import { DarkIconBox } from 'assets/humanIcons/utils';
 import { useChatStore } from 'contexts';
@@ -14,12 +15,14 @@ import {
   useMode,
   useTipTapEditor,
 } from 'hooks';
+
 import { FileDisplay, FileUploadButton } from '../files';
 import {
   ChatMessageActionsContainer,
   ChatMessageEditorContentsContainer,
 } from '../styled';
 import { ToolDial } from './ToolDial';
+
 const getTextFromDataUrl = dataUrl => {
   const base64 = dataUrl.split(',')[1];
   return window.atob(base64);

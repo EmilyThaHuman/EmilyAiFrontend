@@ -1,8 +1,11 @@
 import { Box } from '@mui/material';
+import { FileIcon } from 'lucide-react';
 import { ErrorBoundary } from 'react-error-boundary';
+
 import { SidebarPanelContainer } from 'components/chat/styled';
 import { RCTabs } from 'components/themed';
 import { useTabManager } from 'hooks/chat/useTabManager';
+
 import { EditFile, FileInfo, FileUpsert, useFileEditor } from './items';
 import { FileDirectory } from './items/sidebar-items/components/sidebar-file-directory';
 // import { FileManagementSidebar } from './items/sidebar-items/FileManager';
@@ -59,9 +62,11 @@ export const Files = props => {
           <ErrorBoundary FallbackComponent={ErrorFallback}>
             <FileDirectory
               initialFolders={folders}
-              initialFiles={files}
+              initialItems={data}
               space={space}
-              onEditFile={handleEditFile}
+              icon={<FileIcon />}
+              // icon={<FileIcon type={selectedFile?.type || 0} />}
+              // onEditFile={handleEditFile}
             />
           </ErrorBoundary>
         );

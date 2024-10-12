@@ -7,6 +7,29 @@ const baseUrlSpaceFolder = () =>
   baseUrlSpaceWithParams(sessionStorage.getItem('workspaceId')) + '/folders';
 export const workspacesApi = {
   // --- Workspace service ---
+  getWorkspaces: async () => {
+    try {
+      const data = await apiUtils.get(baseUrl);
+      return data;
+    } catch (error) {
+      console.error('Error fetching workspaces:', error);
+      throw error;
+    }
+  },
+  getWorkspace: async workspaceId => {
+    try {
+      const data = await apiUtils.get(
+        `/chat/workspaces/${encodeURIComponent(workspaceId)}`
+      );
+      return data;
+    } catch (error) {
+      console.error(
+        `Error fetching workspace with id ${encodeURIComponent(workspaceId)}:`,
+        error
+      );
+      throw error;
+    }
+  },
   create: async workspaceData => {
     try {
       const data = await apiUtils.post(
@@ -79,6 +102,20 @@ export const workspacesApi = {
       throw error;
     }
   },
+  getItemsFolder: async props => {
+    const { workspaceId, space } = props;
+    try {
+      const response = await apiUtils.get(
+        `/chat/workspaces/${encodeURIComponent(workspaceId)}/folders/space/${space}`
+      );
+      console.log('RES', response);
+      console.log('FOLDER', response.folder);
+      return response.folder;
+    } catch (error) {
+      console.error(`Error fetching chat folders for space ${space}:`, error);
+      throw error;
+    }
+  },
   getWorkspaceFoldersBySpace: async props => {
     const { workspaceId, space } = props;
     try {
@@ -86,10 +123,8 @@ export const workspacesApi = {
         `/chat/workspaces/${encodeURIComponent(workspaceId)}/folders/space/${space}`
       );
       console.log('RES', response);
-      console.log('FOLDERS', response.folders);
-      console.log('WORKSPACE', response.workspace);
-      return response.folders;
-      // const data = await apiUtils.get(`/chat/spaces/${space}/folders`);
+      console.log('FOLDER', response.folder);
+      return response.folder;
     } catch (error) {
       console.error(`Error fetching chat folders for space ${space}:`, error);
       throw error;

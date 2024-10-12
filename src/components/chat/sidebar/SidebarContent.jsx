@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
+
 import {
   Workspace,
   ChatSession,
