@@ -21,11 +21,7 @@ export const ApiModal = ({
   onSubmit = () => {},
 }) => {
   const { theme } = useMode();
-  const {
-    state: {
-      user: { openai },
-    },
-  } = useUserStore();
+
   const handleBackdropClick = useCallback(
     event => {
       if (event.target === event.currentTarget) {

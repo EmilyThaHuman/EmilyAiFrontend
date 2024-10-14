@@ -7,6 +7,7 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import gfm from 'remark-gfm';
+
 import { DashboardIcon } from 'assets/humanIcons';
 import { RCDialog } from 'components/themed';
 
@@ -231,6 +232,7 @@ export const RenderContent = ({ content, sender, maxWidth }) => {
       }}
     >
       <ReactMarkdown
+        className="markdown-body prose max-w-none dark:prose-invert"
         children={content}
         remarkPlugins={[gfm]}
         components={renderers}

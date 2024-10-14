@@ -3,3 +3,4 @@ export * from './apiUtils';
 export * from './fetcher';
 export * from './fileUtils';
 export * from './apiMiddleWare';
+export * from './chat-utils';

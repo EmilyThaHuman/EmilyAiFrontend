@@ -2,6 +2,7 @@ import { useEditor } from '@tiptap/react';
 import { StarterKit } from '@tiptap/starter-kit';
 import { debounce } from 'lodash';
 import { useState, useCallback, useEffect } from 'react';
+
 import { useChatStore } from 'contexts/ChatProvider'; // Import the context
 import './Tppy.css';
 

@@ -18,6 +18,7 @@ import {
 import { motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigation } from 'react-router-dom';
+
 import { SequentialAnimations } from 'assets/animation';
 import { PageLayout, RCTypography } from 'components/index';
 import { templateData } from 'config/data';
@@ -183,7 +184,7 @@ export const Landing = () => {
                 variant="contained"
                 color="primary"
                 size="large"
-                onClick={() => navigate('/auth/sign-in')}
+                onClick={() => navigate('/land/reedAi')}
               >
                 Generate
               </Button>

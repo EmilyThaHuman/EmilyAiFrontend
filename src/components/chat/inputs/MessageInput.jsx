@@ -7,7 +7,7 @@ import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 import { SendIcon, StopCircleIcon } from 'assets/humanIcons';
 import { DarkIconBox } from 'assets/humanIcons/utils';
-import { useChatStore } from 'contexts';
+import { useChatStore, useUserStore } from 'contexts';
 import {
   useChatHandler,
   useChatHistoryHandler,
@@ -59,11 +59,11 @@ export const MessageInput = React.memo(
     onStop,
   }) => {
     const apiKeyDialog = useDialog();
-    const chatStore = useChatStore();
     const { theme } = useMode();
     const messageInputRef = useRef(null); // Create a ref
     const {
       state: {
+        apiKey,
         showFilesDisplay,
         isFirstMessage,
         chatFiles,
@@ -71,7 +71,8 @@ export const MessageInput = React.memo(
         messageFiles,
       },
       actions: { setShowFilesDisplay, setChatMessages },
-    } = chatStore;
+    } = useChatStore();
+    const { state } = useUserStore();
     const {
       setNewMessageContentToNextUserMessage,
       setNewMessageContentToPreviousUserMessage,
@@ -81,7 +82,7 @@ export const MessageInput = React.memo(
     );
     const { handleSendMessage } = useChatHandler();
     const handleSendMessageWrapper = useCallback(async () => {
-      if (!sessionStorage.getItem('apiKey')) {
+      if (!sessionStorage.getItem('apiKey') && !apiKey) {
         apiKeyDialog.handleOpen();
         return;
       }
@@ -102,6 +103,7 @@ export const MessageInput = React.memo(
         setIsSubmitting(false);
       }
     }, [
+      apiKey,
       disabled,
       editor,
       insertContentAndSync,
@@ -112,7 +114,7 @@ export const MessageInput = React.memo(
 
     const handleIconButtonClick = useCallback(
       async e => {
-        if (!sessionStorage.getItem('apiKey')) {
+        if (!sessionStorage.getItem('apiKey') && !apiKey) {
           console.log('No API Key');
           apiKeyDialog.handleOpen();
         } else if (disabled) {
@@ -123,7 +125,13 @@ export const MessageInput = React.memo(
           await handleSendMessageWrapper();
         }
       },
-      [apiKeyDialog, disabled, handleSendMessageWrapper, setIsSubmitting]
+      [
+        apiKeyDialog,
+        apiKey,
+        disabled,
+        handleSendMessageWrapper,
+        setIsSubmitting,
+      ]
     );
 
     return (

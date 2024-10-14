@@ -127,6 +127,12 @@ export const MainChat = () => {
     };
 
     if (params?.workspaceId && !chatLoading && !chatStreaming) {
+      console.log(
+        `[CHAT_PARAMS][${JSON.stringify({
+          workspace: params?.workspaceId,
+          chat: params?.sessionId,
+        })}]`
+      );
       fetchData();
     }
   }, [
@@ -136,6 +142,7 @@ export const MainChat = () => {
     setIsAtBottom,
     chatLoading,
     chatStreaming,
+    params?.sessionId,
   ]);
 
   /* --- fn() to handle the chat abort option --- */
@@ -220,8 +227,8 @@ export const MainChat = () => {
               }}
             >
               <div ref={messagesStartRef} />
-              {chatMessages?.length > 0 ? (
-                <MessageBox messages={chatMessages} />
+              {messages?.length > 0 ? (
+                <MessageBox messages={messages} />
               ) : (
                 <Box sx={{ textAlign: 'center', margin: '20px' }}>
                   <h3>No messages yet, try one of these prompts:</h3>

@@ -6,6 +6,7 @@ import {
   Navigate,
   redirect,
   useActionData,
+  useNavigate,
 } from 'react-router-dom';
 
 import { chatApi } from 'api/Ai/chat-sessions';
@@ -26,31 +27,114 @@ import { Loadable } from 'layouts/navigation/navbar/components';
 import { dispatch, setField } from 'store/index';
 
 /* *** Router Utils *** */
-const NewChatForm = () => {
-  const actionData = useActionData();
-  const [firstPrompt, setFirstPrompt] = useState('');
+const NewChatDialog = lazy(() => import('components/chat/NewChatDialog')); // Adjust the path as needed
+
+const NewChatRoute = () => {
+  const navigate = useNavigate();
+
+  const handleNewChat = async chatData => {
+    try {
+      const response = await chatApi.createChatSession(chatData);
+      const { chatSessionId } = response.data;
+      navigate(`/admin/workspaces/home/chat/${chatSessionId}`);
+    } catch (error) {
+      console.error('Error creating new chat:', error);
+      // Handle error (e.g., show a toast notification)
+    }
+  };
 
   return (
-    <Form method="post">
-      <h2>Start a New Chat</h2>
-      {actionData?.errors && (
-        <ul>
-          {actionData.errors.map((error, index) => (
-            <li key={index}>{error.message}</li>
-          ))}
-        </ul>
-      )}
-      <textarea
-        name="firstPrompt"
-        value={firstPrompt}
-        onChange={e => setFirstPrompt(e.target.value)}
-        placeholder="Enter your first prompt..."
-        required
+    <Suspense fallback={<LoadingIndicator />}>
+      <NewChatDialog
+        open={true}
+        onClose={() => navigate(-1)}
+        onSubmit={handleNewChat}
       />
-      <button type="submit">Create Chat</button>
-    </Form>
+    </Suspense>
   );
 };
+
+/* *** Create Chat Action *** */
+export async function createNewChatAction({ request }) {
+  const formData = await request.formData();
+  const { topic, prompt, selectedComponent, temperature, useGPT4 } =
+    Object.fromEntries(formData);
+
+  // Basic validation (already handled by Formik/Yup, but adding server-side validation)
+  if (!prompt || prompt.trim() === '') {
+    return { errors: [{ message: 'Prompt is required.' }] };
+  }
+
+  try {
+    // Generate chat title
+    const title = await chatApi.generateChatTitle(prompt);
+
+    if (!title) {
+      return { errors: [{ message: 'Failed to generate chat title.' }] };
+    }
+
+    // Create chat session
+    const newChat = await chatApi.createChatSession({
+      title,
+      prompt,
+      selectedComponent,
+      temperature: parseFloat(temperature),
+      useGPT4: useGPT4 === 'true' || useGPT4 === true,
+      sessionId: sessionStorage.getItem('sessionId'),
+      workspaceId: sessionStorage.getItem('workspaceId'),
+      userId: sessionStorage.getItem('userId'),
+      clientApiKey: sessionStorage.getItem('apiKey'),
+      newSession: true,
+    });
+
+    // Redirect to the new chat session
+    return Navigate(
+      `/admin/workspaces/${newChat.workspaceId}/chat/${newChat._id}`
+    );
+  } catch (error) {
+    console.error('Error creating chat session:', error);
+    return { errors: [{ message: error.message || 'Failed to create chat.' }] };
+  }
+}
+// export async function createNewChatAction({ request, params }) {
+//   const formData = await request.formData();
+//   const { topic, prompt, selectedComponent, temperature, useGPT4 } =
+//     Object.fromEntries(formData);
+
+//   // Basic validation
+//   if (!topic || topic.trim() === '') {
+//     return { errors: [{ message: 'Topic is required.' }] };
+//   }
+//   if (!prompt || prompt.trim() === '') {
+//     return { errors: [{ message: 'Prompt is required.' }] };
+//   }
+//   if (!selectedComponent || selectedComponent.trim() === '') {
+//     return { errors: [{ message: 'Component type is required.' }] };
+//   }
+
+//   try {
+//     // Create chat session
+//     const newChat = await chatApi.createChatSession({
+//       title: topic, // Assuming topic is used as title
+//       prompt,
+//       selectedComponent,
+//       temperature: parseFloat(temperature),
+//       useGPT4: Boolean(useGPT4),
+//       sessionId: sessionStorage.getItem('sessionId'),
+//       workspaceId: params.workspaceId,
+//       userId: sessionStorage.getItem('userId'),
+//       clientApiKey: sessionStorage.getItem('apiKey'),
+//       newSession: true,
+//     });
+
+//     // Redirect to the new chat session
+//     return Navigate(
+//       `/admin/workspaces/${params.workspaceId}/chat/${newChat.id}`
+//     );
+//   } catch (error) {
+//     return { errors: [{ message: error.message || 'Failed to create chat.' }] };
+//   }
+// }
 
 /* *** Fetch Workspace Loader *** */
 export async function workspaceLoader({ params }) {
@@ -97,6 +181,7 @@ export async function createChatAction({ request }) {
       prompt: firstPrompt,
       userId: sessionStorage.getItem('userId'),
       clientApiKey: sessionStorage.getItem('apiKey'),
+      newSession: true,
     });
 
     // Redirect to the new chat session
@@ -141,6 +226,9 @@ const ChatLayout = Loadable(lazy(() => import('layouts/chat')));
 const RouterLayout = Loadable(lazy(() => import('layouts/router')));
 /* *** Views *** */
 const HeroDocs = Loadable(lazy(() => import('views/land/heroDocs')));
+const ReedAiLanding = Loadable(
+  lazy(() => import('views/landing/reedAi/Index'))
+);
 
 const AuthDefault = Loadable(lazy(() => import('views/auth/default')));
 const SignInMain = Loadable(lazy(() => import('views/auth/setup/Login')));
@@ -196,6 +284,16 @@ const baseRoutes = [
         path: 'heroDocs',
         breadcrumb: 'Hero Docs',
         element: <HeroDocs />,
+        icon: <FolderRoundedIcon />,
+        invisible: false,
+        collapse: false,
+      },
+      {
+        name: 'ReedAi',
+        title: 'ReedAi',
+        path: 'reedAi',
+        breadcrumb: 'ReedAi',
+        element: <ReedAiLanding />,
         icon: <FolderRoundedIcon />,
         invisible: false,
         collapse: false,
@@ -354,7 +452,7 @@ const adminRoutes = [
                     title: 'NewChat',
                     path: 'new',
                     breadcrumb: 'New Chat',
-                    element: <NewChatForm />,
+                    element: <NewChatRoute />,
                     action: createChatAction,
                   },
                 ],

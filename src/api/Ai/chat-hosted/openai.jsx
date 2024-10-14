@@ -1,5 +1,9 @@
 import { openai } from '@ai-sdk/openai';
 import { generateText } from 'ai';
+import { marked } from 'marked';
+import { Configuration, OpenAIApi } from 'openai';
+
+import { promptGenTemplate } from '@/lib/chat-utils';
 
 const openAiApiService = {
   getHostedCompletion: async prompt => {
@@ -36,5 +40,64 @@ const openAiApiService = {
     });
 
     console.log(result.text);
+  },
+  generateTitle: async messages => {
+    const concatenatedMessages = messages
+      .map(msg => `${msg.role}: ${msg.content}`)
+      .join('\n');
+    try {
+      const response = await fetch(
+        'https://api.openai.com/v1/chat/completions',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${sessionStorage.getItem('apiKey')}`,
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [
+              {
+                role: 'system',
+                content:
+                  'Generate a short, concise title (3-5 words) for this conversation based on its main topic.',
+              },
+              { role: 'user', content: concatenatedMessages },
+            ],
+            max_tokens: 15,
+          }),
+        }
+      );
+
+      const data = await response.json();
+      return data.choices[0].message.content.trim();
+    } catch (error) {
+      console.error('Error generating title:', error);
+      return 'New Chat';
+    }
+  },
+  generatePrompt: async (userInput, apiKey) => {
+    const configuration = new Configuration({
+      apiKey: apiKey,
+    });
+    const openai = new OpenAIApi(configuration);
+
+    try {
+      const completion = await openai.createChatCompletion({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: promptGenTemplate },
+          { role: 'user', content: userInput },
+        ],
+      });
+
+      const aiResponse = completion.data.choices[0].message.content;
+      const htmlContent = marked(aiResponse);
+
+      return htmlContent;
+    } catch (error) {
+      console.error('Error calling OpenAI API:', error);
+      throw error;
+    }
   },
 };
