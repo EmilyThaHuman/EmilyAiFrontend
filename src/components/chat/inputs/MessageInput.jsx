@@ -65,20 +65,20 @@ export const MessageInput = React.memo(
       state: {
         apiKey,
         showFilesDisplay,
-        isFirstMessage,
         chatFiles,
-        chatMessages,
         messageFiles,
+        selectedChatSession,
       },
-      actions: { setShowFilesDisplay, setChatMessages },
+      actions: { setShowFilesDisplay },
     } = useChatStore();
-    const { state } = useUserStore();
     const {
       setNewMessageContentToNextUserMessage,
       setNewMessageContentToPreviousUserMessage,
     } = useChatHistoryHandler();
     const { editor, insertContentAndSync } = useTipTapEditor(
-      isFirstMessage ? 'begin session' : 'continue session'
+      selectedChatSession?.messages?.length === 0
+        ? 'begin session'
+        : 'continue session'
     );
     const { handleSendMessage } = useChatHandler();
     const handleSendMessageWrapper = useCallback(async () => {

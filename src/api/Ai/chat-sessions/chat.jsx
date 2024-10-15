@@ -1,5 +1,6 @@
 /* eslint-disable no-constant-condition */
 import { createParser } from 'eventsource-parser';
+import { toast } from 'sonner';
 
 import { apiUtils } from '@/lib/apiUtils';
 
@@ -165,12 +166,12 @@ export const chatApi = {
       throw error;
     }
   },
-  generateChatTitle: ({ firstPrompt }) => {
+  generateChatTitle: prompt => {
     try {
       const data = apiUtils.post(
         '/chat/sessions/generate-title',
         JSON.stringify({
-          firstPrompt,
+          prompt,
         })
       );
       return data;
@@ -181,40 +182,50 @@ export const chatApi = {
   },
   createChatSession: async ({
     title,
-    firstPrompt,
+    prompt,
+    selectedComponent,
+    temperature,
+    useGPT4,
     sessionId,
     workspaceId,
     regenerate,
-    prompt,
     userId,
     clientApiKey,
+    newSession,
   }) => {
     try {
       console.log('Creating chat session with data:', {
         title,
-        firstPrompt,
+        prompt,
+        selectedComponent,
+        temperature,
+        useGPT4,
         sessionId,
         workspaceId,
         regenerate,
-        prompt,
         userId,
         clientApiKey,
+        newSession,
       });
       const data = await apiUtils.post(
         '/chat/sessions/create-session',
         JSON.stringify({
           title,
-          firstPrompt,
+          prompt,
+          selectedComponent,
+          temperature,
+          useGPT4,
           sessionId,
           workspaceId,
           regenerate,
-          prompt,
           userId,
           clientApiKey,
+          newSession,
         })
       );
       return data;
     } catch (error) {
+      toast.error('Error creating chat session:', error);
       console.error(`Error fetching chat session with id ${sessionId}:`, error);
       throw error;
     }

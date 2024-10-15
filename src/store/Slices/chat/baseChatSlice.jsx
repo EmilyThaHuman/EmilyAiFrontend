@@ -1,10 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+
 import { chatApi } from 'api/Ai/chat-sessions';
+
 import { getLocalData, setLocalData } from '../helpers';
 
 const LOCAL_NAME = 'baseChatStore';
 const REDUX_NAME = 'baseChat';
-const FETCH_INTERVAL = 30000; // 30 seconds
 
 const initialState = getLocalData(LOCAL_NAME, REDUX_NAME);
 
@@ -12,130 +13,84 @@ function setLocalBaseChatData(data) {
   setLocalData(LOCAL_NAME, data);
 }
 
-let lastFetchTime = 0;
-
-function shouldFetch() {
-  const currentTime = Date.now();
-  if (currentTime - lastFetchTime < FETCH_INTERVAL) {
-    console.log('Skipping fetch, too soon since last fetch');
-    return false;
-  }
-  lastFetchTime = currentTime;
-  return true;
-}
-
-// export const syncChatMessages = createAsyncThunk(
-//   `${REDUX_NAME}/session/messages`,
-//   async (_, { dispatch, getState }) => {
-//     const sessionId = sessionStorage.getItem('sessionId');
-//     if (!sessionId || !shouldFetch()) return;
-
-//     const response = await chatApi.getChatSessionMessages(sessionId);
-//     const state = getState();
-
-//     if (state.baseChat.chatMessages !== response.messages) {
-//       dispatch(baseChatSlice.actions.setChatMessages(response.messages));
-//     }
-
-//     return response;
-//   }
-// );
-
 export const baseChatSlice = createSlice({
   name: REDUX_NAME,
   initialState,
   reducers: {
-    setMode: (state, action) => {
-      state.mode = action.payload;
-    },
-    setLoading: state => {
-      state.baseChatRequest = { status: 'loading', error: null };
-    },
-    setError: (state, action) => {
-      state.baseChatRequest = {
-        status: 'failed',
-        error: action.payload,
-        message: action.payload.message || 'An error occurred',
-      };
-    },
-    setChatRequestData: (state, action) => {
-      state.baseChatRequest = {
-        status: 'succeeded',
-        success: action.payload,
-        message: action.payload.message || 'Chat request successful',
-      };
-    },
-    // setUserInput: (state, action) => {
-    //   state.userInput = action.payload;
-    //   setLocalBaseChatData({ ...state, userInput: action.payload });
-    // },
     setIsStreaming: (state, action) => {
       state.isStreaming = action.payload;
-    },
-    setStreamingMessageIndex: (state, action) => {
-      state.streamingMessageIndex = action.payload;
-    },
-    setBooleanState: (state, action) => {
-      const { key, value } = action.payload;
-      state[key] = value;
     },
     setIsDisabled: (state, action) => {
       state.isDisabled = action.payload;
     },
+    setStreamingMessageIndex: (state, action) => {
+      state.streamingMessageIndex = action.payload;
+    },
     setFirstTokenReceived: (state, action) => {
       state.firstTokenReceived = action.payload;
-    },
-    setFirstMessageReceived: (state, action) => {
-      state.isFirstMessageReceived = action.payload;
     },
     setAbortController: (state, action) => {
       state.abortController = action.payload;
     },
-    setIsMessagesUpdated: (state, action) => {
-      state.isMessagesUpdated = action.payload;
-    },
     // -- secondary commands --
     setIsPromptPickerOpen: (state, action) => {
       state.isPromptPickerOpen = action.payload;
-    },
-    setSlashCommand: (state, action) => {
-      state.slashCommand = action.payload;
+      setLocalBaseChatData({ ...state, isPromptPickerOpen: action.payload });
     },
     setIsFilePickerOpen: (state, action) => {
       state.isFilePickerOpen = action.payload;
-    },
-    setHashtagCommand: (state, action) => {
-      state.hashtagCommand = action.payload;
+      setLocalBaseChatData({ ...state, isFilePickerOpen: action.payload });
     },
     setIsToolPickerOpen: (state, action) => {
       state.isToolPickerOpen = action.payload;
-    },
-    setToolCommand: (state, action) => {
-      state.toolCommand = action.payload;
+      setLocalBaseChatData({ ...state, isToolPickerOpen: action.payload });
     },
     setFocusPrompt: (state, action) => {
       state.focusPrompt = action.payload;
+      setLocalBaseChatData({ ...state, focusPrompt: action.payload });
     },
     setFocusFile: (state, action) => {
       state.focusFile = action.payload;
+      setLocalBaseChatData({ ...state, focusFile: action.payload });
     },
     setFocusTool: (state, action) => {
       state.focusTool = action.payload;
+      setLocalBaseChatData({ ...state, focusTool: action.payload });
     },
     setFocusAssistant: (state, action) => {
       state.focusAssistant = action.payload;
+      setLocalBaseChatData({ ...state, focusAssistant: action.payload });
+    },
+    setHashtagCommand: (state, action) => {
+      state.hashtagCommand = action.payload;
+      setLocalBaseChatData({ ...state, hashtagCommand: action.payload });
+    },
+    setSlashCommand: (state, action) => {
+      state.slashCommand = action.payload;
+      setLocalBaseChatData({ ...state, slashCommand: action.payload });
+    },
+    setToolCommand: (state, action) => {
+      state.toolCommand = action.payload;
+      setLocalBaseChatData({ ...state, toolCommand: action.payload });
     },
     setAtCommand: (state, action) => {
       state.atCommand = action.payload;
+      setLocalBaseChatData({ ...state, atCommand: action.payload });
     },
     setIsAssistantPickerOpen: (state, action) => {
       state.isAssistantPickerOpen = action.payload;
+      setLocalBaseChatData({
+        ...state,
+        isAssistantPickerOpen: action.payload,
+      });
     },
     setUseRetrieval: (state, action) => {
       state.useRetrieval = action.payload;
+      setLocalBaseChatData({ ...state, useRetrieval: action.payload });
     },
     setSourceCount: (state, action) => {
       state.sourceCount = action.payload;
+      setLocalBaseChatData({ ...state, sourceCount: action.payload });
     },
   },
 });

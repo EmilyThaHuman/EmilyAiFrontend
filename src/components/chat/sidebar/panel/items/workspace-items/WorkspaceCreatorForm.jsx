@@ -15,8 +15,8 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+
 import { InfoOutlinedIcon, SettingsIcon } from 'assets/humanIcons';
 import { IconButtonWithTooltip } from 'components/compositions';
 import {
@@ -30,8 +30,9 @@ import {
 import { DEFAULT_APP_DATA } from 'config/app-data-configs';
 import { useChatStore } from 'contexts/ChatProvider';
 import { useUserStore } from 'contexts/UserProvider';
-import { useChatHandler, useDialog, useMode } from 'hooks';
-import useChatSessionHandler from 'hooks/chat/useChatSessionHandler';
+import { useDialog } from 'hooks';
+import { useChatSessionHandler } from 'hooks/chat/useChatSessionHandler';
+
 import { PresetSelect } from '../preset-items';
 
 const marks = [
@@ -52,13 +53,10 @@ export const WorkspaceCreatorForm = () => {
   const chatStore = useChatStore();
   const userStore = useUserStore();
   const {
-    state: { selectedPreset, presets, modelNames, workspaces, chatMessages },
-    actions: { setChatMessages, setSelectedPreset },
+    state: { selectedPreset, presets, modelNames },
+    actions: { setSelectedPreset },
   } = chatStore;
-  const { handleCreateNewWorkspace } = useChatSessionHandler(
-    chatMessages,
-    setChatMessages
-  );
+  const { handleCreateNewWorkspace } = useChatSessionHandler();
   const userId = userStore.state.userId;
   const [name, setName] = useState('Default Workspace');
   const [instructions, setInstructions] = useState('Default instructions');
@@ -99,7 +97,7 @@ export const WorkspaceCreatorForm = () => {
 
   const workspaceData = {
     name,
-    userId: userId || sessionStorage.getItem('userId'),
+    userId: sessionStorage.getItem('userId'),
 
     customPreset: {
       name: selectedPreset?.name || '',

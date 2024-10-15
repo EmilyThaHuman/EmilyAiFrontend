@@ -1,29 +1,14 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { replace, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-import staticDataApi from 'api/static/staticData';
+import { staticDataApi } from 'api/static';
 import { authApi, userApi } from 'api/user';
 import avatar5 from 'assets/img/avatars/avatar5.png'; // Fallback avatar
 
 import {
-  setAssistants,
-  setChatMessages,
-  setChatSessions,
-  setCollections,
-  setFiles,
-  setFolders,
   setHomeWorkSpace,
-  setModels,
-  setPresets,
-  setPrompts,
-  setSelectedAssistant,
-  setSelectedChatSession,
-  setSelectedPreset,
-  setSelectedPrompt,
-  setSelectedTools,
   setSelectedWorkspace,
   setSessionId,
-  setTools,
   setWorkspaceId,
   setWorkspaces,
 } from '../chat';
@@ -326,6 +311,7 @@ export const userSlice = createSlice({
       .addCase(handleAuthSubmit.fulfilled, (state, action) => {
         state.loading = false;
         console.log('USER AUTH SUCCESS PAYLOAD:', action.payload.user);
+        window.location.reload();
         // state.user = action.payload.user;
       })
       .addCase(handleAuthSubmit.rejected, state => {

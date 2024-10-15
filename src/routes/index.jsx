@@ -26,33 +26,29 @@ import { LoadingIndicator } from 'components/index';
 import { Loadable } from 'layouts/navigation/navbar/components';
 import { dispatch, setField } from 'store/index';
 
-/* *** Router Utils *** */
-const NewChatDialog = lazy(() => import('components/chat/NewChatDialog')); // Adjust the path as needed
+// =========================================================
+// Route Loaders
+// =========================================================
+/* *** Fetch Workspace Loader *** */
+export async function workspaceLoader({ params }) {
+  const { workspaceId } = params;
 
-const NewChatRoute = () => {
-  const navigate = useNavigate();
-
-  const handleNewChat = async chatData => {
-    try {
-      const response = await chatApi.createChatSession(chatData);
-      const { chatSessionId } = response.data;
-      navigate(`/admin/workspaces/home/chat/${chatSessionId}`);
-    } catch (error) {
-      console.error('Error creating new chat:', error);
-      // Handle error (e.g., show a toast notification)
+  try {
+    const workspace = await workspacesApi.getWorkspace(workspaceId);
+    if (!workspace) {
+      throw new Response('Workspace Not Found', { status: 404 });
     }
-  };
+    return { workspace };
+  } catch (error) {
+    throw new Response(error.message || 'Failed to load workspace', {
+      status: error.status || 500,
+    });
+  }
+}
 
-  return (
-    <Suspense fallback={<LoadingIndicator />}>
-      <NewChatDialog
-        open={true}
-        onClose={() => navigate(-1)}
-        onSubmit={handleNewChat}
-      />
-    </Suspense>
-  );
-};
+// =========================================================
+// Route Actions
+// =========================================================
 
 /* *** Create Chat Action *** */
 export async function createNewChatAction({ request }) {
@@ -94,62 +90,6 @@ export async function createNewChatAction({ request }) {
   } catch (error) {
     console.error('Error creating chat session:', error);
     return { errors: [{ message: error.message || 'Failed to create chat.' }] };
-  }
-}
-// export async function createNewChatAction({ request, params }) {
-//   const formData = await request.formData();
-//   const { topic, prompt, selectedComponent, temperature, useGPT4 } =
-//     Object.fromEntries(formData);
-
-//   // Basic validation
-//   if (!topic || topic.trim() === '') {
-//     return { errors: [{ message: 'Topic is required.' }] };
-//   }
-//   if (!prompt || prompt.trim() === '') {
-//     return { errors: [{ message: 'Prompt is required.' }] };
-//   }
-//   if (!selectedComponent || selectedComponent.trim() === '') {
-//     return { errors: [{ message: 'Component type is required.' }] };
-//   }
-
-//   try {
-//     // Create chat session
-//     const newChat = await chatApi.createChatSession({
-//       title: topic, // Assuming topic is used as title
-//       prompt,
-//       selectedComponent,
-//       temperature: parseFloat(temperature),
-//       useGPT4: Boolean(useGPT4),
-//       sessionId: sessionStorage.getItem('sessionId'),
-//       workspaceId: params.workspaceId,
-//       userId: sessionStorage.getItem('userId'),
-//       clientApiKey: sessionStorage.getItem('apiKey'),
-//       newSession: true,
-//     });
-
-//     // Redirect to the new chat session
-//     return Navigate(
-//       `/admin/workspaces/${params.workspaceId}/chat/${newChat.id}`
-//     );
-//   } catch (error) {
-//     return { errors: [{ message: error.message || 'Failed to create chat.' }] };
-//   }
-// }
-
-/* *** Fetch Workspace Loader *** */
-export async function workspaceLoader({ params }) {
-  const { workspaceId } = params;
-
-  try {
-    const workspace = await workspacesApi.getWorkspace(workspaceId);
-    if (!workspace) {
-      throw new Response('Workspace Not Found', { status: 404 });
-    }
-    return { workspace };
-  } catch (error) {
-    throw new Response(error.message || 'Failed to load workspace', {
-      status: error.status || 500,
-    });
   }
 }
 
@@ -218,6 +158,40 @@ export async function logoutAction() {
 const RootErrorBoundary = Loadable(
   lazy(() => import('utils/app/RouterErrorBoundary.jsx'))
 );
+
+// =========================================================
+// Route Components
+// =========================================================
+export const NewChatDialog = lazy(
+  () => import('components/chat/NewChatDialog')
+);
+export const NewChatRoute = () => {
+  const navigate = useNavigate();
+
+  const handleNewChat = async chatData => {
+    try {
+      const response = await chatApi.createChatSession(chatData);
+      const { chatSessionId } = response.data;
+      navigate(`/admin/workspaces/home/chat/${chatSessionId}`);
+    } catch (error) {
+      console.error('Error creating new chat:', error);
+    }
+  };
+
+  return (
+    <Suspense fallback={<LoadingIndicator />}>
+      <NewChatDialog
+        open={true}
+        onClose={() => navigate(-1)}
+        onSubmit={handleNewChat}
+      />
+    </Suspense>
+  );
+};
+export function LogoutRoute() {
+  return <p>Logging out...</p>;
+}
+
 /* *** Layouts *** */
 const BlankLayout = Loadable(lazy(() => import('layouts/blank')));
 const AdminLayout = Loadable(lazy(() => import('layouts/admin')));
@@ -246,13 +220,6 @@ export const customHistory = createBrowserHistory();
 customHistory.listen((location, action) => {
   console.log(`[History]: ${action} - ${location.pathname}`);
 });
-
-// =========================================================
-// Route Actions
-// =========================================================
-export function LogoutRoute() {
-  return <p>Logging out...</p>;
-}
 
 // =========================================================
 // Base Routes
@@ -455,6 +422,35 @@ const adminRoutes = [
                     element: <NewChatRoute />,
                     action: createChatAction,
                   },
+                  {
+                    name: 'Chat Mode',
+                    title: 'ChatMode',
+                    path: ':modeId', // Dynamic modeId route
+                    breadcrumb: 'Chat Mode',
+                    element: (
+                      <Suspense fallback={<LoadingIndicator />}>
+                        <ChatMain />
+                      </Suspense>
+                    ),
+                    icon: <AiIcon />, // Replace with appropriate icon if needed
+                    loader: async ({ params }) => {
+                      const { workspaceId, modeId } = params;
+                      // Optional: Add loader logic if necessary
+                      return { modeId };
+                    },
+                  },
+                  {
+                    name: 'Chat Test',
+                    title: 'ChatTest',
+                    path: 'test', // Static test route
+                    breadcrumb: 'Chat Test',
+                    element: (
+                      <Suspense fallback={<LoadingIndicator />}>
+                        <ChatMain />
+                      </Suspense>
+                    ),
+                    icon: <AiIcon />, // Replace with appropriate icon if needed
+                  },
                 ],
               },
             ],
@@ -521,7 +517,6 @@ const adminRoutes = [
     ],
   },
 ];
-
 // =========================================================
 // Auth Routes
 // =========================================================

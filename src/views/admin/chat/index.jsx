@@ -39,8 +39,8 @@ export const MainChat = () => {
   const {
     state: { isSidebarOpen },
   } = useAppStore();
-  const { params } = useParams(); // Extract the dynamic 'id' parameter from the URL
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Check if the screen size is mobile
+  const params = useParams();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [marginLeft, setMarginLeft] = useState(isMobile ? '0px' : '50px');
 
   useEffect(() => {
@@ -48,27 +48,14 @@ export const MainChat = () => {
   }, [isMobile, isSidebarOpen]);
 
   const {
-    state: {
-      userInput,
-      isMessagesUpdated,
-      isFirstMessageReceived,
-      sessionId,
-      workspaceId,
-      chatMessages,
-    },
-    actions: {
-      setIsMessagesUpdated,
-      setIsFirstMessageReceived,
-      setChatMessages,
-    },
+    state: { userInput, sessionId, chatMessages, isStreaming },
   } = useChatStore();
 
-  const { insertContentAndSync } = useTipTapEditor(userInput); // Destructure the submitMessage function
+  const { insertContentAndSync } = useTipTapEditor(userInput);
   const {
-    messages,
+    // messages,
     chatError,
     chatLoading,
-    chatStreaming,
     controllerRef,
     handleSendMessage,
     handleRegenerateResponse,
@@ -78,8 +65,7 @@ export const MainChat = () => {
   const promptsMenu = useMenu();
   const dialogRef = useRef(null);
   const sidebarItemRef = useRef(null);
-  const { messagesStartRef, messagesEndRef, chatContainerRef, handleScroll } =
-    useChatScroll();
+  const { chatContainerRef } = useChatScroll();
   const { scrollToBottom, setIsAtBottom } = useChatScroll();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -101,18 +87,10 @@ export const MainChat = () => {
   }, [promptsMenu.isOpen]);
   /* -- */
   const initializeSession = useCallback(async () => {
-    if (!sessionId) {
-      try {
-        await handleCreateNewSession();
-      } catch (err) {
-        console.error('Failed to initialize session:', err);
-      }
-    }
-
     if ((!chatMessages || chatMessages.length === 0) && sessionId) {
       await handleGetSession();
     }
-  }, [sessionId, chatMessages, handleCreateNewSession, handleGetSession]);
+  }, [sessionId, chatMessages, handleGetSession]);
 
   useEffect(() => {
     initializeSession();
@@ -126,23 +104,26 @@ export const MainChat = () => {
       setIsAtBottom(true);
     };
 
-    if (params?.workspaceId && !chatLoading && !chatStreaming) {
+    if (!chatLoading && !isStreaming && !chatError) {
       console.log(
         `[CHAT_PARAMS][${JSON.stringify({
           workspace: params?.workspaceId,
           chat: params?.sessionId,
+          model: params?.modelId,
         })}]`
       );
       fetchData();
     }
   }, [
     params?.workspaceId,
+    params?.sessionId,
+    params?.modelId,
     handleGetSession,
     scrollToBottom,
     setIsAtBottom,
     chatLoading,
-    chatStreaming,
-    params?.sessionId,
+    chatError,
+    isStreaming,
   ]);
 
   /* --- fn() to handle the chat abort option --- */
@@ -154,10 +135,6 @@ export const MainChat = () => {
     };
   }, [controllerRef]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView();
-  }, [messages]);
-
   return (
     <Box
       id="chat-view-container"
@@ -166,7 +143,6 @@ export const MainChat = () => {
         marginLeft: marginLeft, // Use the marginLeft state variable
         display: 'flex',
         flexDirection: 'column',
-        // width: '100%',
         maxWidth: !isMobile ? 'calc(100% - 24px)' : null,
         transition: 'margin-left 0.3s ease-in-out, width 0.3s ease-in-out', // Smooth transition
       }}
@@ -214,61 +190,41 @@ export const MainChat = () => {
             }}
           >
             <ChatHeader />
-            <Box
-              onScroll={handleScroll}
-              sx={{
-                flexGrow: 1,
-                overflowY: 'auto',
-                padding: theme.spacing(2),
-                height: '100%',
-                width: '100%',
-                maxWidth: '100%',
-                maxHeight: '100%',
-              }}
-            >
-              <div ref={messagesStartRef} />
-              {messages?.length > 0 ? (
-                <MessageBox messages={messages} />
-              ) : (
-                <Box sx={{ textAlign: 'center', margin: '20px' }}>
-                  <h3>No messages yet, try one of these prompts:</h3>
-                  {RANDOM_PROMPTS.map((prompt, index) => (
-                    <Paper
-                      key={index}
-                      elevation={2}
-                      sx={{
-                        padding: '10px',
-                        margin: '10px',
-                        cursor: 'pointer',
-                      }}
-                      onClick={e => {
-                        e.preventDefault();
-                        // e.stopPropagation();
-                        // handleContentChange(prompt);
-                        handleSendMessage();
-                      }}
-                    >
-                      {prompt}
-                    </Paper>
-                  ))}
-                </Box>
-              )}
-              <div ref={messagesEndRef} />
-              {isSubmitting && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                  <CircularProgress />
-                </Box>
-              )}
-              {chatLoading && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
-                  <CircularProgress />
-                </Box>
-              )}
+            <Box sx={{ textAlign: 'center', margin: '20px' }}>
+              <h3>No messages yet, try one of these prompts:</h3>
+              {RANDOM_PROMPTS.map((prompt, index) => (
+                <Paper
+                  key={index}
+                  elevation={2}
+                  sx={{
+                    padding: '10px',
+                    margin: '10px',
+                    cursor: 'pointer',
+                  }}
+                  onClick={e => {
+                    e.preventDefault();
+                    // e.stopPropagation();
+                    // handleContentChange(prompt);
+                    handleSendMessage();
+                  }}
+                >
+                  {prompt}
+                </Paper>
+              ))}
             </Box>
+            {isSubmitting && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                <CircularProgress />
+              </Box>
+            )}
+            {chatLoading && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+                <CircularProgress />
+              </Box>
+            )}
             <MessageInput
-              disabled={chatLoading || chatStreaming || false}
+              disabled={chatLoading || isStreaming || false}
               onSend={handleSendMessage}
-              isFirstMessage={isFirstMessageReceived}
               inputContent={userInput}
               isSubmitting={isSubmitting}
               setIsSubmitting={setIsSubmitting}

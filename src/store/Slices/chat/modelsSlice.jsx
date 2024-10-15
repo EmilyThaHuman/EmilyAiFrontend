@@ -1,4 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { toast } from 'sonner';
+
 import { getLocalData, setLocalData } from '../helpers';
 
 const LOCAL_NAME = 'modelStore';
@@ -14,8 +16,20 @@ export const modelSlice = createSlice({
   name: REDUX_NAME,
   initialState,
   reducers: {
+    setModelId: (state, action) => {
+      let modelId;
+      if (action.payload && action.payload !== '') {
+        modelId = action.payload;
+      } else {
+        const warn = 'No model ID provided. Using default model ID.';
+        toast.warn(warn);
+      }
+      state.modelId = modelId;
+      sessionStorage.setItem('modelId', modelId);
+      setLocalModelData({ ...state, modelId: modelId });
+    },
     setModels: (state, action) => {
-      console.log('Setting models:', action.payload);
+      console.log('[SETTING_MODELS]:', action.payload);
       state.models = action.payload;
       setLocalModelData({ ...state, models: action.payload });
     },
@@ -44,6 +58,7 @@ export const modelSlice = createSlice({
 export { initialState as modelInitialState };
 
 export const {
+  setModelId,
   setModels,
   setSelectedModel,
   setAvailableHostedModels,

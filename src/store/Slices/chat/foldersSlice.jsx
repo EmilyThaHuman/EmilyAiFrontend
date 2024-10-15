@@ -1,5 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { toast } from 'sonner';
+
 import { workspacesApi } from 'api/workspaces';
+
 import { getLocalData, setLocalData } from '../helpers';
 
 const LOCAL_NAME = 'folderStore';
@@ -51,6 +54,18 @@ export const foldersSlice = createSlice({
   name: REDUX_NAME,
   initialState,
   reducers: {
+    setFolderId: (state, action) => {
+      let folderId;
+      if (action.payload && action.payload !== '') {
+        folderId = action.payload;
+      } else {
+        const warn = 'No folder ID provided. Using default folder ID.';
+        toast.warn(warn);
+      }
+      state.folderId = folderId;
+      sessionStorage.setItem('folderId', folderId);
+      setLocalFolderData({ ...state, folderId: folderId });
+    },
     setFolders: (state, action) => {
       state.folders = action.payload;
       setLocalFolderData({ ...state, folders: action.payload });

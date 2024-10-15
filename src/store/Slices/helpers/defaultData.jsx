@@ -678,30 +678,11 @@ export function defaultPromptStoreData() {
 }
 export function defaultBaseChatStoreData() {
   return {
-    mode: 'chat', // chat or assistant
-    apiKey: '',
     isApiKeySet: false,
-    isGenerating: false,
     firstTokenReceived: false,
-    isMessagesUpdated: false,
     isDisabled: false,
-    isFirstMessageReceived: false,
     abortController: null,
     active: null,
-    userInput: '',
-    chatMessages: [],
-    chatSettings: {
-      model: 'gpt-4-turbo-preview',
-      prompt: 'You are a helpful AI assistant.',
-      temperature: 0.5,
-      contextLength: 4000,
-      includeProfileContext: true,
-      includeWorkspaceInstructions: true,
-      embeddingsProvider: 'openai',
-    },
-    selectedChat: null,
-    chatFileItems: [],
-    payload: {},
     isPromptPickerOpen: false,
     slashCommand: '',
     isFilePickerOpen: false,
@@ -716,12 +697,6 @@ export function defaultBaseChatStoreData() {
     isAssistantPickerOpen: false,
     useRetrieval: true,
     sourceCount: 0,
-    baseChatRequest: {
-      status: 'idle',
-      error: null,
-      success: null,
-      message: '',
-    },
   };
 }
 function defaultAppStoreData() {

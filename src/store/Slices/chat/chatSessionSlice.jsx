@@ -62,22 +62,7 @@ export const syncChatMessages = createAsyncThunkWithErrorHandling(
     return response;
   }
 );
-// export const syncChatMessages = createAsyncThunk(
-//   `${REDUX_NAME}/session/messages`,
-//   async (_, { dispatch, getState }) => {
-//     const sessionId = sessionStorage.getItem('sessionId');
-//     if (!sessionId || !shouldFetch()) return;
 
-//     const response = await chatApi.getChatSessionMessages(sessionId);
-//     const state = getState();
-
-//     if (state.baseChat.chatMessages !== response.messages) {
-//       dispatch(baseChatSlice.actions.setChatMessages(response.messages));
-//     }
-
-//     return response;
-//   }
-// );
 const scheduleSyncMessages = dispatch => {
   if (syncTimeout) clearTimeout(syncTimeout);
   syncTimeout = setTimeout(() => dispatch(syncChatMessages()), SYNC_INTERVAL);
@@ -113,6 +98,7 @@ const debouncedUpdateChatMessages = debounce(
   },
   500
 );
+
 export const updateChatMessages = createAsyncThunk(
   `${REDUX_NAME}/updateChatMessages`,
   async ({ sessionId, messages }, { rejectWithValue }) => {
@@ -124,6 +110,7 @@ export const updateChatMessages = createAsyncThunk(
     }
   }
 );
+
 export const getChatMessages = createAsyncThunk(
   `${REDUX_NAME}/getChatSessionMessages`,
   async ({ sessionId, messages }, { rejectWithValue }) => {
@@ -135,38 +122,11 @@ export const getChatMessages = createAsyncThunk(
     }
   }
 );
-// export const syncChatMessages = createAsyncThunk(
-//   `${REDUX_NAME}/session/messages`,
-//   async (_, { dispatch, getState }) => {
-//     const sessionId = sessionStorage.getItem('sessionId');
-//     if (!sessionId) return;
-
-//     const currentTime = Date.now();
-//     // Only fetch if it's been more than 30 seconds since the last fetch
-//     if (currentTime - lastFetchTime < FETCH_INTERVAL) {
-//       console.log('Skipping fetch, too soon since last fetch');
-//       return;
-//     }
-
-//     lastFetchTime = currentTime; // Update the last fetch time
-//     const response = await chatApi.getChatSessionMessages(sessionId);
-
-//     const state = getState();
-//     // Check if the messages have changed to avoid unnecessary dispatch
-//     if (
-//       JSON.stringify(state.baseChat.chatMessages) !==
-//       JSON.stringify(response.messages)
-//     ) {
-//       dispatch(setChatMessages(response.messages));
-//     }
-
-//     return response;
-//   }
-// );
 
 export const debouncedSetChatMessages = (sessionId, messages) => dispatch => {
   debouncedUpdateChatMessages(dispatch, sessionId, messages);
 };
+
 export const chatSessionsSlice = createSlice({
   name: REDUX_NAME,
   initialState,
@@ -176,13 +136,6 @@ export const chatSessionsSlice = createSlice({
       state.sessionId = action.payload;
       sessionStorage.setItem('sessionId', action.payload);
       setLocalSessionData({ ...state, sessionId: action.payload });
-    },
-    setApiKey: (state, action) => {
-      console.log('SETTING API KEY', action.payload);
-      state.apiKey = action.payload;
-      state.isApiKeySet = action.payload.length > 0 ? true : false;
-      sessionStorage.setItem('apiKey', action.payload);
-      setLocalSessionData({ ...state, apiKey: action.payload });
     },
     setChatSessions: (state, action) => {
       console.log('SETTING CHAT SESSIONS', action.payload);
@@ -197,6 +150,13 @@ export const chatSessionsSlice = createSlice({
         selectedChatSession: action.payload,
       });
     },
+    setApiKey: (state, action) => {
+      console.log('SETTING API KEY', action.payload);
+      state.apiKey = action.payload;
+      state.isApiKeySet = action.payload.length > 0 ? true : false;
+      sessionStorage.setItem('apiKey', action.payload);
+      setLocalSessionData({ ...state, apiKey: action.payload });
+    },
     setSessionHeader: (state, action) => {
       console.log('SETTING SESSION HEAD', action.payload);
       state.sessionHeader = action.payload;
@@ -207,6 +167,42 @@ export const chatSessionsSlice = createSlice({
       state.chatMessages = action.payload;
       state.pendingSync = true;
       setLocalSessionData({ ...state, chatMessages: action.payload });
+    },
+    setChatMessage(state, action) {
+      const { _id, content, isComplete, role } = action.payload;
+      const existingMessage = state.chatMessages.find(msg => msg._id === _id);
+
+      if (existingMessage) {
+        // Append new content if the message is still being streamed
+        if (!existingMessage.isComplete) {
+          existingMessage.content += content;
+          existingMessage.isComplete = isComplete || false;
+        }
+      } else {
+        // Add new message
+        state.chatMessages.push({
+          _id,
+          role,
+          content,
+          isComplete: isComplete || false,
+        });
+      }
+
+      state.pendingSync = true; // Mark as needing sync
+      setLocalSessionData({ ...state, chatMessages: state.chatMessages });
+    },
+    setStreaming(state, action) {
+      state.isStreaming = action.payload;
+    },
+    completeMessage(state, action) {
+      const { id } = action.payload;
+      const message = state.messages.find(msg => msg.id === id);
+      if (message) {
+        message.isComplete = true;
+      }
+    },
+    clearMessages(state) {
+      state.messages = [];
     },
     addChatMessage: (state, action) => {
       state.chatMessages.push(action.payload);
@@ -318,6 +314,8 @@ export const {
   setSelectedChatSession,
   setSessionHeader,
   setChatMessages,
+  setChatMessage,
+  setStreaming,
   addChatMessage,
   updateChatMessage,
   setSyncStatus,

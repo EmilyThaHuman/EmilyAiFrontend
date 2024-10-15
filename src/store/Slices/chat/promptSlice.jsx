@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { useSnackbar } from 'notistack';
+import { toast } from 'sonner';
+
 import { getLocalData, setLocalData } from '../helpers';
 
 const LOCAL_NAME = 'promptStore';
@@ -34,34 +35,7 @@ export const addStaticPrompt = createAsyncThunk(
     }
   }
 );
-// export const fetchStaticPrompts = createAsyncThunk(
-//   '/api/static-files',
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       // Step 1: Fetch the list of static files
-//       const fileListResponse = await axios.get('/static');
-//       const fileList = fileListResponse.data;
-//       console.log('fileList', fileList);
-//       // Step 2: Parse each JSON file
-//       const parsedPrompts = await Promise.all(
-//         fileList.map(async fileName => {
-//           if (fileName.endsWith('.json')) {
-//             const fileContent = await axios.get(
-//               `/api/static-files/${fileName}`
-//             );
-//             return fileContent.data;
-//           }
-//           return null;
-//         })
-//       );
 
-//       // Filter out any null values and flatten the array
-//       return parsedPrompts.filter(Boolean).flat();
-//     } catch (error) {
-//       return rejectWithValue(error.response.data);
-//     }
-//   }
-// );
 const initialState = getLocalData(LOCAL_NAME, REDUX_NAME);
 
 function setLocalPromptData(data) {
@@ -72,6 +46,18 @@ export const promptSlice = createSlice({
   name: LOCAL_NAME,
   initialState,
   reducers: {
+    setPromptId: (state, action) => {
+      let promptId;
+      if (action.payload && action.payload !== '') {
+        promptId = action.payload;
+      } else {
+        const warn = 'No prompt ID provided. Using default prompt ID.';
+        toast.warn(warn);
+      }
+      state.promptId = promptId;
+      sessionStorage.setItem('promptId', promptId);
+      setLocalPromptData({ ...state, promptId: promptId });
+    },
     setPrompts: (state, action) => {
       console.log('Setting prompts:', action.payload);
       state.prompts = action.payload;
@@ -91,6 +77,7 @@ export const promptSlice = createSlice({
           prompts: state.prompts,
           promptRequest: { status: 'succeeded' },
         });
+        toast.success('Prompt added successfully');
       })
       .addCase(addStaticPrompt.pending, (state, action) => {
         state.promptRequest.status = 'loading';
@@ -98,16 +85,15 @@ export const promptSlice = createSlice({
       .addCase(addStaticPrompt.rejected, (state, action) => {
         state.promptRequest.status = 'failed';
         state.promptRequest.error = action.payload;
-        useSnackbar().enqueueSnackbar('Failed to add prompt', {
-          variant: 'error',
-        });
+        toast.error('Failed to add prompt');
       });
   },
 });
 
 export { initialState as promptInitialState };
 
-export const { setPrompts, setSelectedPrompt } = promptSlice.actions;
+export const { setPrompts, setSelectedPrompt, setPromptId } =
+  promptSlice.actions;
 
 export default promptSlice.reducer;
 // The corresponding value for the key

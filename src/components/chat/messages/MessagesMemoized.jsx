@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { useMemo } from 'react';
-import ChatBubble from './ChatBubble';
+
+import { ChatBubble } from './ChatBubble';
 
 export const UserMessage = React.memo(({ message }) => (
   <ChatBubble message={message} sender="user" />

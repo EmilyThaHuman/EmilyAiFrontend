@@ -12,44 +12,6 @@ const logError = (message, error) => {
   toast.error(message);
 };
 
-// Function to attempt completing incomplete JSON
-const attemptCompleteJSON = data => {
-  let completedData = data;
-
-  // Check if the data starts with '{' and try to complete it
-  if (
-    completedData.trim().startsWith('{') &&
-    !completedData.trim().endsWith('}')
-  ) {
-    // Attempt to close the JSON object
-    completedData += '}';
-  }
-
-  // Check if the "content" string is properly closed
-  const contentKey = '"content":';
-  const contentIndex = completedData.indexOf(contentKey);
-  if (contentIndex !== -1) {
-    const firstQuote = completedData.indexOf(
-      '"',
-      contentIndex + contentKey.length
-    );
-    const lastQuote = completedData.lastIndexOf('"');
-
-    // If the last quote is before the end, assume it's closed
-    if (lastQuote <= contentIndex + contentKey.length + 1) {
-      // Incomplete string, attempt to close it
-      completedData += '"';
-    }
-  }
-
-  try {
-    const jsonData = JSON.parse(completedData);
-    return jsonData;
-  } catch (e) {
-    return null;
-  }
-};
-
 export const useChatHandler = () => {
   const controllerRef = useRef(null);
 
@@ -62,23 +24,27 @@ export const useChatHandler = () => {
       isStreaming,
       chatMessages,
     },
-    actions: { setIsStreaming, setIsRegenerating, setChatMessages },
+    actions: {
+      setIsStreaming,
+      setIsRegenerating,
+      setChatMessages,
+      setChatMessage,
+    },
   } = useChatStore();
   const { insertContentAndSync, clearInput } = useTipTapEditor(userInput);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [messageCount, setMessageCount] = useState(0); // Initialize message counter
-  const [messages, setMessages] = useState(chatMessages);
+  // const [messages, setMessages] = useState(chatMessages);
   const [isMessagesSync, setIsMessagesSync] = useState(true);
 
   // Synchronize local messages with the store
   useEffect(() => {
     if (!isMessagesSync) {
-      setChatMessages(messages);
+      // setChatMessages(chatMessages);
       setIsMessagesSync(true);
     }
-  }, [isMessagesSync, messages, setChatMessages]);
-
+  }, [isMessagesSync]);
   const handleSendMessage = useCallback(
     async (content, isNewSession = false) => {
       if (!sessionStorage.getItem('userId')) {
@@ -94,10 +60,11 @@ export const useChatHandler = () => {
       setIsStreaming(true);
 
       insertContentAndSync(content);
-      const userMessage = [{ role: 'user', content: content.trim() }];
-
-      // setMessages(initialMessages);
-      setMessages(prev => [...prev, userMessage]);
+      const userMessage = {
+        _id: uuidv4(),
+        role: 'user',
+        content: content.trim(),
+      };
 
       if (controllerRef.current) {
         controllerRef.current.abort();
@@ -137,10 +104,6 @@ export const useChatHandler = () => {
           }
         );
 
-        // if (!response.ok) {
-        //   throw new Error(`API error: ${await response.text()}`);
-        // }
-
         if (!response.body) {
           throw new Error('ReadableStream not supported in this browser.');
         }
@@ -148,13 +111,30 @@ export const useChatHandler = () => {
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
         let buffer = '';
-        let accumulatedData = ''; // Local variable for accumulation
 
-        // Append a placeholder for the assistant message
-        setMessages(prev => [
-          ...prev,
-          { role: 'assistant', content: '...', isStreaming: true },
-        ]);
+        // Helper to extract markdown blocks
+        const extractMarkdownBlocks = text => {
+          const markdownPattern =
+            /(?:#+\s.*|[*_-]{3,}|```[\s\S]+```|>.*|\*\*[^*]+\*\*)/gm;
+          let matches = [];
+          let match;
+          while ((match = markdownPattern.exec(text)) !== null) {
+            matches.push(match[0]);
+          }
+          return matches;
+        };
+
+        // Initialize new message in the chat
+        const newMessage = {
+          _id: 'streaming',
+          role: 'assistant',
+          content: '',
+          isStreaming: true,
+          isComplete: false,
+        };
+
+        // Set initial message with streaming indicator
+        setChatMessage(newMessage);
 
         while (true) {
           const { done, value } = await reader.read();
@@ -162,7 +142,6 @@ export const useChatHandler = () => {
 
           buffer += decoder.decode(value, { stream: true });
 
-          // Process lines delimited by \n\n
           let boundary = buffer.indexOf('\n\n');
           while (boundary !== -1) {
             const chunk = buffer.slice(0, boundary);
@@ -171,6 +150,14 @@ export const useChatHandler = () => {
             if (chunk.startsWith('data:')) {
               const jsonStr = chunk.replace(/^data:\s*/, '');
               if (jsonStr === '[DONE]') {
+                // Mark message as complete when the stream ends
+
+                setChatMessage({
+                  _id: 'streaming',
+                  content: '',
+                  isComplete: true,
+                  role: 'assistant',
+                });
                 return;
               }
 
@@ -179,19 +166,19 @@ export const useChatHandler = () => {
 
                 if (data.type === 'message') {
                   const content = data.content;
-                  accumulatedData += content;
+                  const markdownBlocks = extractMarkdownBlocks(content);
 
-                  // Update the last assistant message
-                  setMessages(prev => {
-                    const updated = [...prev];
-                    updated[updated.length - 1].content = accumulatedData;
-                    return updated;
-                  });
+                  // If markdown blocks are found, update the message content
+                  if (markdownBlocks.length > 0) {
+                    setChatMessage({
+                      _id: 'streaming',
+                      content: markdownBlocks.join('\n\n'),
+                      isComplete: false,
+                      role: 'assistant',
+                    });
+                  }
                 } else if (data.type === 'function_call') {
                   // Handle function calls if needed
-                  // Example:
-                  // const { name, arguments } = data;
-                  // Implement function call logic here
                 } else if (data.type === 'usage') {
                   // Optionally handle usage data
                   console.log('Usage:', data.usage);
@@ -204,105 +191,17 @@ export const useChatHandler = () => {
             boundary = buffer.indexOf('\n\n');
           }
         }
-        setMessages(prev => {
-          const updated = [...prev];
-          updated[updated.length - 1].isStreaming = false;
-          return updated;
+
+        // Final update to mark the message as completed
+
+        setChatMessage({
+          _id: 'streaming',
+          content: '',
+          isComplete: true,
+          role: 'assistant',
         });
+
         setIsMessagesSync(false);
-        // const stream = await fetchMessageStream(payload);
-        // const reader = stream.getReader();
-
-        // let assistantMessage = {
-        //   role: 'assistant',
-        //   content: '',
-        //   isStreaming: true,
-        // };
-
-        // setMessages(prev => [...prev, assistantMessage]);
-
-        // let localAccumulatedData = ''; // Local variable for accumulation
-
-        // while (true) {
-        //   const { done, value } = await reader.read();
-        //   if (done) break;
-
-        //   localAccumulatedData += value; // Accumulate data in the local variable
-        //   // console.log('Accumulated data:', localAccumulatedData);
-        //   try {
-        //     const jsonData = JSON.parse(localAccumulatedData);
-
-        //     if (jsonData && jsonData.content) {
-        //       setMessages(prev => {
-        //         const updated = [...prev];
-        //         const lastMessage = updated[updated.length - 1];
-        //         lastMessage.content = jsonData.content;
-        //         return updated;
-        //       });
-        //       localAccumulatedData = ''; // Reset localAccumulatedData after successful parse
-        //     }
-        //   } catch (parseError) {
-        //     const completedData = attemptCompleteJSON(localAccumulatedData);
-        //     if (completedData && completedData.content) {
-        //       const completedMarkdownContent = completedData.content;
-        //       // const completedMarkdownContent = processMarkdown(
-        //       //   completedData.content
-        //       // );
-        //       setMessages(prev => {
-        //         const updated = [...prev];
-        //         const lastMessage = updated[updated.length - 1];
-        //         lastMessage.content = completedMarkdownContent;
-        //         return updated;
-        //       });
-        //       localAccumulatedData = ''; // Reset after successful parse
-        //     } else {
-        //       console.log('Accumulating data:', localAccumulatedData);
-        //     }
-        //   }
-        //   // setMessages(prev => {
-        //   //   const updated = [...prev];
-        //   //   const lastMessage = updated[updated.length - 1];
-        //   //   if (value && typeof value === 'object') {
-        //   //     lastMessage.content = convertToMarkdown(value);
-        //   //   } else {
-        //   //     console.error('Received invalid value:', value);
-        //   //     lastMessage.content = 'Error: Received invalid data';
-        //   //   }
-        //   //   return updated;
-        //   // });
-        //   // setMessages(prev => {
-        //   //   const updated = [...prev];
-        //   //   updated[updated.length - 1].content += value;
-        //   //   return updated;
-        //   // });
-        // }
-        // if (localAccumulatedData) {
-        //   try {
-        //     const jsonData = JSON.parse(localAccumulatedData);
-        //     if (jsonData === '[DONE]') {
-        //       setLoading(false);
-        //       return;
-        //     }
-        //     if (jsonData && jsonData.content) {
-        //       setMessages(prev => {
-        //         const updated = [...prev];
-        //         const lastMessage = updated[updated.length - 1];
-        //         lastMessage.content = jsonData.content;
-        //         return updated;
-        //       });
-        //     }
-        //   } catch (parseError) {
-        //     console.error('Error parsing final accumulated data:', parseError);
-        //   }
-        // }
-
-        // setMessages(prev => {
-        //   const updated = [...prev];
-        //   updated[updated.length - 1].isStreaming = false;
-        //   return updated;
-        // });
-        // setIsMessagesSync(false);
-        // console.log('Message stream completed successfully');
       } catch (error) {
         if (controllerRef.current.signal.aborted) {
           logError('Request aborted', error);
@@ -314,7 +213,7 @@ export const useChatHandler = () => {
             content: 'An error occurred while generating the response.',
             timestamp: new Date(),
           };
-          setMessages(prev => [...prev, errorMessage]);
+          setChatMessage(errorMessage);
         }
       } finally {
         setIsStreaming(false);
@@ -330,6 +229,7 @@ export const useChatHandler = () => {
       isRegenerating,
       messageCount,
       clearInput,
+      setChatMessage,
     ]
   );
 
@@ -361,7 +261,6 @@ export const useChatHandler = () => {
 
   return useMemo(
     () => ({
-      messages,
       chatError: error,
       chatLoading: loading,
       chatStreaming: isStreaming,
@@ -373,7 +272,6 @@ export const useChatHandler = () => {
       handleStop,
     }),
     [
-      messages,
       error,
       loading,
       isStreaming,

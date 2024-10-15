@@ -1,5 +1,7 @@
 /* eslint-disable import/order */
 import assistantReducer, {
+  setAssistantId,
+  setAssistantFiles,
   createAssistant,
   createMessage,
   createRun,
@@ -105,16 +107,18 @@ import toolReducer, {
   setTools,
 } from './toolSlice';
 import workspaceReducer, {
-  setHomeWorkSpace,
-  setSelectedWorkspace,
   setWorkspaceId,
-  setWorkspaceImages,
   setWorkspaces,
+  setSelectedWorkspace,
+  setHomeWorkSpace,
+  setWorkspaceImages,
   syncWorkspaceFolders,
 } from './workspaceSlice';
 
 export {
   // addEnvToUser,
+  setAssistantId,
+  setAssistantFiles,
   debouncedSetChatMessages,
   syncWorkspaceFolders,
   updateLastMessage,

@@ -1,11 +1,18 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { toast } from 'sonner';
+
 import { assistantsApi } from 'api/Ai/chat-sessions';
-import { getLocalData } from '../helpers';
+
+import { getLocalData, setLocalData } from '../helpers';
 
 const LOCAL_NAME = 'assistantStore';
 const REDUX_NAME = 'assistants';
 
 const initialState = getLocalData(LOCAL_NAME, REDUX_NAME);
+
+function setLocalAssistantData(data) {
+  setLocalData(LOCAL_NAME, data);
+}
 
 export const fetchAssistantList = createAsyncThunk(
   'assistants/list',
@@ -156,15 +163,33 @@ export const assistantSlice = createSlice({
   name: REDUX_NAME,
   initialState,
   reducers: {
+    setAssistantId: (state, action) => {
+      let assistantId;
+      if (action.payload && action.payload !== '') {
+        assistantId = action.payload;
+      } else {
+        const warn = 'No assistant ID provided. Using default assistant ID.';
+        toast.warn(warn);
+      }
+      state.assistantId = assistantId;
+      sessionStorage.setItem('assistantId', assistantId);
+      setLocalAssistantData({ ...state, assistantId: assistantId });
+    },
     setAssistants: (state, action) => {
-      console.log('Setting assistants:', action.payload);
+      console.log('[SETTING_ASSISTANTS]', action.payload);
+      setLocalAssistantData({ ...state, assistants: action.payload });
       state.assistants = action.payload;
     },
     setSelectedAssistant: (state, action) => {
+      console.log('[SETTING_SELECTED_ASSISTANT]', action.payload);
+      setLocalAssistantData({ ...state, selectedAssistant: action.payload });
       state.selectedAssistant = action.payload;
     },
     setAssistantImages: (state, action) => {
       state.assistantImages = action.payload;
+    },
+    setAssistantFiles: (state, action) => {
+      state.assistantFiles = action.payload;
     },
     setOpenaiAssistants: (state, action) => {
       state.openaiAssistants = action.payload;
@@ -263,6 +288,8 @@ export const {
   setSelectedAssistant,
   setAssistantImages,
   setOpenaiAssistants,
+  setAssistantId,
+  setAssistantFiles,
 } = assistantSlice.actions;
 
 export default assistantSlice.reducer;

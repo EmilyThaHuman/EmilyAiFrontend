@@ -11,7 +11,8 @@ export const useChatSession = () => {
   const handleSelectChatSession = useCallback(
     sessionId => {
       try {
-        actions.setSelectedChatSession(sessionId);
+        actions.setSessionId(sessionId);
+        actions.setSelectedChatSession(state.chatSessions[sessionId]);
         actions.setChatMessages(state.chatSessions[sessionId]?.messages || []);
         setError(null);
       } catch (err) {
@@ -34,7 +35,7 @@ export const useChatSession = () => {
 
       actions.addChatSession(newSession);
       actions.setSelectedChatSession(newSessionId);
-      actions.setChatMessages([]);
+      actions.clearMessages([]);
       setError(null);
 
       return newSessionId;
@@ -95,8 +96,8 @@ export const useChatSession = () => {
     sessionId => {
       try {
         actions.clearChatSession(sessionId);
-        if (state.selectedChatSession === sessionId) {
-          actions.setChatMessages([]);
+        if (state.selectedChatSession._id === sessionId) {
+          actions.clearMessages();
         }
         setError(null);
       } catch (err) {
