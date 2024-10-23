@@ -1,4 +1,5 @@
 // App.jsx
+import CssBaseline from '@mui/material/CssBaseline';
 import React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { RouterProvider } from 'react-router-dom';
@@ -46,6 +47,7 @@ const App = () => {
         }}
       >
         <Providers>
+          <CssBaseline />
           <RouterProvider router={Router} />
         </Providers>
       </ErrorBoundary>

@@ -1,6 +1,5 @@
-export * from './ChatNavbarLinks';
+export * from './links/AdminLinks';
+export * from './links/ChatLinks';
 export * from './NavbarAdmin';
-export * from './NavbarAuth';
 export * from './NavbarChat';
-export * from './NavbarLinksAdmin';
 // export * from '.';

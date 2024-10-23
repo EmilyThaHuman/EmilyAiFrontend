@@ -1,4 +1,3 @@
-// Chakra imports
 import { Box, CircularProgress, Portal } from '@mui/material';
 import React, { useState } from 'react';
 import {
@@ -33,6 +32,22 @@ const DashboardContainer = ({ children }) => {
         pe: '20px',
         minHeight: '100vh',
         pt: '50px',
+      }}
+    >
+      {children}
+    </Box>
+  );
+};
+
+const ChatDashboardContainer = ({ children }) => {
+  return (
+    <Box
+      sx={{
+        mx: 'auto',
+        // p: { xs: '20px', md: '30px' },
+        // pe: '20px',
+        minHeight: '100vh',
+        // pt: '50px',
       }}
     >
       {children}
@@ -111,9 +126,16 @@ export const AdminLayout = props => {
                 )}
               </Box>
             </Portal>
-            <DashboardContainer>
-              <Outlet />
-            </DashboardContainer>
+            {!isChatBotRoute && (
+              <DashboardContainer>
+                <Outlet />
+              </DashboardContainer>
+            )}
+            {isChatBotRoute && (
+              <ChatDashboardContainer>
+                <Outlet />
+              </ChatDashboardContainer>
+            )}
             {!isChatBotRoute && <FooterAdmin />}
           </Box>
         </SidebarContext.Provider>

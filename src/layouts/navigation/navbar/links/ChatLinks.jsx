@@ -1,9 +1,10 @@
 // ChatNavbarLinks.js
 import { Box, Button } from '@mui/material';
 import PropTypes from 'prop-types';
+
 import { ChatHeader } from 'components/chat';
 
-export const ChatNavbarLinks = ({
+export const ChatHeaderLinks = ({
   onOpen,
   logoText,
   secondary,
@@ -20,7 +21,7 @@ export const ChatNavbarLinks = ({
   );
 };
 
-ChatNavbarLinks.propTypes = {
+ChatHeaderLinks.propTypes = {
   onOpen: PropTypes.func,
   logoText: PropTypes.string,
   secondary: PropTypes.bool,
@@ -28,4 +29,4 @@ ChatNavbarLinks.propTypes = {
   scrolled: PropTypes.bool,
 };
 
-export default ChatNavbarLinks;
+export default ChatHeaderLinks;

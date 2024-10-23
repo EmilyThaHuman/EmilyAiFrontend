@@ -32,6 +32,32 @@ import { useAppStore } from 'contexts/AppProvider';
 import { useChatStore } from 'contexts/ChatProvider';
 import { useChatHandler, useMenu, useMode, useTipTapEditor } from 'hooks';
 import 'styles/ChatStyles.css';
+const codePromptOptions = [
+  {
+    title: 'Explain Code',
+    description: 'Get a detailed explanation of your code',
+    prompt:
+      'Please explain this code in detail:\n```\n// Paste your code here\n```',
+  },
+  {
+    title: 'Debug Code',
+    description: 'Find and fix issues in your code',
+    prompt:
+      'Please help me debug this code and identify potential issues:\n```\n// Paste your code here\n```',
+  },
+  {
+    title: 'Optimize Code',
+    description: 'Get suggestions for code optimization',
+    prompt:
+      'Please suggest optimizations for this code:\n```\n// Paste your code here\n```',
+  },
+  {
+    title: 'Convert Code',
+    description: 'Convert code between languages',
+    prompt:
+      'Please convert this code from [source language] to [target language]:\n```\n// Paste your code here\n```',
+  },
+];
 
 export const MainChat = () => {
   const params = useParams();
@@ -53,6 +79,7 @@ export const MainChat = () => {
       setAssistants,
       setFolders,
       setChatLoading,
+      setChatMessages,
       /* --- add server-side file population here --- */
       setPrompts,
       setTools,
@@ -121,7 +148,7 @@ export const MainChat = () => {
       const transformedMessages = transformMessages(
         selectedChatSession.messages || []
       );
-
+      // setChatMessages(transformedMessages);
       const messagesHaveChanged = !areMessagesEqual(
         selectedChatSession.messages,
         transformedMessages
@@ -132,121 +159,30 @@ export const MainChat = () => {
           ...selectedChatSession,
           messages: transformedMessages,
         });
+        setChatMessages(transformedMessages);
       }
     } else if (workspace) {
       navigate(
         `/admin/workspaces/${workspace._id}/chat/${sessionStorage.getItem('sessionId')}`
       );
     }
-  }, [selectedChatSession, workspace, navigate, setSelectedChatSession]);
+  }, [
+    selectedChatSession,
+    workspace,
+    navigate,
+    setSelectedChatSession,
+    setChatMessages,
+  ]);
 
   const areMessagesEqual = (messages1, messages2) => {
-    if (messages1.length !== messages2.length) return false;
+    if (messages1?.length !== messages2?.length) return false;
 
     for (let i = 0; i < messages1.length; i++) {
-      if (messages1[i]._id !== messages2[i]._id) return false;
+      if (messages1[i]?._id !== messages2[i]?._id) return false;
     }
 
     return true;
   };
-
-  // useEffect(() => {
-  //   if (workspace) {
-  //     /* --- [WORKSPACE LOADER] Sets initial workspace data --- */
-  //     const { chatSessions, assistants, prompts, tools } = workspace;
-  //     setWorkspaceId(workspace._id);
-  //     setSelectedWorkspace(workspace);
-  //     setFolders(workspace.folders);
-  //     setHomeWorkSpace(workspace);
-  //     setChatSessions(chatSessions);
-  //     if (chatSessions.length > 0) {
-  //       setSessionId(chatSessions[0]._id);
-  //       setSelectedChatSession(chatSessions[0]);
-  //       // setFolders(chatSessions[0].folders);
-  //     }
-  //     setAssistants(assistants);
-  //     setPrompts(prompts);
-  //     setTools(tools);
-
-  //     /* --- [CHATSESSION LOADER] Handles chatMessages --- */
-  //     if (!selectedChatSession) {
-  //       navigate(
-  //         `/admin/workspaces/${workspace._id}/chat/${sessionStorage.getItem('sessionId')}`
-  //       );
-  //       return; // Exit early to prevent further execution
-  //     }
-
-  //     if (selectedChatSession) {
-  //       console.log('chatSession', selectedChatSession);
-  //       console.log(
-  //         'chatSession messages',
-  //         JSON.stringify(selectedChatSession.messages)
-  //       );
-
-  //       // Function to transform messages
-  //       const transformMessages = messages => {
-  //         return messages.map(message => {
-  //           if (typeof message === 'string') {
-  //             // If message is a string, convert it to an object with a unique _id
-  //             return {
-  //               _id: uuidv4(),
-  //               content: '', // Assuming 'content' is a field; adjust as necessary
-  //               role: '', // Add other necessary fields with empty strings
-  //               isUserMessage: false,
-  //               // ... add other fields as needed
-  //             };
-  //           } else if (typeof message === 'object' && message !== null) {
-  //             // If message is an object, retain _id and set other fields to empty strings
-  //             return {
-  //               _id: message._id || uuidv4(), // Use existing _id or generate a new one
-  //               content: '',
-  //               role: '',
-  //               isUserMessage: false,
-  //               // ... reset other fields as needed
-  //             };
-  //           } else {
-  //             // Handle unexpected message types if necessary
-  //             return {
-  //               _id: uuidv4(),
-  //               content: '',
-  //               role: '',
-  //               isUserMessage: false,
-  //               // ... add other fields as needed
-  //             };
-  //           }
-  //         });
-  //       };
-
-  //       // Transform the messages
-  //       const transformedMessages = transformMessages(
-  //         selectedChatSession.messages || []
-  //       );
-
-  //       // Update the selected chat session with transformed messages
-  //       setSelectedChatSession({
-  //         ...selectedChatSession,
-  //         messages: transformedMessages,
-  //       });
-
-  //       // If you have a separate setChatMessages function, set it here as well
-  //       // setChatMessages(transformedMessages);
-  //     }
-  //   }
-  // }, [
-  //   workspace,
-  //   setWorkspaceId,
-  //   setSelectedWorkspace,
-  //   setChatSessions,
-  //   setAssistants,
-  //   setPrompts,
-  //   setTools,
-  //   setSessionId,
-  //   setFolders,
-  //   setSelectedChatSession,
-  //   selectedChatSession,
-  //   navigate,
-  //   setHomeWorkSpace,
-  // ]);
 
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [marginLeft, setMarginLeft] = useState(isMobile ? '0px' : '50px');
@@ -258,6 +194,14 @@ export const MainChat = () => {
   const promptsMenu = useMenu();
   const dialogRef = useRef(null);
   const sidebarItemRef = useRef(null);
+
+  const handlePromptSelect = prompt => {
+    console.log('Selected prompt:', prompt);
+    handleSendMessage({
+      content: prompt,
+      isNewSession: true,
+    });
+  };
 
   /* --- fn() to handle the focus of the chat input --- */
   useLayoutEffect(() => {
@@ -289,154 +233,82 @@ export const MainChat = () => {
   const limitedPrompts = RANDOM_PROMPTS.slice(0, 5);
 
   return (
-        <Box
+    <Box
       id="chat-view-container"
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        height: '100%', // Fill the available height
+        // height: '100%', // Fill the available height
         transition: 'width 0.3s ease-in-out',
+        flex: 1,
+        p: 4,
+        height: '100vh', // Take full viewport height
+
+        overflowY: 'hidden',
+        backgroundColor: '#1C1C1C',
+        borderRadius: '14px',
       }}
     >
-      <Paper
-        theme={theme}
-        elevation={3}
+      {/* Chat header */}
+      <ChatHeader />
+      {/* Chat messages container with scrollable area */}
+      <Box
+        ref={chatContainerRef}
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-          width: '100%',
-          my: 'auto',
-          ml: 'auto',
-          borderRadius: '14px',
-          overflow: 'hidden',
+          flexGrow: 1, // This makes the messages area take up remaining space
+          overflowY: 'auto',
+          marginTop: '20px',
+          marginBottom: '20px',
         }}
       >
-        <Box
-          ref={chatContainerRef}
-          component={Grid}
-          item
-          xs={12}
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            backgroundColor: '#1C1C1C',
-            width: '100%',
-            height: '100%',
-            borderRadius: '14px',
-            overflow: 'auto', // Allow scrolling
-            flexGrow: 1,
-            boxSizing: 'border-box',
-          }}
-        >
-    // <Box
-    //   id="chat-view-container"
-    //   sx={{
-    //     marginLeft: marginLeft, // Use the marginLeft state variable
-    //     display: 'flex',
-    //     // marginTop: '-30px',
-    //     flexDirection: 'column',
-    //     maxWidth: !isMobile ? 'calc(100% - 24px)' : null,
-    //     maxHeight: '100vh',
-    //     height: '100vh',
-    //     flexGrow: 1,
-    //     // height: '100vh', // Ensure it fills the viewport height
-    //     transition: 'margin-left 0.3s ease-in-out, width 0.3s ease-in-out', // Smooth transition
-    //   }}
-    // >
-    //   <Box
-    //     id="chat-header-container"
-    //     sx={{
-    //       display: 'flex',
-    //       flexDirection: 'column',
-    //       // height: '100vh',
-    //       width: '100%', // Ensure width is 100%
-    //     }}
-    //   >
-    //     <Paper
-    //       theme={theme}
-    //       elevation={3}
-    //       sx={{
-    //         display: 'flex',
-    //         flexDirection: 'column',
-    //         height: 'calc(100vh - 8px)',
-    //         width: `calc(100% - 20px)`,
-    //         my: 'auto',
-    //         ml: 'auto',
-    //         [theme.breakpoints.down('sm')]: {
-    //           height: '100vh',
-    //           width: '100%',
-    //         },
-    //       }}
-    //     >
-    //       <Box
-    //         theme={theme}
-    //         ref={chatContainerRef}
-    //         component={Grid}
-    //         item
-    //         xs={12}
-    //         sx={{
-    //           display: 'flex',
-    //           flexDirection: 'column',
-    //           backgroundColor: '#1C1C1C',
-    //           width: '100%',
-    //           height: '100%',
-    //           borderRadius: '14px',
-    //           overflow: 'auto', // Allow scrolling
-    //           flexGrow: 1,
-    //           boxSizing: 'border-box',
-    //           // overflow: 'hidden', // Prevent entire container from scrolling
-    //         }}
-    //       >
-            <ChatHeader />
-            <Box sx={{ textAlign: 'center', margin: '20px' }}>
-              <h3>No messages yet, try one of these prompts:</h3>
-              {limitedPrompts.map((prompt, index) => (
-                <Paper
-                  key={index}
-                  elevation={2}
-                  sx={{
-                    padding: '10px',
-                    margin: '10px',
-                    cursor: 'pointer',
-                  }}
-                  onClick={e => {
-                    e.preventDefault();
-                    // e.stopPropagation();
-                    // handleContentChange(prompt);
-                    handleSendMessage();
-                  }}
-                >
-                  {prompt}
-                </Paper>
-              ))}
-              <MessageBox />
-              {chatLoading && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                  <CircularProgress />
-                </Box>
-              )}
-              {chatLoading && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
-                  <CircularProgress />
-                </Box>
-              )}
-              <MessageInput
-                disabled={chatLoading || isStreaming || false}
-                onSend={handleSendMessage}
-                inputContent={userInput}
-                isSubmitting={chatLoading}
-                setIsSubmitting={setChatLoading}
-                onStop={handleStop}
-                onRegenerate={handleRegenerateResponse}
-                onChange={insertContentAndSync}
-                // disabled={chatLoading}
-                // onSend={handleSendMessage}
-              />
-            </Box>
+        {/* Replace this with your actual messages rendering logic */}
+        {selectedChatSession && selectedChatSession?.messages?.length > 0 ? (
+          <MessageBox
+            handlePromptSelect={handlePromptSelect}
+            codePromptOptions={codePromptOptions}
+          />
+        ) : (
+          <Box sx={{ textAlign: 'center', marginTop: '50px' }}>
+            <h3>No messages yet, try one of these prompts:</h3>
+            <MessageBox
+              handlePromptSelect={handlePromptSelect}
+              codePromptOptions={codePromptOptions}
+            />
+            {chatLoading && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                <CircularProgress />
+              </Box>
+            )}
           </Box>
-        </Paper>
+        )}
       </Box>
+
+      {/* Chat input */}
+      <Box
+        sx={{
+          mt: 'auto', // Ensure it stays at the bottom
+          width: '100%',
+          backgroundColor: '#26242C',
+          borderTop: '1px solid #444',
+        }}
+      >
+        <MessageInput
+          disabled={chatLoading || isStreaming || false}
+          onSend={handleSendMessage}
+          inputContent={userInput}
+          isSubmitting={chatLoading}
+          setIsSubmitting={setChatLoading}
+          onStop={handleStop}
+          onRegenerate={handleRegenerateResponse}
+          onChange={insertContentAndSync}
+          // disabled={chatLoading}
+          // onSend={handleSendMessage}
+        />
+      </Box>
+      {/* </Box> */}
+      {/* </Box>
+      </Paper> */}
+    </Box>
   );
 };
 

@@ -1,7 +1,8 @@
-import React from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
 import { motion } from 'framer-motion';
-import MessageContent from './MessageContent'; // Ensure this component is compatible with MUI
+import React from 'react';
+
+import { MessageContent } from './MessageContent'; // Ensure this component is compatible with MUI
 
 /**
  * MessageList Component
@@ -15,7 +16,6 @@ export function MessageList({ messages, isLoading, streamingMessageId }) {
   return (
     <motion.div
       initial={false}
-      // You can add animation variants here if needed
       style={{
         maxWidth: '48rem',
         margin: '0 auto',
@@ -26,14 +26,14 @@ export function MessageList({ messages, isLoading, streamingMessageId }) {
     >
       {messages.map((message, index) => (
         <Box
-          key={message.id || index}
+          key={message._id || index}
           display="flex"
           justifyContent={message.role === 'user' ? 'flex-end' : 'flex-start'}
           width="100%"
         >
           <MessageContent
             message={message}
-            isStreaming={streamingMessageId === message.id}
+            isStreaming={message._id === streamingMessageId}
           />
         </Box>
       ))}
@@ -51,7 +51,6 @@ export function MessageList({ messages, isLoading, streamingMessageId }) {
               display: 'flex',
               alignItems: 'center',
               gap: 1,
-              // Dark mode support
               '@media (prefers-color-scheme: dark)': {
                 backgroundColor: 'grey.800',
               },

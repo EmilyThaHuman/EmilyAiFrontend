@@ -12,8 +12,7 @@ import {
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { MdInfoOutline, MdNotificationsNone } from 'react-icons/md';
-import { useDispatch } from 'react-redux';
-import { Form, Link, useNavigate, useNavigation } from 'react-router-dom';
+import { Form, Link, useNavigation } from 'react-router-dom';
 
 import routes from '@/routes/index';
 import {
@@ -29,22 +28,23 @@ import { ReusableDropdownMenu, SearchBar } from 'components/themed';
 import { useUserStore } from 'contexts';
 import { useMode } from 'hooks';
 
-import { Sidebar } from '../sidebar';
+import { Sidebar } from '../../sidebar';
 
-export const HeaderLinks = props => {
+export const AdminHeaderLinks = props => {
   const { secondary } = props;
   const navigation = useNavigation();
   const isLoggingOut =
     navigation.state === 'submitting' && navigation.formAction === '/logout';
   const [imageUrl, setImageUrl] = useState('');
   const {
-    state: { selectedProfileImage, isAuthenticated, user },
+    state: { isAuthenticated, user },
     actions: {
       setIsAuthenticated,
       getUserProfileImage,
-      setSelectedProfileImage,
+      // setSelectedProfileImage,
     },
   } = useUserStore(); // Use the useChatStore hook to get state
+  const [selectedProfileImage, setSelectedProfileImage] = useState(null);
   const {
     theme: {
       palette: { common, grey },
@@ -57,8 +57,8 @@ export const HeaderLinks = props => {
       return;
     }
     if (user.username && !selectedProfileImage) {
-      const image = getUserProfileImage(user.username);
-      setSelectedProfileImage(image);
+      // const image = getUserProfileImage(user.username);
+      setSelectedProfileImage(user?.profile?.avatarPath);
     }
   }, []);
 
@@ -278,8 +278,8 @@ export const HeaderLinks = props => {
   );
 };
 
-HeaderLinks.propTypes = {
+AdminHeaderLinks.propTypes = {
   secondary: PropTypes.bool,
 };
 
-export default HeaderLinks;
+export default AdminHeaderLinks;

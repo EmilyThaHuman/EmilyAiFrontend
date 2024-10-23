@@ -1,12 +1,40 @@
 // LAYOUTS: auth/index.js
-import { Box, CssBaseline } from '@mui/material';
-import { Outlet } from 'react-router-dom';
+import { Box, CircularProgress, CssBaseline } from '@mui/material';
+import { Navigate, Outlet } from 'react-router-dom';
+
+import { useUserStore } from 'contexts/UserProvider';
 
 // =========================================================
 // [AuthLayout] | This code provides the auth layout for the app
 // =========================================================
 export const AuthLayout = () => {
   const blackestBG = '#000000';
+  const {
+    state: { isSettingUp, isAuthenticated, isAuthLoading },
+  } = useUserStore();
+  if (isSettingUp) {
+    // User is authenticated but still setting up, redirect to /auth/setup
+    return <Navigate to="/auth/setup" replace />;
+  }
+
+  if (!isSettingUp && isAuthenticated) {
+    // User is authenticated, redirect to admin/dashboard
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
+  if (isAuthLoading) {
+    // Show a loading indicator while checking authentication
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
   return (
     <Box>
       <CssBaseline />

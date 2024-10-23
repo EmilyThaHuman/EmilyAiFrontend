@@ -7,8 +7,8 @@ import React, { useEffect, useState } from 'react';
 import routes from '@/routes/index';
 import { useMode } from 'hooks';
 
-import ChatNavbarLinks from './ChatNavbarLinks';
-import NavbarContainer from './components/navbarcontainer'; // Import the new NavbarContainer
+import { NavbarContainer } from './components';
+import { ChatHeaderLinks } from './links';
 
 export const ChatNavbar = props => {
   const [scrolled, setScrolled] = useState(false);
@@ -83,7 +83,7 @@ export const ChatNavbar = props => {
       navbarProps={navbarProps}
     >
       <Box sx={{ marginLeft: 'auto', width: { xs: '100%', md: 'unset' } }}>
-        <ChatNavbarLinks
+        <ChatHeaderLinks
           onOpen={props.onOpen}
           logoText={props.logoText}
           secondary={props.secondary}

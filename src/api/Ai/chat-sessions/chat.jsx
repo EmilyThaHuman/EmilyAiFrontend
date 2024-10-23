@@ -130,6 +130,44 @@ export const chatApi = {
       },
     });
   },
+  // **New Method for Streaming Assistant Responses**
+  sendMessageStream: async (sessionId, userMessage, onMessageChunk, signal) => {
+    const response = await fetch(
+      `/api/chat/sessions/${sessionId}/message-stream`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Include any necessary authorization headers
+        },
+        body: JSON.stringify({ message: userMessage }),
+        signal, // Attach the abort signal
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to send message');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let done = false;
+    let accumulatedMessage = '';
+
+    while (!done) {
+      const { value, done: streamDone } = await reader.read();
+      done = streamDone;
+      if (value) {
+        const chunk = decoder.decode(value, { stream: true });
+        accumulatedMessage += chunk;
+        if (onMessageChunk) {
+          onMessageChunk(chunk);
+        }
+      }
+    }
+
+    return accumulatedMessage;
+  },
   getChatSessionMessages: async () => {
     const sessionId = sessionStorage.getItem('sessionId');
     try {

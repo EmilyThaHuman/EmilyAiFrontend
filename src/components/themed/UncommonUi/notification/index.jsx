@@ -2,6 +2,7 @@ import { Snackbar } from '@mui/base/Snackbar';
 import { styled } from '@mui/system';
 import * as React from 'react';
 import { Transition } from 'react-transition-group';
+
 import { CheckCircleRoundedIcon, CloseIcon } from 'assets/humanIcons';
 
 export const NotificationBox = ({ open, message, severity, onClose }) => {

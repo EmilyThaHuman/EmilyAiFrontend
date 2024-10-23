@@ -17,12 +17,6 @@ export const baseChatSlice = createSlice({
   name: REDUX_NAME,
   initialState,
   reducers: {
-    setIsStreaming: (state, action) => {
-      state.isStreaming = action.payload;
-    },
-    setIsDisabled: (state, action) => {
-      state.isDisabled = action.payload;
-    },
     setStreamingMessageIndex: (state, action) => {
       state.streamingMessageIndex = action.payload;
     },

@@ -1,5 +1,5 @@
 // Name of the cache
-const CACHE_NAME = 'my-cache-v1';
+const CACHE_NAME = 'my-cache-v2'; // Incremented the cache version
 
 // List of files to cache
 const ASSETS_TO_CACHE = [
@@ -8,6 +8,7 @@ const ASSETS_TO_CACHE = [
   '/static/css/main.css',
   '/static/js/main.js',
   '/service-worker.js', // Add your other assets here
+  '/offline.html', // Assuming you have an offline fallback page
 ];
 
 // Install event: Cache files
@@ -28,6 +29,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (!cacheWhitelist.includes(cacheName)) {
+            console.log(`Deleting cache: ${cacheName}`);
             return caches.delete(cacheName);
           }
         })
@@ -43,16 +45,20 @@ self.addEventListener('fetch', event => {
       if (response) {
         return response; // Return cached response if found
       }
-      return fetch(event.request).then(networkResponse => {
-        // Optionally, cache new network responses
-        if (event.request.method === 'GET') {
-          return caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, networkResponse.clone());
-            return networkResponse;
-          });
-        }
-        return networkResponse;
-      });
+      return fetch(event.request)
+        .then(networkResponse => {
+          if (event.request.method === 'GET') {
+            return caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, networkResponse.clone());
+              return networkResponse;
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // Fallback to offline.html if network is not available
+          return caches.match('/offline.html');
+        });
     })
   );
 });

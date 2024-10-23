@@ -156,7 +156,7 @@ export const ChatHeader = props => {
               justifyContent="center"
             >
               <Typography variant="h4">{selectedWorkspace?.name}</Typography>
-              <Typography variant="body1" color="textSecondary">
+              <Typography variant="body1" color="#1C1C1C">
                 {header || 'Chat'}
               </Typography>
             </Box>

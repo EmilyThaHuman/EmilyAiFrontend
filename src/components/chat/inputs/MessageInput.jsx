@@ -126,13 +126,23 @@ export const MessageInput = React.memo(
     );
 
     return (
-      <Card
+      <Box
         ref={messageInputRef} // Attach ref to Card
         sx={{
           backgroundColor: '#26242C',
           borderRadius: 2,
-          mt: 2,
-          mb: 2,
+          p: 2,
+          position: 'relative',
+          width: '100%',
+          // backgroundColor: '#26242C',
+          // borderRadius: 2,
+          // mt: 2,
+          // mb: 2,
+          // p: 2,
+          // borderTop: '1px solid',
+          // width: '100%',
+          // margin: '0 auto',
+          // position: 'relative',
         }}
       >
         {/* <CardActions> */}
@@ -300,7 +310,7 @@ export const MessageInput = React.memo(
             </ChatMessageEditorContentsContainer>
           </ChatMessageActionsContainer>
         </CardContent>
-      </Card>
+      </Box>
     );
   }
 );

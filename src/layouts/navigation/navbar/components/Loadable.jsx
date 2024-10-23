@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+
 import { LoadingIndicator } from 'components/index';
 
 /**

@@ -1,5 +1,5 @@
-import { Avatar, Box, IconButton, Tooltip } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Avatar, Box, IconButton, Tooltip, useTheme } from '@mui/material';
+
 import { AiIcon, FingerprintIcon, KeyIcon } from 'assets/humanIcons';
 import ValidationIcon from 'components/themed/ValidationIcon';
 
@@ -12,16 +12,15 @@ const SidebarTabs = ({
   isAuthenticated,
   isMobile,
   sideBarWidthRef,
-  theme,
   dataList,
 }) => {
+  const theme = useTheme();
   const mainTabs = dataList.slice(0, 5);
   const bottomTabs = dataList.slice(5);
   return (
     <Box
       ref={sideBarWidthRef}
       sx={{
-        transform: isMobile && !isSidebarOpen ? 'translateX(-100%)' : 'none',
         transition: 'transform 0.3s ease-in-out',
         display: 'flex',
         flexDirection: 'column',
@@ -30,7 +29,8 @@ const SidebarTabs = ({
         backgroundColor: '#1C1C1C',
         color: 'white',
         borderRadius: '14px',
-        height: 'calc(100vh - 8px)',
+        height: '100vh', // Take full height of the screen
+        overflowY: 'auto', // Ensure scrollable for smaller screens
       }}
     >
       <Avatar
@@ -59,43 +59,12 @@ const SidebarTabs = ({
             }}
           >
             {item.icon}
-
-            {/* <item.icon style={sidebarIconStyle} /> */}
           </IconButton>
         </Tooltip>
       ))}
 
-      {/* Validation icon */}
-      {!isXs && (
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: '100%',
-            backgroundColor: '#1C1C1C',
-            alignSelf: 'flex-end',
-            pt: '100%',
-            mt: 'auto',
-          }}
-        >
-          <ValidationIcon
-            isValid={isValidApiKey}
-            type="apiKey"
-            IconComponent={KeyIcon}
-          />
-          <ValidationIcon
-            isValid={isAuthenticated}
-            type="authentication"
-            IconComponent={FingerprintIcon}
-          />
-        </Box>
-      )}
-
-      {/* Spacer */}
       <Box sx={{ flexGrow: 1 }} />
 
-      {/* Bottom tabs (User and Home) */}
       <Box
         sx={{
           display: 'flex',
@@ -104,14 +73,13 @@ const SidebarTabs = ({
           width: '100%',
           backgroundColor: '#1C1C1C',
           alignSelf: 'flex-end',
-          pt: '100%',
           mt: 'auto',
         }}
       >
         {bottomTabs.map(item => (
           <Tooltip key={item.id} title={item.title} placement="right">
             <IconButton
-              onClick={item.onClick} // Use each item's onClick handler
+              onClick={item.onClick}
               sx={{
                 mb: 1,
                 backgroundColor:

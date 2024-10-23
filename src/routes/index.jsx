@@ -550,7 +550,7 @@ const authRoutes = [
         element: <SignInMain />,
         icon: <LockIcon />,
         collapse: false,
-        onLoginSuccess: (token, userData) => {
+        action: (token, userData) => {
           console.log('AUTH_DATA', token, userData);
           // localStorage.setItem('userToken', token);
           localStorage.setItem('user', JSON.stringify(userData));
@@ -565,7 +565,7 @@ const authRoutes = [
         element: <SignUpMain />,
         icon: <PersonAddIcon />,
         collapse: false,
-        onSignupSuccess: (token, userData) => {
+        action: (token, userData) => {
           console.log('AUTH_DATA', token, userData);
           // localStorage.setItem('userToken', token);
           localStorage.setItem('user', JSON.stringify(userData));

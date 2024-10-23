@@ -1,8 +1,10 @@
 // NavbarContainer.js
 import { Box, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
+
 import { CustomLogoIcon } from 'assets/humanIcons/custom-logo';
-import { BreadcrumbsComponent } from '../breadcrumbs'; // Adjust the path as needed
+
+import BreadcrumbsComponent from './BreadCrumbsComponent';
 
 export const NavbarContainer = ({
   children,

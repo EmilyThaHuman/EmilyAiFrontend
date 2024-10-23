@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 
+import ErrorPage from 'views/error/NotFound';
+
 export class ContextErrorBoundary extends Component {
   constructor(props) {
     super(props);
@@ -14,19 +16,18 @@ export class ContextErrorBoundary extends Component {
   componentDidCatch(error, errorInfo) {
     // You can also log the error to an error reporting service
     console.error('Context Error Boundary caught an error:', error, errorInfo);
+    this.setState({ hasError: true, error });
   }
 
   render() {
     if (this.state.hasError) {
       // You can render any custom fallback UI
       return (
-        <h1>
-          Something went wrong in a context provider. Please try again later.
-        </h1>
+        <ErrorPage error={this.state.error} errorInfo={this.state.error} />
       );
     }
 
-    return this.props.children;
+    return this.props.children || null;
   }
 }
 

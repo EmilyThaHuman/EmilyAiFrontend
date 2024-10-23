@@ -1,4 +1,5 @@
 /* eslint-disable no-constant-condition */
+import { format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
@@ -16,55 +17,94 @@ export const useChatHandler = () => {
   const controllerRef = useRef(null);
 
   const {
-    state: {
-      userInput,
-      sessionId,
-      workspaceId,
-      isRegenerating,
-      isStreaming,
-      chatMessages,
-    },
+    state: { userInput, sessionId, workspaceId, isRegenerating, chatMessages },
     actions: {
-      setIsStreaming,
+      setChatStreaming,
+      setChatLoading,
+      setChatError,
       setIsRegenerating,
+      setStreamingMessageIndex,
+      setStreamingMessageId,
       setChatMessages,
-      setChatMessage,
+      markChatMessageError,
+      // setChatMessage,
+      addChatMessage,
+      appendToChatMessage,
+      completeChatMessage,
     },
   } = useChatStore();
   const { insertContentAndSync, clearInput } = useTipTapEditor(userInput);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [messageCount, setMessageCount] = useState(0); // Initialize message counter
-  // const [messages, setMessages] = useState(chatMessages);
+  const [messageCount, setMessageCount] = useState(0);
   const [isMessagesSync, setIsMessagesSync] = useState(true);
 
-  // Synchronize local messages with the store
   useEffect(() => {
     if (!isMessagesSync) {
-      // setChatMessages(chatMessages);
       setIsMessagesSync(true);
     }
   }, [isMessagesSync]);
+
+  const handleToken = useCallback(
+    (token, assistantMessageId) => {
+      console.log('Received token:', token);
+      let parsedToken = token;
+
+      appendToChatMessage({
+        role: 'assistant',
+        content: parsedToken,
+        _id: assistantMessageId,
+        isStreaming: true,
+        isComplete: false,
+      });
+    },
+    [appendToChatMessage]
+  );
+
+  const handleServerEvent = useCallback(
+    (data, assistantMessageId) => {
+      switch (data.type) {
+        case 'token':
+          handleToken(data.content, assistantMessageId);
+          break;
+        case 'run_start':
+          console.log('Run started');
+          break;
+        case 'run_end':
+          setChatStreaming(false);
+          console.log('Run ended', data.final_output);
+          completeChatMessage({
+            _id: assistantMessageId,
+            content: data.final_output,
+          });
+          break;
+        case 'error':
+          console.error('Server error:', data.message);
+          setChatStreaming(false);
+          setChatError(data.message);
+          break;
+        default:
+          break;
+      }
+    },
+    [handleToken, setChatStreaming, completeChatMessage, setChatError]
+  );
+
   const handleSendMessage = useCallback(
     async (content, isNewSession = false) => {
-      if (!sessionStorage.getItem('userId')) {
-        logError('Please login to continue', new Error('User not logged in'));
-        return;
-      }
-      if (!content.trim()) {
-        logError('Please enter your message', new Error('Empty message'));
-        return;
-      }
+      if (content.trim() === '') return;
 
-      setLoading(true);
-      setIsStreaming(true);
+      setChatLoading(true);
+      setChatStreaming(true);
 
       insertContentAndSync(content);
+
       const userMessage = {
         _id: uuidv4(),
         role: 'user',
         content: content.trim(),
+        timestamp: format(new Date(), 'yyyy-MM-dd').toString(),
       };
+      addChatMessage(userMessage);
+      // setChatMessage(userMessage);
 
       if (controllerRef.current) {
         controllerRef.current.abort();
@@ -83,7 +123,6 @@ export const useChatHandler = () => {
         clientApiKey: sessionStorage.getItem('apiKey') || 'key not provided',
         role: 'user',
         regenerate: isRegenerating,
-        signal: controllerRef.current.signal,
         length: messageCount,
         newSession: isNewSession,
       };
@@ -101,142 +140,113 @@ export const useChatHandler = () => {
               Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`,
             },
             body: JSON.stringify(payload),
+            signal: controllerRef.current.signal,
           }
         );
 
-        if (!response.body) {
-          throw new Error('ReadableStream not supported in this browser.');
+        if (!response.ok) {
+          throw new Error('Failed to send message');
         }
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
+        let done = false;
         let buffer = '';
+        let fullResponse = '';
+        const fullLines = [];
+        const fullParsedLines = [];
 
-        // Helper to extract markdown blocks
-        const extractMarkdownBlocks = text => {
-          const markdownPattern =
-            /(?:#+\s.*|[*_-]{3,}|```[\s\S]+```|>.*|\*\*[^*]+\*\*)/gm;
-          let matches = [];
-          let match;
-          while ((match = markdownPattern.exec(text)) !== null) {
-            matches.push(match[0]);
-          }
-          return matches;
-        };
+        const assistantMessageId = Date.now().toString();
 
-        // Initialize new message in the chat
-        const newMessage = {
-          _id: 'streaming',
+        let newMessage = {
+          _id: assistantMessageId,
           role: 'assistant',
           content: '',
           isStreaming: true,
           isComplete: false,
         };
 
-        // Set initial message with streaming indicator
-        setChatMessage(newMessage);
+        // setChatMessage(newMessage);
+        const streamingMessageIndex = chatMessages.length;
+        setStreamingMessageIndex(streamingMessageIndex);
+        setStreamingMessageId(assistantMessageId);
+        addChatMessage(newMessage);
+        while (!done) {
+          const { value, done: readerDone } = await reader.read();
+          done = readerDone;
+          if (value) {
+            const chunk = decoder.decode(value, { stream: true });
+            buffer += chunk;
+            if (buffer.includes('[DONE]')) {
+              done = true;
+            }
+            fullResponse += chunk;
+            // Process the buffer for complete messages
+            let lines = buffer.split('\n\n');
+            buffer = lines.pop(); // Keep incomplete line in buffer
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-
-          let boundary = buffer.indexOf('\n\n');
-          while (boundary !== -1) {
-            const chunk = buffer.slice(0, boundary);
-            buffer = buffer.slice(boundary + 2);
-
-            if (chunk.startsWith('data:')) {
-              const jsonStr = chunk.replace(/^data:\s*/, '');
-              if (jsonStr === '[DONE]') {
-                // Mark message as complete when the stream ends
-
-                setChatMessage({
-                  _id: 'streaming',
-                  content: '',
-                  isComplete: true,
-                  role: 'assistant',
-                });
-                return;
-              }
-
-              try {
-                const data = JSON.parse(jsonStr);
-
-                if (data.type === 'message') {
-                  const content = data.content;
-                  const markdownBlocks = extractMarkdownBlocks(content);
-
-                  // If markdown blocks are found, update the message content
-                  if (markdownBlocks.length > 0) {
-                    setChatMessage({
-                      _id: 'streaming',
-                      content: markdownBlocks.join('\n\n'),
-                      isComplete: false,
-                      role: 'assistant',
-                    });
-                  }
-                } else if (data.type === 'function_call') {
-                  // Handle function calls if needed
-                } else if (data.type === 'usage') {
-                  // Optionally handle usage data
-                  console.log('Usage:', data.usage);
+            for (let line of lines) {
+              fullLines.push(line);
+              if (line.startsWith('data: ')) {
+                const jsonData = line.slice(6);
+                fullParsedLines.push(JSON.parse(jsonData));
+                if (jsonData === '[DONE]') {
+                  setChatStreaming(false);
+                  break;
                 }
-              } catch (err) {
-                console.error('Error parsing JSON:', err);
+                const data = JSON.parse(jsonData);
+                handleServerEvent(data, newMessage._id);
               }
             }
-
-            boundary = buffer.indexOf('\n\n');
+            // }
           }
         }
-
-        // Final update to mark the message as completed
-
-        setChatMessage({
-          _id: 'streaming',
-          content: '',
-          isComplete: true,
-          role: 'assistant',
-        });
-
+        // setChatMessage({
+        //   _id: 'streaming',
+        //   content: '',
+        //   isComplete: true,
+        //   role: 'assistant',
+        // });
+        setChatStreaming(false);
         setIsMessagesSync(false);
       } catch (error) {
         if (controllerRef.current.signal.aborted) {
           logError('Request aborted', error);
         } else {
           logError('An error occurred while sending the message', error);
-          const errorMessage = {
-            id: uuidv4(),
-            sender: 'assistant',
-            content: 'An error occurred while generating the response.',
-            timestamp: new Date(),
-          };
-          setChatMessage(errorMessage);
+          markChatMessageError({
+            _id: `assistant-${Date.now()}`, // Or use another identifier
+            error: error.message,
+          });
         }
       } finally {
-        setIsStreaming(false);
-        setLoading(false);
+        setChatStreaming(false);
+        setChatLoading(false);
         setMessageCount(prev => prev + 1);
       }
     },
     [
-      setIsStreaming,
+      setChatLoading,
+      setChatStreaming,
       insertContentAndSync,
+      addChatMessage,
       sessionId,
       workspaceId,
       isRegenerating,
       messageCount,
       clearInput,
-      setChatMessage,
+      chatMessages.length,
+      setStreamingMessageIndex,
+      setStreamingMessageId,
+      handleServerEvent,
+      markChatMessageError,
     ]
   );
 
   const handleRegenerateResponse = useCallback(async () => {
     setIsRegenerating(true);
     const lastUserMessage =
-      chatMessages[chatMessages.length - 2]?.content || '';
+      chatMessages[chatMessages?.length - 2]?.content || '';
     insertContentAndSync(lastUserMessage);
     await handleSendMessage();
   }, [
@@ -248,8 +258,8 @@ export const useChatHandler = () => {
 
   const handleStop = useCallback(() => {
     if (controllerRef.current) controllerRef.current.abort();
-    setIsStreaming(false);
-  }, [setIsStreaming]);
+    setChatStreaming(false);
+  }, [setChatStreaming]);
 
   useEffect(() => {
     return () => {
@@ -261,10 +271,7 @@ export const useChatHandler = () => {
 
   return useMemo(
     () => ({
-      chatError: error,
-      chatLoading: loading,
-      chatStreaming: isStreaming,
-      messageCount, // Return messageCount to access it outside
+      messageCount,
       controllerRef,
       clearInput,
       handleSendMessage,
@@ -272,9 +279,6 @@ export const useChatHandler = () => {
       handleStop,
     }),
     [
-      error,
-      loading,
-      isStreaming,
       messageCount,
       clearInput,
       handleSendMessage,
@@ -283,7 +287,6 @@ export const useChatHandler = () => {
     ]
   );
 };
-
 export default useChatHandler;
 
 // const [stream, setStream] = useState('');
@@ -344,8 +347,8 @@ export default useChatHandler;
 //       return;
 //     }
 
-//     setLoading(true);
-//     setIsStreaming(true);
+//     setChatLoading(true);
+//     setChatStreaming(true);
 
 //     insertContentAndSync(content);
 //     const userMessage = [{ role: 'user', content: content.trim() }];
@@ -448,7 +451,7 @@ export default useChatHandler;
 //         try {
 //           const jsonData = JSON.parse(localAccumulatedData);
 //           if (jsonData === '[DONE]') {
-//             setLoading(false);
+//             setChatLoading(false);
 //             return;
 //           }
 //           if (jsonData && jsonData.content) {
@@ -485,13 +488,13 @@ export default useChatHandler;
 //         setMessages(prev => [...prev, errorMessage]);
 //       }
 //     } finally {
-//       setIsStreaming(false);
-//       setLoading(false);
+//       setChatStreaming(false);
+//       setChatLoading(false);
 //       setMessageCount(prev => prev + 1);
 //     }
 //   },
 //   [
-//     setIsStreaming,
+//     setChatStreaming,
 //     insertContentAndSync,
 //     sessionId,
 //     workspaceId,

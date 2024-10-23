@@ -13,7 +13,7 @@ export const useTipTapEditor = (initialContent = '') => {
 
   const {
     actions: { setUserInput, setChatMessages },
-    state: { chatMessages },
+    state: { selectedChatSession, chatMessages },
   } = useChatStore();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,18 +98,37 @@ export const useTipTapEditor = (initialContent = '') => {
     if (!isInitialMessageAdded && chatMessages?.length === 0) {
       // const savedMessages =
       //   JSON.parse(localStorage.getItem('chatMessages')) || [];
-      if (chatMessages?.length === 0) {
-        setChatMessages([
-          {
-            role: 'system',
-            content:
-              'Generate a data table component for organizing a list of data, UI library documents, which have been upserted into a vector database',
-          },
-        ]);
+      if (selectedChatSession?.messages?.length !== 0) {
+        // setChatMessages([
+        //   {
+        //     role: 'system',
+        //     content:
+        //       'Generate a data table component for organizing a list of data, UI library documents, which have been upserted into a vector database',
+        //   },
+        // ]);
+        setChatMessages(selectedChatSession?.messages);
         setIsInitialMessageAdded(true);
       }
+      if (selectedChatSession?.messages?.length === 0) {
+        // setChatMessages([
+        //   {
+        //     role: 'system',
+        //     content:
+        //       'Generate a data table component for organizing a list of data, UI library documents, which have been upserted into a vector database',
+        //   },
+        // ]);
+        // setChatMessages(selectedChatSession?.messages);
+        console.log('selectedChatSession?.messages', selectedChatSession);
+        setIsInitialMessageAdded(false);
+      }
     }
-  }, [isInitialMessageAdded, chatMessages, setChatMessages]);
+  }, [
+    isInitialMessageAdded,
+    chatMessages,
+    setChatMessages,
+    selectedChatSession?.messages,
+    selectedChatSession,
+  ]);
 
   return {
     editor,

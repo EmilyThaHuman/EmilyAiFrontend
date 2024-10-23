@@ -28,10 +28,10 @@ const PublicRoute = ({ children }) => {
     return <Navigate to="/auth/setup" replace />;
   }
 
-  // if (isAuthenticated) {
-  //   // User is authenticated, redirect to admin/dashboard
-  //   return <Navigate to="/admin/dashboard" replace />;
-  // }
+  if (!isSettingUp && isAuthenticated) {
+    // User is authenticated, redirect to admin/dashboard
+    return <Navigate to="/admin/dashboard" replace />;
+  }
 
   // User is not authenticated, allow access to auth routes
   return children ? children : <Outlet />;

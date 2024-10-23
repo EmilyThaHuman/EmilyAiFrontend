@@ -2,6 +2,7 @@
 import { Box, Breadcrumbs, Link, Typography } from '@mui/material';
 import { uniqueId } from 'lodash';
 import React from 'react';
+
 import constants from 'config/constants';
 import { extractPaths, findBreadcrumbs } from 'utils/navigation';
 

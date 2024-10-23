@@ -22,29 +22,34 @@ self.MonacoEnvironment = {
   getWorker: async function (_, label) {
     let worker;
 
-    switch (label) {
-      case 'json':
-        worker = await jsonWorker();
-        break;
-      case 'css':
-      case 'scss':
-      case 'less':
-        worker = await cssWorker();
-        break;
-      case 'html':
-      case 'handlebars':
-      case 'razor':
-        worker = await htmlWorker();
-        break;
-      case 'typescript':
-      case 'javascript':
-        worker = await tsWorker();
-        break;
-      default:
-        worker = await editorWorker();
-    }
+    try {
+      switch (label) {
+        case 'json':
+          worker = await jsonWorker();
+          break;
+        case 'css':
+        case 'scss':
+        case 'less':
+          worker = await cssWorker();
+          break;
+        case 'html':
+        case 'handlebars':
+        case 'razor':
+          worker = await htmlWorker();
+          break;
+        case 'typescript':
+        case 'javascript':
+          worker = await tsWorker();
+          break;
+        default:
+          worker = await editorWorker();
+      }
 
-    return new Worker(worker.default);
+      return new Worker(worker.default);
+    } catch (error) {
+      console.error(`Failed to load worker for label "${label}":`, error);
+      return null; // or handle fallback logic here if desired
+    }
   },
 };
 

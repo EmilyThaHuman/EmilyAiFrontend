@@ -7,8 +7,8 @@ import React, { useEffect, useState } from 'react';
 import routes from '@/routes/index';
 import { useMode } from 'hooks';
 
-import { NavbarContainer } from './components/navbarcontainer'; // Import the new NavbarContainer
-import AdminNavbarLinks from './NavbarLinksAdmin';
+import { NavbarContainer } from './components';
+import { AdminHeaderLinks } from './links';
 
 export const AdminNavbar = props => {
   const [scrolled, setScrolled] = useState(false);
@@ -75,7 +75,7 @@ export const AdminNavbar = props => {
       navbarProps={navbarProps}
     >
       <Box sx={{ marginLeft: 'auto', width: { xs: '100%', md: 'unset' } }}>
-        <AdminNavbarLinks
+        <AdminHeaderLinks
           onOpen={props.onOpen}
           logoText={props.logoText}
           secondary={props.secondary}

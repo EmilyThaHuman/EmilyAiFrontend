@@ -1,109 +1,121 @@
-import { Box, Container } from '@mui/material';
+import { Box, Card, Typography } from '@mui/material';
 import { AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
-import React, { lazy, Suspense, useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 
 import { useChatStore } from 'contexts/ChatProvider';
 import { useMode } from 'hooks/app';
 
-import 'styles/MarkdownBlockStyles.css';
 import { UserMessage, AssistantMessage } from './MessagesMemoized';
 import { ChatLoader } from '../ChatLoader';
+import MessageList from './MessageList'; // Assuming you have this component
 
-export const MessageBox = React.memo(props => {
-  const { theme } = useMode();
-  const {
-    state: { chatMessages },
-  } = useChatStore();
-  const messagesStartRef = useMemo(() => React.createRef(), []);
-  const messagesEndRef = useMemo(() => React.createRef(), []);
-  return (
-  <>
-        <Box sx={{ flex: 1, p: 4, overflowY: 'auto' }}>
-        {!currentChat?.messages.length ? (
-          // Display code prompt options when no messages are present
-          <Box
-            sx={{
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
+import 'styles/MarkdownBlockStyles.css';
+
+export const MessageBox = React.memo(
+  ({ handlePromptSelect, codePromptOptions }) => {
+    const { theme } = useMode();
+    const {
+      state: {
+        chatMessages,
+        chatLoading,
+        streamingMessageIndex,
+        streamingMessageId,
+      },
+    } = useChatStore();
+
+    const messagesStartRef = useRef(null);
+    const messagesEndRef = useRef(null);
+
+    return (
+      <>
+        <AnimatePresence>
+          {!chatMessages?.length ? (
             <Box
               sx={{
-                maxWidth: '56rem', // Equivalent to max-w-4xl in Tailwind
-                width: '100%',
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-                gap: 2, // Equivalent to gap-4 (16px)
-                p: 4,
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              {codePromptOptions.map((option, index) => (
-                <Card
-                  key={index}
-                  onClick={() => handlePromptSelect(option.prompt)}
-                  sx={{
-                    p: 2, // Equivalent to p-4 (16px)
-                    cursor: 'pointer',
-                    backgroundColor: '#2D3748', // Tailwind's bg-gray-800
-                    color: 'white',
-                    border: '1px solid #4A5568', // Tailwind's border-gray-700
-                    '&:hover': {
-                      backgroundColor: '#1A202C', // Tailwind's bg-gray-900
-                    },
-                    transition: 'background-color 0.3s',
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    component="h3"
-                    gutterBottom
-                    sx={{ fontWeight: 600, mb: 2 }}
+              <Box
+                sx={{
+                  maxWidth: '56rem',
+                  width: '100%',
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                  gap: 2,
+                  p: 4,
+                }}
+              >
+                {codePromptOptions.map((option, index) => (
+                  <Card
+                    key={index}
+                    onClick={() => handlePromptSelect(option.prompt)}
+                    sx={{
+                      p: 2,
+                      cursor: 'pointer',
+                      backgroundColor: theme.palette.background.paper,
+                      color: theme.palette.text.primary,
+                      border: `1px solid ${theme.palette.divider}`,
+                      '&:hover': {
+                        backgroundColor: theme.palette.action.hover,
+                      },
+                      transition: 'background-color 0.3s',
+                    }}
                   >
-                    {option.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {option.description}
-                  </Typography>
-                </Card>
-              ))}
+                    <Typography
+                      variant="h6"
+                      component="h3"
+                      gutterBottom
+                      sx={{ fontWeight: 600, mb: 2 }}
+                    >
+                      {option.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {option.description}
+                    </Typography>
+                  </Card>
+                ))}
+              </Box>
             </Box>
-          </Box>
-        ) : (
-          // Display the list of messages when available
-          <MessageList
-            messages={currentChat.messages}
-            streamingMessageId={streamingMessageId}
-          />
-        )}
-      </Box>
-  </>
-  );
+          ) : (
+            <MessageList
+              messages={chatMessages}
+              isLoading={chatLoading}
+              streamingMessageId={streamingMessageId}
+            />
+          )}
+        </AnimatePresence>
+      </>
+    );
   }
+);
 
-  MessageBox.displayName = 'MessageBox';
+MessageBox.displayName = 'MessageBox';
 
-// MessageBox.propTypes = {
-//   messages: PropTypes.arrayOf(
-//     PropTypes.shape({
-//       content: PropTypes.string,
-//       role: PropTypes.string,
-//     })
-//   ).isRequired,
-// };
+MessageBox.propTypes = {
+  handlePromptSelect: PropTypes.func.isRequired,
+  codePromptOptions: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string.isRequired,
+      description: PropTypes.string.isRequired,
+      prompt: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+};
 
 export default MessageBox;
 
-  // const groupedMessages = useMemo(() => {
-  //   return chatMessages?.reduce((acc, message, index) => {
-  //     if (index % 2 === 0) {
-  //       acc.push([message, chatMessages[index + 1]].filter(Boolean));
-  //     }
-  //     return acc;
-  //   }, []);
-  // }, [chatMessages]);
+// const groupedMessages = useMemo(() => {
+//   return chatMessages?.reduce((acc, message, index) => {
+//     if (index % 2 === 0) {
+//       acc.push([message, chatMessages[index + 1]].filter(Boolean));
+//     }
+//     return acc;
+//   }, []);
+// }, [chatMessages]);
 
 //   return (
 //     <Box

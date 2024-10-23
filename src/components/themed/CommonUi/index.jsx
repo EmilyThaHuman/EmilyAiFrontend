@@ -5,3 +5,4 @@ export * from './menu';
 export * from './containers';
 export * from './tooltip';
 export * from './dialogs';
+export * from './scroll';

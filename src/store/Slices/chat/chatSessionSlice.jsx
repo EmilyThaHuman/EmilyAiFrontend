@@ -1,4 +1,8 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+} from '@reduxjs/toolkit';
 import { debounce } from 'lodash';
 
 import { chatApi } from 'api/Ai/chat-sessions';
@@ -12,7 +16,33 @@ const SYNC_INTERVAL = 5000; // 5 seconds
 let lastFetchTime = 0;
 let syncTimeout = null;
 
-const initialState = getLocalData(LOCAL_NAME, REDUX_NAME);
+export const createTempMessage = () => ({
+  _id: `assistant-${Date.now()}`,
+  role: 'assistant',
+  content: '',
+  isComplete: false,
+});
+
+export const handleAsyncError = (state, error) => {
+  state.error = error;
+  state.streaming = false;
+  state.loading = false;
+};
+
+const initialState = {
+  ...getLocalData(LOCAL_NAME, REDUX_NAME),
+  entities: {}, // Normalized chat messages
+  sessionId: null,
+  messageIds: [], // Store message IDs in an array
+  streaming: false,
+  streamingMessageId: null,
+  topic: '',
+  error: null,
+  pendingSync: false,
+  chatSettings: {},
+  apiKey: '',
+  isApiKeySet: false,
+};
 
 const setLocalSessionData = data => setLocalData(LOCAL_NAME, data);
 const clearLocalSessionData = () =>
@@ -123,14 +153,67 @@ export const getChatMessages = createAsyncThunk(
   }
 );
 
+export const sendMessageStream = createAsyncThunkWithErrorHandling(
+  `${REDUX_NAME}/sendMessageStream`,
+  async ({ sessionId, userMessage }, { dispatch, rejectWithValue }) => {
+    try {
+      let assistantMessageId = null;
+
+      // Create a new assistant message with temporary ID
+      const tempMessage = {
+        _id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: '',
+        isComplete: false,
+      };
+      dispatch(addChatMessage(tempMessage));
+      assistantMessageId = tempMessage._id;
+
+      // Start streaming the assistant's response
+      await chatApi.sendMessageStream(sessionId, userMessage, chunk => {
+        dispatch(
+          appendToChatMessage({
+            _id: assistantMessageId,
+            content: chunk,
+          })
+        );
+      });
+
+      // Mark the message as complete
+      dispatch(
+        completeChatMessage({
+          _id: assistantMessageId,
+        })
+      );
+
+      return assistantMessageId;
+    } catch (error) {
+      console.error('Error in sendMessageStream:', error);
+      // Optionally, you can mark the message as failed
+      dispatch(
+        markChatMessageError({
+          _id: `assistant-${Date.now()}`, // Or use another identifier
+          error: error.message,
+        })
+      );
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 export const debouncedSetChatMessages = (sessionId, messages) => dispatch => {
   debouncedUpdateChatMessages(dispatch, sessionId, messages);
 };
-
+// **Thunk to Handle Saving Chat Messages to Local Storage**
+export const saveChatMessagesToLocal = () => (dispatch, getState) => {
+  const state = getState().chatSessions;
+  setLocalSessionData({ chatMessages: state.chatMessages });
+};
 export const chatSessionsSlice = createSlice({
   name: REDUX_NAME,
   initialState,
   reducers: {
+    /* --- Chat Session --- */
     setSessionId: (state, action) => {
       console.log('setSessionId action payload', action.payload);
       state.sessionId = action.payload;
@@ -150,6 +233,7 @@ export const chatSessionsSlice = createSlice({
         selectedChatSession: action.payload,
       });
     },
+    /* --- Chat Input --- */
     setApiKey: (state, action) => {
       console.log('SETTING API KEY', action.payload);
       state.apiKey = action.payload;
@@ -157,79 +241,83 @@ export const chatSessionsSlice = createSlice({
       sessionStorage.setItem('apiKey', action.payload);
       setLocalSessionData({ ...state, apiKey: action.payload });
     },
-    setSessionHeader: (state, action) => {
-      console.log('SETTING SESSION HEAD', action.payload);
-      state.sessionHeader = action.payload;
-      setLocalSessionData({ ...state, sessionHeader: action.payload });
+    setUserInput: (state, action) => {
+      state.userInput = action.payload;
+      setLocalSessionData({ ...state, userInput: action.payload });
     },
+    /* --- Chat Message --- */
     setChatMessages: (state, action) => {
       console.log('SETTING CHAT MESSAGES:', action.payload);
       state.chatMessages = action.payload;
       state.pendingSync = true;
       setLocalSessionData({ ...state, chatMessages: action.payload });
     },
-    setChatMessage(state, action) {
-      const { _id, content, isComplete, role } = action.payload;
-      const existingMessage = state.chatMessages.find(msg => msg._id === _id);
-
-      if (existingMessage) {
-        // Append new content if the message is still being streamed
-        if (!existingMessage.isComplete) {
-          existingMessage.content += content;
-          existingMessage.isComplete = isComplete || false;
-        }
-      } else {
-        // Add new message
-        state.chatMessages.push({
-          _id,
-          role,
-          content,
-          isComplete: isComplete || false,
-        });
-      }
-
-      state.pendingSync = true; // Mark as needing sync
-      setLocalSessionData({ ...state, chatMessages: state.chatMessages });
-    },
-    setStreaming(state, action) {
-      state.isStreaming = action.payload;
-    },
-    completeMessage(state, action) {
-      const { id } = action.payload;
-      const message = state.messages.find(msg => msg.id === id);
-      if (message) {
-        message.isComplete = true;
-      }
-    },
-    clearMessages(state) {
-      state.messages = [];
-    },
     addChatMessage: (state, action) => {
       state.chatMessages.push(action.payload);
       state.pendingSync = true;
       setLocalSessionData({ ...state, chatMessages: state.chatMessages });
     },
-    updateChatMessage: (state, action) => {
-      const { index, message } = action.payload;
-      if (state.chatMessages[index]) {
-        state.chatMessages[index] = message;
-        state.pendingSync = true;
-        setLocalSessionData({ ...state, chatMessages: state.chatMessages });
+    appendToChatMessage: (state, action) => {
+      const { _id, content } = action.payload;
+      const message = state.chatMessages.find(msg => msg._id === _id);
+      if (message) {
+        message.content += content;
       }
     },
-    updateLastMessage: (state, action) => {
-      const lastMessage = state.messages[state.messages.length - 1];
-      if (lastMessage && lastMessage.role === 'assistant') {
-        lastMessage.content += action.payload;
+    completeChatMessage: (state, action) => {
+      const { _id, content } = action.payload;
+      const message = state.chatMessages.find(msg => msg._id === _id);
+      if (message) {
+        message.isComplete = true;
+        message.content = content;
       }
+      state.streaming = false;
+      state.streamingMessageId = null;
+    },
+    markChatMessageError: (state, action) => {
+      const { _id, error } = action.payload;
+      const message = state.chatMessages.find(msg => msg._id === _id);
+      if (message) {
+        message.error = error;
+        message.content = error;
+        message.isComplete = true;
+      }
+      state.streaming = false;
+      state.streamingMessageId = null;
+      state.error = error;
+    },
+    markChatMessageComplete: (state, action) => {
+      const { _id, error } = action.payload;
+      const message = state.chatMessages.find(msg => msg._id === _id);
+      if (message) {
+        message.isComplete = true;
+        message.isStreaming = false;
+      }
+    },
+    updateChatMessage: (state, action) => {
+      const { _id, message } = action.payload;
+      if (state.entities[_id]) {
+        state.entities[_id] = message;
+        state.pendingSync = true;
+      }
+    },
+    /* --- Chat Status --- */
+    setChatStreaming: (state, action) => {
+      state.isChatStreaming = action.payload;
+    },
+    setChatLoading: (state, action) => {
+      state.isChatStreaming = action.payload;
+    },
+    setChatDisabled: (state, action) => {
+      state.isChatDisabled = action.payload;
+    },
+    setStreamingMessageId: (state, action) => {
+      state.streamingMessageId = action.payload;
     },
     setSyncStatus: (state, action) => {
       state.pendingSync = action.payload;
     },
-    setUserInput: (state, action) => {
-      state.userInput = action.payload;
-      setLocalSessionData({ ...state, userInput: action.payload });
-    },
+    /* --- Chat Settings --- */
     setChatSettings: (state, action) => {
       state.chatSettings = action.payload;
       setLocalSessionData({ ...state, chatSettings: action.payload });
@@ -238,9 +326,13 @@ export const chatSessionsSlice = createSlice({
       state.chatFileItems = action.payload;
       setLocalSessionData({ ...state, chatFileItems: action.payload });
     },
+    /* --- Miscellaneous --- */
     clearChatSessions: state => {
       clearLocalSessionData();
-      return { ...initialState };
+      Object.assign(state, initialState);
+    },
+    clearChatMessages: state => {
+      state.chatMessages = [];
     },
     extraReducers: builder => {
       builder
@@ -283,24 +375,19 @@ export const chatSessionsSlice = createSlice({
             state.pendingSync = false;
             setLocalSessionData({ ...state, chatMessages: state.chatMessages });
           }
+        })
+        // **Handle sendMessageStream Thunk**
+        .addCase(sendMessageStream.pending, (state, action) => {
+          state.streaming = true;
+          state.error = null;
+        })
+        .addCase(sendMessageStream.fulfilled, (state, action) => {
+          // No additional state updates required here as handled in reducers
+        })
+        .addCase(sendMessageStream.rejected, (state, action) => {
+          state.streaming = false;
+          state.error = action.payload;
         });
-      // .addCase(updateChatMessages.fulfilled, (state, action) => {
-      //   const { sessionId, messages } = action.payload;
-      //   const session = state.chatSessions.find(s => s._id === sessionId);
-      //   if (session) {
-      //     session.messages = messages;
-      //   }
-      //   if (
-      //     state.selectedChatSession &&
-      //     state.selectedChatSession._id === sessionId
-      //   ) {
-      //     state.selectedChatSession.messages = messages;
-      //   }
-      //   setLocalSessionData(state);
-      // })
-      // .addCase(updateChatMessages.rejected, (state, action) => {
-      //   console.error('Failed to update chat messages:', action.payload);
-      // });
     },
   },
 });
@@ -308,23 +395,45 @@ export const chatSessionsSlice = createSlice({
 export { initialState as chatSessionsInitialState };
 
 export const {
+  // session //
   setSessionId,
-  setApiKey,
   setChatSessions,
   setSelectedChatSession,
-  setSessionHeader,
+  // input //
+  setApiKey,
+  setUserInput,
+  // messages //
   setChatMessages,
-  setChatMessage,
-  setStreaming,
   addChatMessage,
+  appendToChatMessage,
+  completeChatMessage,
+  markChatMessageError,
+  markChatMessageComplete,
   updateChatMessage,
+  // status //
+  setChatLoading,
+  setChatDisabled,
+  setChatStreaming,
+  setStreamingMessageId,
   setSyncStatus,
+  // settings //
   setChatSettings,
   setChatFileItems,
+  // clear //
   clearChatSessions,
-  updateLastMessage,
-  setUserInput,
+  clearChatMessages,
 } = chatSessionsSlice.actions;
+// Memoized selectors for better performance
+export const selectChatMessages = createSelector(
+  [
+    state => state.chatSessions.messageIds,
+    state => state.chatSessions.entities,
+  ],
+  (messageIds, entities) => messageIds.map(id => entities[id])
+);
+
+export const selectChatMessagesById = (state, messageId) =>
+  state.chatSessions.entities[messageId];
 
 export const updateLocalChatMessages =
   (message, index = -1) =>
@@ -335,6 +444,7 @@ export const updateLocalChatMessages =
       dispatch(updateChatMessage({ index, message }));
     }
     scheduleSyncMessages(dispatch);
+    dispatch(saveChatMessagesToLocal());
   };
 
 export default chatSessionsSlice.reducer;
