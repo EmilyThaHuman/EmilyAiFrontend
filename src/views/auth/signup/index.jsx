@@ -1,7 +1,7 @@
 // components/Signup.js
 import { Box, CircularProgress } from '@mui/material';
 import React, { useCallback, useState } from 'react';
-import { redirect } from 'react-router-dom';
+import { redirect, useNavigate } from 'react-router-dom'; // Added useNavigate
 
 import { userApi } from 'api/user';
 import { authConfigs } from 'config/form-configs';
@@ -13,23 +13,30 @@ export const Signup = props => {
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const {
-    actions: { handleAuthSubmit },
+    state: { isAuthenticated, isAuthLoading },
+    actions: { handleAuthSubmit, setIsAuthLoading },
   } = useUserStore();
+
+  const navigate = useNavigate(); // Use navigate
 
   const handleSignUp = useCallback(
     async values => {
       setLoading(true);
+      setIsAuthLoading(true);
       try {
-        await handleAuthSubmit(values);
+        const result = handleAuthSubmit(values);
+        navigate(result.navigateTo);
+        // navigate('/auth/setup'); // Navigate to '/auth/setup' on successful signup
       } catch (error) {
         setErrorMessage(
           `Sign Up failed: ${error.response?.data?.message || 'Unknown error'}`
         );
       } finally {
         setLoading(false);
+        setIsAuthLoading(false);
       }
     },
-    [handleAuthSubmit]
+    [handleAuthSubmit, navigate, setIsAuthLoading] // Added navigate to dependencies
   );
 
   const handleResetPassword = async email => {
@@ -43,7 +50,7 @@ export const Signup = props => {
     }
   };
 
-  if (loading) {
+  if (loading || isAuthLoading) {
     return (
       <Box
         display="flex"

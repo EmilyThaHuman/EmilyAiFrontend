@@ -1,10 +1,9 @@
 // import { ChatApp as Chat } from './chat';
 import ChatMain from './chat';
-import DataTables from './dataTables';
 import Dashboard from './default';
+import Editor from './editor';
 import Profile from './profile';
-import Templates from './templates';
 
 // ==============================|| ADMIN VIEWS ||============================== //
 
-export { Templates, DataTables, Profile, Dashboard, ChatMain };
+export { Profile, Dashboard, ChatMain, Editor };

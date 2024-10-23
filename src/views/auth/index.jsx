@@ -1,5 +1,10 @@
-import { AuthDefault } from './default';
-import { Login, AuthStepper, Signup } from './setup';
+// import Default from './default';
+// import Setup from './setup';
+// import Signup from './signup';
 // ==============================|| AUTH VIEWS ||============================== //
 
-export { AuthDefault, Login, Signup, AuthStepper };
+// export { Default, Login, Signup, Setup };
+export * from './default';
+export * from './login';
+export * from './signup';
+export * from './setup';

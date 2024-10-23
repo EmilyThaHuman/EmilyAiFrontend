@@ -14,6 +14,7 @@ import React, { useEffect, useState } from 'react';
 import { MdInfoOutline, MdNotificationsNone } from 'react-icons/md';
 import { useDispatch } from 'react-redux';
 import { Form, Link, useNavigate, useNavigation } from 'react-router-dom';
+
 import routes from '@/routes/index';
 import {
   CheckCircleRoundedIcon,
@@ -27,12 +28,11 @@ import {
 import { ReusableDropdownMenu, SearchBar } from 'components/themed';
 import { useUserStore } from 'contexts';
 import { useMode } from 'hooks';
+
 import { Sidebar } from '../sidebar';
 
 export const HeaderLinks = props => {
   const { secondary } = props;
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
   const navigation = useNavigation();
   const isLoggingOut =
     navigation.state === 'submitting' && navigation.formAction === '/logout';

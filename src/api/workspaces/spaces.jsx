@@ -16,7 +16,8 @@ export const workspacesApi = {
       throw error;
     }
   },
-  getWorkspace: async workspaceId => {
+  getWorkspace: async () => {
+    const workspaceId = sessionStorage.getItem('workspaceId');
     try {
       const data = await apiUtils.get(
         `/chat/workspaces/${encodeURIComponent(workspaceId)}`

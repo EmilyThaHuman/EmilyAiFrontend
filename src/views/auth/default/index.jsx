@@ -1,7 +1,6 @@
 import { Box, Typography, Button } from '@mui/material';
 import { ArrowRight } from 'lucide-react';
-import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 import { OpenAISVG } from 'assets/humanIcons';
 import { useMode } from 'hooks/app';

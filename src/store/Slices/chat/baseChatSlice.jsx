@@ -32,6 +32,17 @@ export const baseChatSlice = createSlice({
     setAbortController: (state, action) => {
       state.abortController = action.payload;
     },
+    setIsSubmitting: (state, action) => {
+      state.isSubmitting = action.payload;
+    },
+    setChatLoading: (state, action) => {
+      state.chatLoading = action.payload;
+      setLocalBaseChatData({ ...state, chatLoading: action.payload });
+    },
+    setChatError: (state, action) => {
+      state.chatError = action.payload;
+      setLocalBaseChatData({ ...state, chatError: action.payload });
+    },
     // -- secondary commands --
     setIsPromptPickerOpen: (state, action) => {
       state.isPromptPickerOpen = action.payload;
@@ -104,6 +115,9 @@ export const {
   setStreamingMessageIndex,
   setIsStreaming,
   setAbortController,
+  setIsSubmitting,
+  setChatLoading,
+  setChatError,
   // -- secondary commands --
   setIsPromptPickerOpen,
   setSlashCommand,

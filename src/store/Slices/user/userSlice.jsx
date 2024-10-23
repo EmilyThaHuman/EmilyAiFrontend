@@ -17,7 +17,12 @@ import { getLocalData, setLocalData } from '../helpers';
 const LOCAL_NAME = 'userStore';
 const REDUX_NAME = 'user';
 
-const initialState = getLocalData(LOCAL_NAME, REDUX_NAME);
+const initialState = {
+  ...getLocalData(LOCAL_NAME, REDUX_NAME),
+  isSettingUp: false,
+  loading: false,
+  isAuthLoading: false,
+};
 
 function setLocalUserData(data) {
   setLocalData(LOCAL_NAME, data);
@@ -26,12 +31,14 @@ function setLocalUserData(data) {
 export const handleAuthSubmit = createAsyncThunk(
   'auth/handleAuthSubmit',
   async (values, { dispatch, rejectWithValue }) => {
+    console.log('values:', values);
     const { username, password, email, isSignup } = values;
+    dispatch(setIsAuthLoading(true));
     try {
       const data = isSignup
         ? await authApi.signup(username, email, password)
         : await authApi.login(email || username, password);
-
+      console.log('data:', data);
       if (!data.accessToken) {
         console.log('Error:', data.message);
         return rejectWithValue(data.message);
@@ -56,20 +63,34 @@ export const handleAuthSubmit = createAsyncThunk(
             expiresIn: data.expiresIn,
           })
         );
-        setWorkspaceId(data.workspaceId);
-        setSessionId(data.chatSessionId);
+        dispatch(setWorkspaceId(data.workspaceId));
+        dispatch(setSessionId(data.chatSessionId));
         if (isSignup) {
-          window.location.href = `setup`;
+          console.log('data.workspaceId:', data.workspaceId);
+          dispatch(setIsSettingUp(true));
         }
-        // else {
-        //   window.location.replace(`admin/workspaces/${data.workspaceId}`);
+        // setLocalUserData({
+        //   ...initialState,
+        //   isAuthenticated: true,
+        //   user: updatedUserData,
+        // });
+        // if (isSignup) {
+        //   navigate('/auth/setup');
+        // } else {
+        //   navigate('/admin/dashboard');
+        // }
+        // if (isSignup && data.workspaceId) {
+        //   window.location.href = `setup`;
         // }
         return {
           user: updatedUserData,
+          isSettingUp: isSignup,
+          navigateTo: isSignup ? '/auth/setup' : '/admin/dashboard',
         };
       }
     } catch (error) {
       console.error(isSignup ? 'Signup failed:' : 'Login failed:', error);
+      dispatch(setIsAuthLoading(false));
       return rejectWithValue(error.response?.data || error.message);
     }
   }
@@ -98,7 +119,7 @@ export const refreshAccessToken = createAsyncThunk(
       return data.accessToken;
     } catch (error) {
       console.error('Failed to refresh token:', error);
-      navigate('/auth/sign-in');
+      // navigate('/auth/sign-in');
       return rejectWithValue(error.response.data);
       // window.location.href = '/auth/sign-in';
     }
@@ -108,13 +129,15 @@ export const refreshAccessToken = createAsyncThunk(
 export const logout = createAsyncThunk(
   'auth/logout',
   async (_, { dispatch, getState, rejectWithValue }) => {
+    const navigate = useNavigate();
     const token = sessionStorage.getItem('accessToken');
     console.log('LOGOUT TOKEN', token);
     try {
       await authApi.logout(token);
       localStorage.clear();
       sessionStorage.clear();
-      dispatch(setUser({}));
+      dispatch(clearUser());
+      navigate('/auth/sign-in');
       return true;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -283,6 +306,7 @@ export const userSlice = createSlice({
       state.envKeyMap = action.payload;
     },
     setSelectedProfileImage: (state, action) => {
+      console.log('SET SELECTED PROFILE IMAGE', action.payload);
       state.selectedProfileImage = action.payload;
       state.isImageRetrieved = Boolean(action.payload);
       setLocalUserData({
@@ -295,12 +319,35 @@ export const userSlice = createSlice({
       state.isAuthenticated = action.payload;
       setLocalUserData({ ...state, isAuthenticated: action.payload });
     },
+    setIsSettingUp: (state, action) => {
+      state.isSettingUp = action.payload;
+      setLocalUserData({ ...state, isSettingUp: action.payload });
+    },
+    setIsAuthLoading: (state, action) => {
+      state.isAuthLoading = action.payload;
+      setLocalUserData({ ...state, isAuthLoading: action.payload });
+    },
     setIsRedirectToSignin: state => {
       state.isRedirectToSignin = !state.isRedirectToSignin;
       setLocalUserData({
         ...state,
         isRedirectToSignin: state.isRedirectToSignin,
       });
+    },
+    clearUser: state => {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.isRedirectToSignin = false;
+      state.isSettingUp = false;
+      state.isImageRetrieved = false;
+      state.isImageUploaded = false;
+      state.authSession = null;
+      state.profile = null;
+      state.selectedProfileImage = null;
+      state.envKeyMap = null;
+
+      // Clear only user-related data from local storage
+      setLocalUserData({});
     },
   },
   extraReducers: builder => {
@@ -311,6 +358,13 @@ export const userSlice = createSlice({
       .addCase(handleAuthSubmit.fulfilled, (state, action) => {
         state.loading = false;
         console.log('USER AUTH SUCCESS PAYLOAD:', action.payload.user);
+        state.user = action.payload.user; // Update state with user data
+        state.isAuthenticated = true; // Ensure isAuthenticated is set to true
+        state.isSettingUp = action.payload.isSettingUp;
+        setLocalUserData({
+          ...state,
+          isSettingUp: state.isSettingUp,
+        });
         window.location.reload();
         // state.user = action.payload.user;
       })
@@ -344,6 +398,9 @@ export const {
   setSelectedProfileImage,
   setEnvKeyMap,
   setAuthSession,
+  setIsSettingUp,
+  setIsAuthLoading,
+  clearUser,
 } = userSlice.actions;
 
 export default userSlice.reducer;

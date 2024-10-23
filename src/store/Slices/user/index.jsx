@@ -15,12 +15,16 @@ import userReducer, {
   setSelectedProfileImage,
   addEnvToUser,
   setAuthSession,
+  setIsAuthLoading,
+  setIsSettingUp,
 } from './userSlice';
 
 // Exporting all actions and thunks
 export {
   // User actions and thunks
+  setIsSettingUp,
   addEnvToUser,
+  setIsAuthLoading,
   setProfile,
   setEnvKeyMap,
   setSelectedProfileImage,

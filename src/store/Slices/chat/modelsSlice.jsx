@@ -22,7 +22,7 @@ export const modelSlice = createSlice({
         modelId = action.payload;
       } else {
         const warn = 'No model ID provided. Using default model ID.';
-        toast.warn(warn);
+        toast.warning(warn);
       }
       state.modelId = modelId;
       sessionStorage.setItem('modelId', modelId);

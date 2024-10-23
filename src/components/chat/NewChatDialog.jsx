@@ -62,7 +62,7 @@ const componentTypes = [
   'table',
 ];
 
-const NewChatDialog = ({ open, onClose, onSubmit }) => {
+export const NewChatDialog = ({ open, onClose, onSubmit }) => {
   const formik = useFormik({
     initialValues: {
       topic: '',

@@ -56,7 +56,7 @@ export const ChatSidebar = () => {
     actions: { setSidebarOpen },
   } = useAppStore();
   // -- --
-  const folders = selectedWorkspace.folders;
+  const folders = selectedWorkspace?.folders || [];
   // -- --
   const sideBarWidthRef = useRef(null);
   const buttonRef = useRef(null);
@@ -195,14 +195,8 @@ export const ChatSidebar = () => {
   }, [handleSidebarClose]);
 
   return (
-    <Box
-      sx={{
-        padding: '4px',
-        maxHeight: 'calc(100% - 16px)',
-        flexGrow: 1,
-      }}
-    >
-      <div
+    <Box sx={{ padding: '16px', height: '100%', boxSizing: 'border-box' }}>
+      {/* <div
         style={{
           transform: isMobile && !isSidebarOpen ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease-in-out',
@@ -212,7 +206,7 @@ export const ChatSidebar = () => {
           borderRadius: '14px',
           maxHeight: 'calc(100% - 16px)',
         }}
-      >
+      > */}
         {/* -- SIDEBAR SECTION ICON BUTTONS -- */}
         <SidebarTabs
           tab={tab}
@@ -261,7 +255,7 @@ export const ChatSidebar = () => {
             buttonRef={buttonRef}
           />
         </Drawer>
-      </div>
+      {/* </div> */}
     </Box>
   );
 };

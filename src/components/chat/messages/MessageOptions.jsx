@@ -16,7 +16,7 @@ import {
 import { saveAs } from 'file-saver';
 import React, { useState } from 'react';
 
-const MessageOptions = ({ message, onRegenerate }) => {
+export const MessageOptions = ({ message, onRegenerate }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 

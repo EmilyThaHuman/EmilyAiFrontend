@@ -52,7 +52,7 @@ export const promptSlice = createSlice({
         promptId = action.payload;
       } else {
         const warn = 'No prompt ID provided. Using default prompt ID.';
-        toast.warn(warn);
+        toast.warning(warn);
       }
       state.promptId = promptId;
       sessionStorage.setItem('promptId', promptId);

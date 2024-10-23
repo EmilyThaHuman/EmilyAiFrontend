@@ -3,8 +3,10 @@ import { Box, useMediaQuery } from '@mui/material';
 import { useAnimation } from 'framer-motion';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
+
 import routes from '@/routes/index';
 import { useMode } from 'hooks';
+
 import ChatNavbarLinks from './ChatNavbarLinks';
 import NavbarContainer from './components/navbarcontainer'; // Import the new NavbarContainer
 

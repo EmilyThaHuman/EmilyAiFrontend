@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 const REQUEST_STATE = {
   status: 'idle' | 'loading' | 'success' | 'error',
   message: '',
@@ -10,8 +9,8 @@ const REQUEST_STATE = {
 export function defaultPromptList() {
   return [
     {
-      userId: new mongoose.Types.ObjectId().toString(),
-      folderId: new mongoose.Types.ObjectId().toString(),
+      userId: null,
+      folderId: null,
       name: 'React Counter Component',
       content: 'Write the code for a React component with a stateful counter',
       key: 'React Counter Component',
@@ -32,8 +31,8 @@ export function defaultPromptList() {
       },
     },
     {
-      userId: new mongoose.Types.ObjectId().toString(),
-      folderId: new mongoose.Types.ObjectId().toString(),
+      userId: null,
+      folderId: null,
       name: 'Express MongoDB API',
       content: 'Write the code for a RESTful API with Express and MongoDB',
       key: 'Express MongoDB API',
@@ -60,8 +59,8 @@ export function defaultPromptList() {
       },
     },
     {
-      userId: new mongoose.Types.ObjectId().toString(),
-      folderId: new mongoose.Types.ObjectId().toString(),
+      userId: null,
+      folderId: null,
       name: 'Redux Authentication Store',
       content:
         'Generate code for a Redux store with slices for managing user authentication',

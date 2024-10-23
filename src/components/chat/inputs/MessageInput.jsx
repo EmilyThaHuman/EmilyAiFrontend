@@ -48,16 +48,7 @@ function TextFilePreview({ file }) {
   );
 }
 export const MessageInput = React.memo(
-  ({
-    disabled,
-    isSubmitting,
-    setIsSubmitting,
-    inputContent,
-    onSend,
-    onRegenerate,
-    onChange,
-    onStop,
-  }) => {
+  ({ disabled, inputContent, onSend, onRegenerate, onChange, onStop }) => {
     const apiKeyDialog = useDialog();
     const { theme } = useMode();
     const messageInputRef = useRef(null); // Create a ref
@@ -69,7 +60,7 @@ export const MessageInput = React.memo(
         messageFiles,
         selectedChatSession,
       },
-      actions: { setShowFilesDisplay },
+      actions: { setShowFilesDisplay, setIsSubmitting },
     } = useChatStore();
     const {
       setNewMessageContentToNextUserMessage,

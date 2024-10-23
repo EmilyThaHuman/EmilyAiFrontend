@@ -1,23 +1,45 @@
 import { motion } from 'framer-motion';
 import { MessageSquare } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/themed/RadixUi/button';
+import { useUserStore } from 'contexts/UserProvider';
 
 export const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const {
+    state: { isAuthenticated },
+    actions: { logout },
+  } = useUserStore();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const loggedIn = isAuthenticated;
     setIsLoggedIn(loggedIn);
-  }, []);
+  }, [isAuthenticated]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    setIsLoggedIn(false);
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout()).unwrap();
+      // Navigate to the sign-in page after logout
+      navigate('/auth/sign-in');
+    } catch (error) {
+      console.error('Failed to logout:', error);
+      // Optionally display an error message to the user
+    }
+  };
+
+  const handleLogin = () => {
+    // Perform login actions here
+    navigate('/auth/sign-in');
+  };
+
+  const handleSignUp = () => {
+    // Perform signup actions here
+    navigate('/auth/sign-up');
   };
 
   return (
@@ -67,10 +89,14 @@ export const Header = () => {
               <Button
                 variant="ghost"
                 className="text-white hover:text-black hover:bg-white"
+                onClick={handleLogin}
               >
                 Login
               </Button>
-              <Button className="bg-white text-black hover:bg-gray-200 transition-colors">
+              <Button
+                className="bg-white text-black hover:bg-gray-200 transition-colors"
+                onClick={handleSignUp}
+              >
                 Sign up
               </Button>
             </>

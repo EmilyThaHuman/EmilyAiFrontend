@@ -1,12 +1,11 @@
 import { createBrowserHistory } from 'history';
-import React, { lazy, Suspense, useState } from 'react';
+import React, { lazy, Suspense } from 'react';
 import {
   createBrowserRouter,
-  Form,
   Navigate,
   redirect,
-  useActionData,
   useNavigate,
+  useRouteError,
 } from 'react-router-dom';
 
 import { chatApi } from 'api/Ai/chat-sessions';
@@ -23,8 +22,10 @@ import {
   PersonIcon,
 } from 'assets/humanIcons';
 import { LoadingIndicator } from 'components/index';
+import PublicRoute from 'components/PublicRoute';
 import { Loadable } from 'layouts/navigation/navbar/components';
 import { dispatch, setField } from 'store/index';
+import { NotFoundPage } from 'views/error';
 
 // =========================================================
 // Route Loaders
@@ -45,6 +46,8 @@ export async function workspaceLoader({ params }) {
     });
   }
 }
+/* *** Fetch ChatSession Loader *** */
+// export async function chatSessionLoader({ params }) {
 
 // =========================================================
 // Route Actions
@@ -158,13 +161,19 @@ export async function logoutAction() {
 const RootErrorBoundary = Loadable(
   lazy(() => import('utils/app/RouterErrorBoundary.jsx'))
 );
+export const ErrorBoundary = () => {
+  const error = useRouteError();
+  return (
+    <RootErrorBoundary>
+      <NotFoundPage error={error} />
+    </RootErrorBoundary>
+  );
+};
 
 // =========================================================
 // Route Components
 // =========================================================
-export const NewChatDialog = lazy(
-  () => import('components/chat/NewChatDialog')
-);
+export const NewChatDialog = lazy(() => import('components/chat'));
 export const NewChatRoute = () => {
   const navigate = useNavigate();
 
@@ -205,9 +214,9 @@ const ReedAiLanding = Loadable(
 );
 
 const AuthDefault = Loadable(lazy(() => import('views/auth/default')));
-const SignInMain = Loadable(lazy(() => import('views/auth/setup/Login')));
-const SignUpMain = Loadable(lazy(() => import('views/auth/setup/Signup')));
-const SetUpMain = Loadable(lazy(() => import('views/auth/setup/AuthStepper')));
+const SignInMain = Loadable(lazy(() => import('views/auth/login')));
+const SignUpMain = Loadable(lazy(() => import('views/auth/signup')));
+const SetUpMain = Loadable(lazy(() => import('views/auth/setup')));
 
 const MainDashboard = Loadable(lazy(() => import('views/admin/default')));
 const UserProfile = Loadable(lazy(() => import('views/admin/profile')));
@@ -339,6 +348,7 @@ const adminRoutes = [
             ),
             icon: <HomeIcon />,
             description: 'Workspace Home',
+            loader: workspaceLoader,
             collapse: false,
           },
           {
@@ -408,11 +418,19 @@ const adminRoutes = [
                       const { workspaceId, sessionId } = params;
                       try {
                         const chat = await chatApi.getChatSession(sessionId);
-                        return { chatSession: chat };
+                        if (!chat) {
+                          throw new Error('Chat session not found');
+                        }
+                        return {
+                          chatSession: chat,
+                        };
                       } catch (error) {
                         throw new Response(error.message, { status: 404 });
                       }
                     },
+                    // errorElement: (
+                    //   <Suspense fallback={<LoadingIndicator />}></Suspense>
+                    // ),
                   },
                   {
                     name: 'New Chat',
@@ -487,33 +505,6 @@ const adminRoutes = [
           },
         ],
       },
-      // Optional: Templates section
-      // {
-      //   name: 'Templates',
-      //   title: 'Templates',
-      //   path: 'templates',
-      //   breadcrumb: 'Templates',
-      //   element: (
-      //     <Suspense fallback={<LoadingIndicator />}>
-      //       <BlankLayout />
-      //     </Suspense>
-      //   ),
-      //   icon: <DocumentScannerRoundedIcon />,
-      //   collapse: true,
-      //   children: [
-      //     {
-      //       index: true,
-      //       name: 'Templates Home',
-      //       title: 'TemplatesHome',
-      //       path: 'templates-home',
-      //       breadcrumb: 'Templates Home',
-      //       element: <Templates />,
-      //       icon: <HomeIcon />,
-      //       description: 'Templates',
-      //       collapse: false,
-      //     },
-      //   ],
-      // },
     ],
   },
 ];
@@ -528,9 +519,11 @@ const authRoutes = [
     path: '/auth',
     breadcrumb: 'Auth',
     element: (
-      <Suspense fallback={<LoadingIndicator />}>
-        <AuthLayout />
-      </Suspense>
+      <PublicRoute>
+        <Suspense fallback={<LoadingIndicator />}>
+          <AuthLayout />
+        </Suspense>
+      </PublicRoute>
     ),
     errorElement: <RootErrorBoundary />,
     icon: <LockIcon />,
@@ -620,7 +613,7 @@ const rootRoutes = [
     children: [
       {
         index: true,
-        element: <Navigate to="/land/heroDocs" />,
+        element: <Navigate to="/land/heroDocs" />, // Redirect to '/land/heroDocs'
       },
       ...baseRoutes,
       ...adminRoutes,

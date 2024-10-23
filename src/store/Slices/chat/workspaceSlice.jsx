@@ -46,7 +46,7 @@ export const workspaceSlice = createSlice({
         workspaceId = action.payload;
       } else {
         const warn = 'No workspace ID provided. Using default workspace ID.';
-        toast.warn(warn);
+        toast.warning(warn);
       }
       state.workspaceId = workspaceId;
       sessionStorage.setItem('workspaceId', workspaceId);

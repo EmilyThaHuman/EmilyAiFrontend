@@ -22,7 +22,7 @@ export const toolSlice = createSlice({
         toolId = action.payload;
       } else {
         const warn = 'No tool ID provided. Using default tool ID.';
-        toast.warn(warn);
+        toast.warning(warn);
       }
       state.toolId = toolId;
       sessionStorage.setItem('toolId', toolId);

@@ -21,6 +21,7 @@ import assistantReducer, {
 } from './assistantSlice';
 import baseChatReducer, {
   // addEnvToUser,
+  setChatError,
   setAbortController,
   setAtCommand,
   setChatRequestData,
@@ -31,6 +32,7 @@ import baseChatReducer, {
   setFocusFile,
   setFocusPrompt,
   setFocusTool,
+  setIsSubmitting,
   setHashtagCommand,
   setIsAssistantPickerOpen,
   setIsDisabled,
@@ -46,6 +48,7 @@ import baseChatReducer, {
   setToolCommand,
   setUseRetrieval,
   setIsStreaming,
+  setChatLoading,
 } from './baseChatSlice';
 import chatSessionReducer, {
   clearChatSessions,
@@ -117,6 +120,7 @@ import workspaceReducer, {
 
 export {
   // addEnvToUser,
+  setChatError,
   setAssistantId,
   setAssistantFiles,
   debouncedSetChatMessages,
@@ -209,6 +213,8 @@ export {
   setWorkspaceImages,
   setWorkspaces,
   updateAssistant,
+  setChatLoading,
+  setIsSubmitting,
   updateFolder,
   uploadAssistantFile,
   uploadFile,

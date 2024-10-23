@@ -12,6 +12,8 @@ import {
   setIsAuthenticated,
   fetchUserProfileImage,
   setAuthSession,
+  setIsSettingUp,
+  setIsAuthLoading,
 } from 'store/Slices';
 
 const UserContext = createContext(null);
@@ -21,9 +23,14 @@ export const UserProvider = ({ children }) => {
   const dispatch = useDispatch();
 
   const actions = {
-    setAuthSession,
-    setProfile,
-    setSelectedProfileImage,
+    setIsAuthLoading: isAuthLoading =>
+      dispatch(setIsAuthLoading(isAuthLoading)),
+    setIsSettingUp: isSettingUp => dispatch(setIsSettingUp(isSettingUp)),
+    setAuthSession: (token, refreshToken) =>
+      dispatch(setAuthSession(token, refreshToken)),
+    setProfile: profile => dispatch(setProfile(profile)),
+    setSelectedProfileImage: (profileImage, username) =>
+      dispatch(setSelectedProfileImage(profileImage, username)),
     getUserProfileImage: username => dispatch(fetchUserProfileImage(username)),
     setIsAuthenticated: isAuthenticated =>
       dispatch(setIsAuthenticated(isAuthenticated)),

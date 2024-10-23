@@ -60,7 +60,7 @@ export const foldersSlice = createSlice({
         folderId = action.payload;
       } else {
         const warn = 'No folder ID provided. Using default folder ID.';
-        toast.warn(warn);
+        toast.warning(warn);
       }
       state.folderId = folderId;
       sessionStorage.setItem('folderId', folderId);

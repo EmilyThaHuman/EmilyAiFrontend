@@ -20,15 +20,10 @@ export default defineConfig(({ mode }) => {
       svgr(),
       VitePWA({
         registerType: 'autoUpdate',
-        /* if you are using vite-plugin-pwa plugin version prior to 0.12.2
-        add below lines to fix injectRegister bug.
-      */
         workbox: {
           clientsClaim: true,
           skipWaiting: true,
         },
-        /* If you want to check it on dev, add devOptions.
-         */
         devOptions: {
           enabled: true,
         },
@@ -67,7 +62,6 @@ export default defineConfig(({ mode }) => {
         prev[`process.env.${key}`] = JSON.stringify(env[key]);
         return prev;
       }, {}),
-      // 'process.env.NODE_ENV': JSON.stringify('production'), // Corrected line
     },
     build: {
       rollupOptions: {
