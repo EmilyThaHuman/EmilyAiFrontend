@@ -1,6 +1,7 @@
-import React from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
 import { motion } from 'framer-motion';
+import React from 'react';
+
 import MessageContent from './MessageContent'; // Ensure this component is compatible with MUI
 
 /**

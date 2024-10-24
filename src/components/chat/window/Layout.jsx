@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import MenuIcon from '@mui/icons-material/Menu';
 import {
   Drawer,
   IconButton,
@@ -7,12 +8,12 @@ import {
   Toolbar,
   CssBaseline,
 } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import CloseIcon from '@mui/icons-material/Close';
-import ChatWindow from './ChatWindow';
-import Sidebar from './Sidebar';
-import IconSidebar from './IconSidebar';
 import Resizable from 're-resizable'; // You can use this library for resizing panels.
+import React, { useState } from 'react';
+
+import ChatWindow from './ChatWindow';
+import IconSidebar from './IconSidebar';
+import Sidebar from './Sidebar';
 
 export default function ChatLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);

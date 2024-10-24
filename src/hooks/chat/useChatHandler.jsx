@@ -165,10 +165,6 @@ export const useChatHandler = () => {
           isStreaming: true,
           isComplete: false,
         };
-
-        // setChatMessage(newMessage);
-        const streamingMessageIndex = chatMessages.length;
-        setStreamingMessageIndex(streamingMessageIndex);
         setStreamingMessageId(assistantMessageId);
         addChatMessage(newMessage);
         while (!done) {
@@ -181,8 +177,8 @@ export const useChatHandler = () => {
               done = true;
             }
             fullResponse += chunk;
-            // Process the buffer for complete messages
             let lines = buffer.split('\n\n');
+
             buffer = lines.pop(); // Keep incomplete line in buffer
 
             for (let line of lines) {
@@ -198,15 +194,9 @@ export const useChatHandler = () => {
                 handleServerEvent(data, newMessage._id);
               }
             }
-            // }
           }
         }
-        // setChatMessage({
-        //   _id: 'streaming',
-        //   content: '',
-        //   isComplete: true,
-        //   role: 'assistant',
-        // });
+
         setChatStreaming(false);
         setIsMessagesSync(false);
       } catch (error) {
@@ -235,7 +225,7 @@ export const useChatHandler = () => {
       isRegenerating,
       messageCount,
       clearInput,
-      chatMessages.length,
+      chatMessages?.length,
       setStreamingMessageIndex,
       setStreamingMessageId,
       handleServerEvent,

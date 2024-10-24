@@ -1,6 +1,7 @@
 import mammoth from 'mammoth';
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+
 import { attachmentsApi } from 'api/Ai/chat-sessions';
 
 export const useCreateFileHandler = () => {

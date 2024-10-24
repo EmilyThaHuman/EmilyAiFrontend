@@ -8,6 +8,7 @@ import { styled } from '@mui/material/styles';
 import React, { FC, memo } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+
 import { useCopyToClipboard } from 'hooks/util';
 
 // ... (keep the programmingLanguages and generateRandomString functions as they are)

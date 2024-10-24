@@ -1,4 +1,6 @@
+import { createAsyncThunk } from '@reduxjs/toolkit';
 import { uniqueId } from 'lodash';
+
 import { DEFAULTS, defaultUserSessionData } from './defaultData';
 // Utility function to process files based on file type
 export const processFilesUtility = (files, fileType) => {
@@ -85,3 +87,13 @@ export const clearLocalDataAtStore = (LOCAL_NAME, REDUX_NAME) => {
   localStorage.removeItem(LOCAL_NAME);
   console.log(`[${LOCAL_NAME.toUpperCase()}][CLEARED ${REDUX_NAME} DATA]`);
 };
+
+export const createAsyncThunkWithErrorHandling = (type, asyncFunction) =>
+  createAsyncThunk(type, async (arg, thunkAPI) => {
+    try {
+      return await asyncFunction(arg, thunkAPI);
+    } catch (error) {
+      console.error(`Error in ${type}:`, error);
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
+  });

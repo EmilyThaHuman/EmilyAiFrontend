@@ -7,6 +7,7 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
+
 import BarChart from 'components/themed/CommonUi/charts/BarChart';
 import {
   barChartDataDailyTraffic,

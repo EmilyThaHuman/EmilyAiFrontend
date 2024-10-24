@@ -7,7 +7,12 @@ import { debounce } from 'lodash';
 
 import { chatApi } from 'api/Ai/chat-sessions';
 
-import { clearLocalDataAtStore, getLocalData, setLocalData } from '../helpers';
+import {
+  clearLocalDataAtStore,
+  createAsyncThunkWithErrorHandling,
+  getLocalData,
+  setLocalData,
+} from '../helpers';
 
 const LOCAL_NAME = 'chatSessionStore';
 const REDUX_NAME = 'chatSessions';
@@ -47,16 +52,6 @@ const initialState = {
 const setLocalSessionData = data => setLocalData(LOCAL_NAME, data);
 const clearLocalSessionData = () =>
   clearLocalDataAtStore(LOCAL_NAME, REDUX_NAME);
-
-const createAsyncThunkWithErrorHandling = (type, asyncFunction) =>
-  createAsyncThunk(type, async (arg, thunkAPI) => {
-    try {
-      return await asyncFunction(arg, thunkAPI);
-    } catch (error) {
-      console.error(`Error in ${type}:`, error);
-      return thunkAPI.rejectWithValue(error.response?.data || error.message);
-    }
-  });
 
 export const createChatSession = createAsyncThunkWithErrorHandling(
   `${REDUX_NAME}/create`,
@@ -311,6 +306,12 @@ export const chatSessionsSlice = createSlice({
     setChatDisabled: (state, action) => {
       state.isChatDisabled = action.payload;
     },
+    setIsSubmitting: (state, action) => {
+      state.isSubmitting = action.payload;
+    },
+    setChatError: (state, action) => {
+      state.chatError = action.payload;
+    },
     setStreamingMessageId: (state, action) => {
       state.streamingMessageId = action.payload;
     },
@@ -327,12 +328,12 @@ export const chatSessionsSlice = createSlice({
       setLocalSessionData({ ...state, chatFileItems: action.payload });
     },
     /* --- Miscellaneous --- */
+    clearChatMessages: state => {
+      state.chatMessages = [];
+    },
     clearChatSessions: state => {
       clearLocalSessionData();
       Object.assign(state, initialState);
-    },
-    clearChatMessages: state => {
-      state.chatMessages = [];
     },
     extraReducers: builder => {
       builder
@@ -414,6 +415,8 @@ export const {
   setChatLoading,
   setChatDisabled,
   setChatStreaming,
+  setIsSubmitting,
+  setChatError,
   setStreamingMessageId,
   setSyncStatus,
   // settings //

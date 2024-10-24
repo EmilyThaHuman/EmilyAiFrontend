@@ -6,6 +6,7 @@ import {
   styled,
   Typography,
 } from '@mui/material';
+
 import { useMode } from 'hooks';
 
 const StyledCard = styled(Card)(({ theme }) => ({

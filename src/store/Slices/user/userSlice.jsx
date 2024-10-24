@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { useNavigate } from 'react-router-dom';
 
 import { staticDataApi } from 'api/static';
 import { authApi, userApi } from 'api/user';
@@ -12,7 +11,11 @@ import {
   setWorkspaceId,
   setWorkspaces,
 } from '../chat';
-import { getLocalData, setLocalData } from '../helpers';
+import {
+  createAsyncThunkWithErrorHandling,
+  getLocalData,
+  setLocalData,
+} from '../helpers';
 
 const LOCAL_NAME = 'userStore';
 const REDUX_NAME = 'user';
@@ -96,170 +99,113 @@ export const handleAuthSubmit = createAsyncThunk(
   }
 );
 
-export const validateToken = createAsyncThunk(
+export const validateToken = createAsyncThunkWithErrorHandling(
   'auth/validateToken',
   async (token, { rejectWithValue }) => {
-    try {
-      await authApi.validateToken(token);
-      return true;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
-    }
+    await authApi.validateToken(token);
+    return true;
   }
 );
 
-export const refreshAccessToken = createAsyncThunk(
+export const refreshAccessToken = createAsyncThunkWithErrorHandling(
   'auth/refresh-token',
-  async (token, { getState, rejectWithValue }) => {
-    const navigate = useNavigate();
-
-    try {
-      const data = await authApi.refreshToken(token);
-      console.log('DATA', data);
-      return data.accessToken;
-    } catch (error) {
-      console.error('Failed to refresh token:', error);
-      // navigate('/auth/sign-in');
-      return rejectWithValue(error.response.data);
-      // window.location.href = '/auth/sign-in';
-    }
+  async (token, { rejectWithValue }) => {
+    const data = await authApi.refreshToken(token);
+    return data.accessToken;
   }
 );
 
-export const logout = createAsyncThunk(
+export const logout = createAsyncThunkWithErrorHandling(
   'auth/logout',
-  async (_, { dispatch, getState, rejectWithValue }) => {
-    const navigate = useNavigate();
+  async (_, { dispatch, rejectWithValue }) => {
     const token = sessionStorage.getItem('accessToken');
-    console.log('LOGOUT TOKEN', token);
-    try {
-      await authApi.logout(token);
-      localStorage.clear();
-      sessionStorage.clear();
-      dispatch(clearUser());
-      navigate('/auth/sign-in');
-      return true;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
-    }
+    await authApi.logout(token);
+    localStorage.clear();
+    sessionStorage.clear();
+    dispatch(clearUser());
+    return true;
   }
 );
 
-export const fetchUserProfileImage = createAsyncThunk(
+export const fetchUserProfileImage = createAsyncThunkWithErrorHandling(
   'user/fetchUserProfileImage',
-  async (username, { dispatch, rejectWithValue }) => {
-    try {
-      const imagename = username ? 'avatar1' : 'avatar5';
-      const imgWithExt = `${imagename}.png`;
-
-      const response = await staticDataApi.getProfileImage(imgWithExt);
-      console.log('Image response:', response);
-      return response;
-    } catch (error) {
-      console.error('Error fetching profile image:', error);
-      return rejectWithValue(error.message);
-    }
+  async (username, { rejectWithValue }) => {
+    const imagename = username ? 'avatar1' : 'avatar5';
+    const imgWithExt = `${imagename}.png`;
+    const response = await staticDataApi.getProfileImage(imgWithExt);
+    return response;
   }
 );
 
-export const setAuthUserData = createAsyncThunk(
+export const setAuthUserData = createAsyncThunkWithErrorHandling(
   'user/setAuthUserData',
   async (_, { dispatch, rejectWithValue }) => {
-    try {
-      const storedUserData = JSON.parse(localStorage.getItem(LOCAL_NAME));
+    const storedUserData = JSON.parse(localStorage.getItem(LOCAL_NAME));
 
-      if (!storedUserData) {
-        console.log('No user data found in local storage');
-        return;
-      }
-
-      const { username } = storedUserData.user;
-      let imageUrl = null;
-      let imageRetrievalStatus = false;
-      if (!storedUserData?.selectedProfileImage) {
-        imageUrl = (await dispatch(fetchUserProfileImage(username))).payload;
-        imageRetrievalStatus = true;
-        dispatch(setSelectedProfileImage(imageUrl));
-      }
-      const {
-        workspaces,
-        folders,
-        presets,
-        prompts,
-        models,
-        chatSessions,
-        collections,
-        files,
-        assistants,
-        tools,
-      } = storedUserData.user;
-      const homeWorkSpace = workspaces?.find(
-        workspace => workspace.isHome === true
-      );
-      console.log('HOME_WORKSPACE', homeWorkSpace);
-      const updatedHomeWorkSpace = {
-        ...homeWorkSpace,
-        folders,
-        files,
-        chatSessions,
-        assistants,
-        prompts,
-        tools,
-        models,
-        presets,
-        collections,
-        active: true,
-      };
-      dispatch(setWorkspaces(workspaces));
-      dispatch(setHomeWorkSpace(updatedHomeWorkSpace));
-      dispatch(setSelectedWorkspace(updatedHomeWorkSpace));
-      dispatch(setWorkspaceId(updatedHomeWorkSpace._id));
-      // dispatch(setChatSessions(workspaces[0]?.chatSessions));
-      // const currentChatSession = updatedHomeWorkSpace?.chatSessions[0];
-      // dispatch(setSelectedChatSession(currentChatSession));
-      // dispatch(setChatMessages(currentChatSession?.messages));
-      // dispatch(setPresets(presets));
-      // dispatch(setSelectedPreset(presets[0]));
-      // dispatch(setPrompts(prompts));
-      // dispatch(setSelectedPrompt(prompts[0]));
-      // dispatch(setModels(models));
-      // dispatch(setCollections(collections));
-      // dispatch(setFolders(folders));
-      // dispatch(setFiles(files));
-      // dispatch(setAssistants(assistants));
-      // dispatch(setSelectedAssistant(assistants[0]));
-      // dispatch(setTools(tools));
-      // dispatch(setSelectedTools(tools));
-      return {
-        ...storedUserData.user,
-        profileImage: imageUrl,
-        isImageRetrieved: imageRetrievalStatus,
-        userInfo: {
-          ...storedUserData.userInfo,
-          profileImage: imageUrl,
-          isImageRetrieved: imageRetrievalStatus,
-        },
-      };
-    } catch (error) {
-      console.error('Error fetching user data from local storage:', error);
-      return rejectWithValue(error.message);
+    if (!storedUserData) {
+      return;
     }
+
+    const { username } = storedUserData.user;
+    let imageUrl = null;
+    let imageRetrievalStatus = false;
+    if (!storedUserData?.selectedProfileImage) {
+      imageUrl = (await dispatch(fetchUserProfileImage(username))).payload;
+      imageRetrievalStatus = true;
+      dispatch(setSelectedProfileImage(imageUrl));
+    }
+
+    const {
+      workspaces,
+      folders,
+      presets,
+      prompts,
+      models,
+      chatSessions,
+      collections,
+      files,
+      assistants,
+      tools,
+    } = storedUserData.user;
+
+    const homeWorkSpace = workspaces?.find(
+      workspace => workspace.isHome === true
+    );
+    const updatedHomeWorkSpace = {
+      ...homeWorkSpace,
+      folders,
+      files,
+      chatSessions,
+      assistants,
+      prompts,
+      tools,
+      models,
+      presets,
+      collections,
+      active: true,
+    };
+
+    dispatch(setWorkspaces(workspaces));
+    dispatch(setHomeWorkSpace(updatedHomeWorkSpace));
+    dispatch(setSelectedWorkspace(updatedHomeWorkSpace));
+    dispatch(setWorkspaceId(updatedHomeWorkSpace._id));
+
+    return {
+      ...storedUserData.user,
+      profileImage: imageUrl,
+      isImageRetrieved: imageRetrievalStatus,
+    };
   }
 );
 
-export const addEnvToUser = createAsyncThunk(
+export const addEnvToUser = createAsyncThunkWithErrorHandling(
   `${REDUX_NAME}/addEnvToUser`,
   async ({ apiKey }, { rejectWithValue }) => {
-    try {
-      console.log('Adding API key:', apiKey);
-      const response = await userApi.addEnvToUser(
-        sessionStorage.getItem('userId'),
-        apiKey
-      );
-      return response;
-    } catch (error) {
-      rejectWithValue(error.response.data);
-    }
+    const response = await userApi.addEnvToUser(
+      sessionStorage.getItem('userId'),
+      apiKey
+    );
+    return response;
   }
 );
 
@@ -335,19 +281,8 @@ export const userSlice = createSlice({
       });
     },
     clearUser: state => {
-      state.user = null;
-      state.isAuthenticated = false;
-      state.isRedirectToSignin = false;
-      state.isSettingUp = false;
-      state.isImageRetrieved = false;
-      state.isImageUploaded = false;
-      state.authSession = null;
-      state.profile = null;
-      state.selectedProfileImage = null;
-      state.envKeyMap = null;
-
-      // Clear only user-related data from local storage
-      setLocalUserData({});
+      console.log('CLEAR USER');
+      Object.assign(state, initialState);
     },
   },
   extraReducers: builder => {

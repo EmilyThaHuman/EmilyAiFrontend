@@ -2,6 +2,7 @@
 import { PhotoCamera } from '@mui/icons-material';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
+
 import { CustomLogo } from 'assets/humanIcons/custom';
 import { AspectRatioBox, StyledPaper } from 'components/index';
 import { useMode } from 'hooks';

@@ -1,10 +1,10 @@
-import React from 'react';
-import { styled } from '@mui/system';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CloseIcon from '@mui/icons-material/Close';
+import ErrorIcon from '@mui/icons-material/Error';
 import InfoIcon from '@mui/icons-material/Info';
 import WarningIcon from '@mui/icons-material/Warning';
-import ErrorIcon from '@mui/icons-material/Error';
-import CloseIcon from '@mui/icons-material/Close';
+import { styled } from '@mui/system';
+import React from 'react';
 
 const StyledToast = styled('div')(
   ({ theme, severity }) => `

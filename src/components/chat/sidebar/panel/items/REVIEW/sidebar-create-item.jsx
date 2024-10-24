@@ -5,6 +5,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import React, { useContext, useRef, useState } from 'react';
 import { toast } from 'sonner';
+
 import { useChatStore } from 'contexts/ChatProvider';
 
 const SidebarCreateItem = ({

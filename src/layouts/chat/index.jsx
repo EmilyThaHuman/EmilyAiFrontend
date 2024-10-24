@@ -1,7 +1,6 @@
 // =========================================================
 // [ChatLayout] | Centralizes the layout and responsiveness
 // =========================================================
-// ChatLayout.jsx
 import {
   Box,
   Drawer,
@@ -10,24 +9,15 @@ import {
   CssBaseline,
   Fade,
 } from '@mui/material';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 
-import { ChatSidebar } from 'components/chat/sidebar';
-import SidebarContent from 'components/chat/sidebar/SidebarContent';
-import SidebarTabs from 'components/chat/sidebar/SidebarTabs';
+import { SidebarContent, SidebarTabs } from 'components';
 import { SIDEBAR_CONFIG } from 'config/data-configs/sidebar'; // Move sidebar configuration to separate file
 import { useAppStore, useChatStore, useUserStore } from 'contexts/index'; // Consolidated imports
 import { useMode } from 'hooks/app';
 
 export const ChatLayout = () => {
-  // Custom hook for responsive breakpoints
   const useResponsiveDrawer = () => {
     const theme = useTheme();
     const isXs = useMediaQuery(theme.breakpoints.down('xs'));
@@ -47,7 +37,6 @@ export const ChatLayout = () => {
       drawerWidth,
     };
   };
-
   const { workspaceId, sessionId } = useParams();
   const navigate = useNavigate();
   const { theme } = useMode();
@@ -170,6 +159,7 @@ export const ChatLayout = () => {
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <CssBaseline />
+      {/* -- SIDEBAR SECTION ICON BUTTONS -- */}
       <SidebarTabs
         tab={activeTab}
         setTab={setActiveTab}
@@ -196,6 +186,17 @@ export const ChatLayout = () => {
               width: drawerWidth,
               maxWidth: '450px',
               borderRight: '1px solid #333',
+              transform:
+                isMobile && !isSidebarOpen ? 'translateX(-100%)' : 'none',
+              transition: 'transform 1.3s ease-in-out',
+              // transition: 'transform 0.3s ease-in-out',
+              // transform: isSidebarOpen ? 'none' : 'translateX(-100%)', // Only hide when `isSidebarOpen` is false
+            },
+          }}
+          sx={{
+            '& .MuiDrawer-paper': {
+              width: drawerWidth,
+              boxSizing: 'border-box',
             },
           }}
         >
@@ -205,7 +206,6 @@ export const ChatLayout = () => {
             <div
               style={{
                 transform: isSidebarOpen ? 'none' : 'translateX(-100%)', // Only hide when `isSidebarOpen` is false
-
                 // transform: isMobile && !isSidebarOpen ? 'translateX(-100%)' : 'none',
                 transition: 'transform 0.3s ease-in-out',
                 color: '#fff',
@@ -215,27 +215,7 @@ export const ChatLayout = () => {
                 maxHeight: 'calc(100% - 16px)',
               }}
             >
-              {/* -- SIDEBAR SECTION ICON BUTTONS -- */}
-
               {/* -- SIDEBAR DRAWER -- */}
-              {/* <Drawer
-        anchor="left"
-        open={tab !== null}
-        onClose={handleSidebarClose}
-        PaperProps={{
-          sx: {
-            color: '#fff',
-            padding: '10px',
-            background: '#000',
-            maxWidth: isMd ? '350px' : '450px', // Set maxWidth based on md media query
-            width: isMobile ? '100vw' : isMd ? '350px' : '450px', // Adjust width based on screen size
-            borderRight: '1px solid #333',
-            transform:
-              isMobile && !isSidebarOpen ? 'translateX(-100%)' : 'none',
-            transition: 'transform 1.3s ease-in-out',
-          },
-        }}
-      > */}
               <SidebarContent
                 tab={activeTab}
                 user={user}
@@ -250,18 +230,8 @@ export const ChatLayout = () => {
                 onCancel={handleSidebarClose}
                 buttonRef={buttonRef}
               />
-              {/* </Drawer> */}
             </div>
           </Box>
-          {/* <ChatSidebar
-            workspaceId={workspaceId}
-            onOpen={handleSidebarOpen}
-            onClose={handleSidebarClose}
-            onSave={handleSave}
-            onCancel={handleSidebarClose}
-            tab={activeTab}
-            tabs={sidebarTabs}
-          /> */}
         </Drawer>
       </Fade>
 

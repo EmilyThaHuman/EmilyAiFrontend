@@ -7,6 +7,7 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
+
 import MainMenu from 'components/themed/CommonUi/menu/MainMenu';
 import configs from 'config/index';
 

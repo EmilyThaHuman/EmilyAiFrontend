@@ -1,8 +1,8 @@
 import { Box, Typography } from '@mui/material';
 import React, { Suspense } from 'react';
+
 import { CustomLogoIcon } from 'assets/humanIcons/custom-logo';
-import { RCFlex } from 'components';
-import { LoadingIndicator } from 'components/index';
+import { RCFlex, LoadingIndicator } from 'components';
 import { useMode } from 'hooks';
 
 export const NavbarLogo = () => (

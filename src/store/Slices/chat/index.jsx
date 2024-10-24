@@ -21,7 +21,6 @@ import assistantReducer, {
 } from './assistantSlice';
 import baseChatReducer, {
   // addEnvToUser,
-  setChatError,
   setAbortController,
   setAtCommand,
   setChatRequestData,
@@ -32,7 +31,6 @@ import baseChatReducer, {
   setFocusFile,
   setFocusPrompt,
   setFocusTool,
-  setIsSubmitting,
   setHashtagCommand,
   setIsAssistantPickerOpen,
   setIsFilePickerOpen,
@@ -78,6 +76,8 @@ import chatSessionReducer, {
   setChatLoading,
   setChatDisabled,
   setChatStreaming,
+  setIsSubmitting,
+  setChatError,
   setStreamingMessageId,
   setSyncStatus,
   // settings //

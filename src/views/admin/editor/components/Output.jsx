@@ -1,6 +1,7 @@
 import { Box, Button, Typography } from '@mui/material';
 import React, { useState, useRef, useEffect } from 'react';
 import { toast, Toaster } from 'sonner';
+
 import { executeCode } from 'api/editor';
 
 const htmlTemplate = `

@@ -3,7 +3,7 @@ import { Avatar, Box, IconButton, Tooltip, useTheme } from '@mui/material';
 import { AiIcon, FingerprintIcon, KeyIcon } from 'assets/humanIcons';
 import ValidationIcon from 'components/themed/ValidationIcon';
 
-const SidebarTabs = ({
+export const SidebarTabs = ({
   tab,
   handleSidebarOpen,
   isXs,

@@ -1,6 +1,7 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import PropTypes from 'prop-types';
 import React from 'react';
+
 import { cn } from 'utils/index';
 
 const Dialog = DialogPrimitive.Root;

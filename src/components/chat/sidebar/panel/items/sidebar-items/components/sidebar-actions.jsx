@@ -1,5 +1,6 @@
 // components/SidebarActions.js
 import { Add as AddIcon, Folder as FolderIcon } from '@mui/icons-material';
+
 import { NewFileButton, FolderButton, TopBar } from 'components/chat/styled';
 
 export const SidebarActions = ({ handleNewFile, handleNewFolder, space }) => {

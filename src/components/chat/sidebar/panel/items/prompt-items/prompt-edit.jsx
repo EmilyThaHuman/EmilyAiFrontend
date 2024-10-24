@@ -1,6 +1,8 @@
 import { Box, Button } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+
 import { StyledButton } from 'components/chat/styled';
+
 import PromptForm from './prompt-form';
 
 export const EditPrompt = ({ prompt, onUpdate }) => {

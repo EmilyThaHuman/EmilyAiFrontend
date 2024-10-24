@@ -21,6 +21,7 @@ import {
   DialogContentText,
 } from '@mui/material';
 import React, { useState } from 'react';
+
 import { CloseIcon } from 'assets/humanIcons';
 import StarRating from 'components/themed/UncommonUi/rating';
 const promptTemplates = [

@@ -2,6 +2,7 @@
 
 import PropTypes from 'prop-types';
 import { forwardRef } from 'react';
+
 import RCFlexRoot from './RCFlexRoot';
 /**
  * A customizable flex component.

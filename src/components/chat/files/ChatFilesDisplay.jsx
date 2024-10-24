@@ -25,6 +25,7 @@ import {
   FaFileMarkdown,
   FaSpinner,
 } from 'react-icons/fa'; // Using react-icons for document type icons
+
 import { attachmentsApi } from 'api/Ai/chat-sessions';
 import { useChatStore } from 'contexts/ChatProvider';
 

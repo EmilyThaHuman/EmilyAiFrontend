@@ -7,7 +7,6 @@ import { Option as BaseOption, optionClasses } from '@mui/base/Option';
 import { Select as BaseSelect, selectClasses } from '@mui/base/Select';
 import { CssTransition } from '@mui/base/Transitions';
 import { PopupContext } from '@mui/base/Unstable_Popup';
-
 import { styled } from '@mui/system';
 import PropTypes from 'prop-types';
 import React, { useRef, useState } from 'react';

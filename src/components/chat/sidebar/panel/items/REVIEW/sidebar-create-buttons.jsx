@@ -3,10 +3,12 @@ import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import React, { useState } from 'react';
+
 import { foldersApi } from 'api/workspaces';
 import { useChatStore } from 'contexts/ChatProvider';
 import { useChatHandler } from 'hooks/chat';
 import useChatSessionHandler from 'hooks/chat/useChatSessionHandler';
+
 import { AddFile } from '../file-items';
 
 const SidebarCreateButtons = ({ contentType, hasData }) => {

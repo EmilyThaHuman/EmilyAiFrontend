@@ -1,6 +1,7 @@
 import { Box, IconButton, Typography } from '@mui/material';
 import React, { useCallback } from 'react';
 import { FiX } from 'react-icons/fi';
+
 import { FileIcon } from '@/lib/fileUtils';
 import { useFileProcesser } from 'hooks';
 

@@ -9,6 +9,7 @@ import {
 import PropTypes from 'prop-types';
 import React from 'react';
 import { MdOutlineMoreHoriz } from 'react-icons/md';
+
 import { useMode } from 'hooks';
 
 export const MainMenu = ({ items, ...rest }) => {

@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { TabContentContainer } from 'components/chat/styled';
 
 export const AssistantTemplates = () => {

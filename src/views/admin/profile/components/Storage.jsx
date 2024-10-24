@@ -1,5 +1,6 @@
 import { Box, Card, LinearProgress, Typography } from '@mui/material';
 import { MdOutlineCloudDone } from 'react-icons/md';
+
 import IconBox from 'assets/humanIcons/utils/IconBox';
 import { MainMenu } from 'components/index';
 import configs from 'config/index';

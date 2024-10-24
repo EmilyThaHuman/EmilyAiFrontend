@@ -8,9 +8,9 @@ import {
   Typography,
 } from '@mui/material';
 import PropTypes from 'prop-types';
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
+
 import { useMode } from 'hooks';
 const ColorIconButton = styled(IconButton)(({ theme }) => ({
   color: theme.palette.text.secondary, // Choose a lighter color for less prominent icons

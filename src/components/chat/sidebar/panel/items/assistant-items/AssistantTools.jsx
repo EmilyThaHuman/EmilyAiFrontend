@@ -11,6 +11,7 @@ import {
   IconButton,
 } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
+
 import { settingsApi } from 'api/Ai/chat-items';
 import { attachmentsApi } from 'api/Ai/chat-sessions';
 import { useChatStore } from 'contexts/ChatProvider';

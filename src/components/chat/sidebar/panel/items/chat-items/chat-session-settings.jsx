@@ -1,5 +1,6 @@
 import { Box } from '@mui/material';
 import React from 'react';
+
 import { StyledButton } from 'components/chat/styled';
 import { TextFieldSection } from 'components/themed';
 import { useChatStore } from 'contexts/ChatProvider';

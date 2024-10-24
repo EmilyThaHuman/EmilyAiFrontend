@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+
 import { StyledButton } from 'components/chat/styled';
 import { TextAreaAutosizeSection, TextFieldSection } from 'components/themed';
 

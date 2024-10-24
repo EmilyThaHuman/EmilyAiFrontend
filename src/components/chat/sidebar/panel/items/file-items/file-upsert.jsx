@@ -1,5 +1,6 @@
 import { Box, Card, Divider, MenuItem, TextField } from '@mui/material';
 import { useState } from 'react';
+
 import { attachmentsApi } from 'api/Ai/chat-sessions';
 import { StyledButton } from 'components/chat/styled';
 import {

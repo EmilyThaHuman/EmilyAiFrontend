@@ -16,16 +16,8 @@ export const MessageBox = React.memo(
   ({ handlePromptSelect, codePromptOptions }) => {
     const { theme } = useMode();
     const {
-      state: {
-        chatMessages,
-        chatLoading,
-        streamingMessageIndex,
-        streamingMessageId,
-      },
+      state: { chatMessages, isChatLoading, streamingMessageId },
     } = useChatStore();
-
-    const messagesStartRef = useRef(null);
-    const messagesEndRef = useRef(null);
 
     return (
       <>
@@ -83,7 +75,7 @@ export const MessageBox = React.memo(
           ) : (
             <MessageList
               messages={chatMessages}
-              isLoading={chatLoading}
+              isLoading={isChatLoading}
               streamingMessageId={streamingMessageId}
             />
           )}

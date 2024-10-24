@@ -1,5 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import React from 'react';
+
 import { useMode } from 'hooks';
 
 export const MiniStatistics = props => {

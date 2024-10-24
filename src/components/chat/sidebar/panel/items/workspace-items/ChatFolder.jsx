@@ -39,6 +39,7 @@ import {
   FaChevronDown,
   FaChevronRight,
 } from 'react-icons/fa';
+
 import { EditIcon } from 'assets/humanIcons';
 import { TrashCanIcon } from 'assets/humanIcons/custom';
 import { useChatStore } from 'contexts/ChatProvider';

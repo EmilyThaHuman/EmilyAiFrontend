@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { StyledTextareaAutosize } from 'components/chat/styled';
 
 /**

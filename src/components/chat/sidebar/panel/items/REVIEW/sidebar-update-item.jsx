@@ -6,8 +6,11 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Typography from '@mui/material/Typography';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+
 import { useChatStore } from 'contexts/ChatProvider';
+
 import { SidebarDeleteItem } from './sidebar-delete-item';
+
 import { AssignWorkspaces } from '@/components/workspace/assign-workspaces';
 
 const SidebarUpdateItem = ({

@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { debounce } from 'lodash';
 import React, { useEffect, useState } from 'react';
+
 import { useChatStore } from 'contexts/ChatProvider';
 
 const optionFromModel = model => {

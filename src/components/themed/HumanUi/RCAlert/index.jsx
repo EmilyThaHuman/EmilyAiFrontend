@@ -1,6 +1,7 @@
 import { Fade } from '@mui/material';
 import { PropTypes } from 'prop-types';
 import { useState } from 'react';
+
 import RCBox from '../RCBox';
 import RCAlertCloseIcon from './RCAlertCloseIcon';
 import RCAlertRoot from './RCAlertRoot';

@@ -1,4 +1,5 @@
 import { Box, Typography } from '@mui/material';
+
 import { UpgradeIcon } from 'assets/humanIcons';
 import { useMode } from 'hooks';
 

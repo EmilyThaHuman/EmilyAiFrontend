@@ -22,7 +22,6 @@ import {
   PersonIcon,
 } from 'assets/humanIcons';
 import { LoadingIndicator } from 'components/index';
-import PublicRoute from 'components/PublicRoute';
 import { Loadable } from 'layouts/navigation/navbar/components';
 import { dispatch, setField } from 'store/index';
 import { NotFoundPage } from 'views/error';
@@ -519,11 +518,9 @@ const authRoutes = [
     path: '/auth',
     breadcrumb: 'Auth',
     element: (
-      <PublicRoute>
-        <Suspense fallback={<LoadingIndicator />}>
-          <AuthLayout />
-        </Suspense>
-      </PublicRoute>
+      <Suspense fallback={<LoadingIndicator />}>
+        <AuthLayout />
+      </Suspense>
     ),
     errorElement: <RootErrorBoundary />,
     icon: <LockIcon />,

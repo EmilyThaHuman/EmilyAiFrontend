@@ -1,5 +1,4 @@
 import { colors } from 'assets/themes/base';
-
 import { boxShadow } from 'assets/themes/functions';
 
 const { black, white, tabs, coloredShadows } = colors;

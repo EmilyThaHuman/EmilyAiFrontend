@@ -1,5 +1,6 @@
 // AttachedFilesList.jsx
 import React from 'react';
+
 import { useChatStore } from 'contexts';
 
 const AttachedFilesList = ({ onRemoveFile }) => {

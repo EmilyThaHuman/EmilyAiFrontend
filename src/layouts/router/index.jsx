@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigation } from 'react-router-dom';
 
-import HistoryTracker from 'components/HistoryTracker';
+import { HistoryTracker } from 'components';
 import { LoadingContainer } from 'components/index';
 
 const pageVariants = {

@@ -13,7 +13,7 @@ import {
 import SidebarContentFooter from './SidebarContentFooter';
 import SidebarContentHeader from './SidebarContentHeader';
 
-const SidebarContent = ({
+export const SidebarContent = ({
   tab,
   user,
   chatSessions,

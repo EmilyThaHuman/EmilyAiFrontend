@@ -1,6 +1,7 @@
 import mammoth from 'mammoth';
 import { useCallback, useRef, useState } from 'react';
 import { toast } from 'sonner';
+
 import { flattenArrays } from '@/lib/fileUtils';
 import constants from 'config/constants';
 import { useChatStore } from 'contexts';

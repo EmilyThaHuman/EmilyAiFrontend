@@ -60,13 +60,8 @@ const codePromptOptions = [
 ];
 
 export const MainChat = () => {
-  const params = useParams();
   const navigate = useNavigate();
   const { workspace } = useLoaderData(); // This is the workspace object returned from your loader
-  const { theme } = useMode();
-  const {
-    state: { isSidebarOpen },
-  } = useAppStore();
   const {
     state: { userInput, isStreaming, selectedChatSession, chatLoading },
     actions: {
@@ -124,7 +119,7 @@ export const MainChat = () => {
           // Transformation logic
           if (typeof message === 'string') {
             return {
-              _id: uuidv4(),
+              _id: message,
               content: message,
               role: 'user',
               isUserMessage: true,
@@ -184,13 +179,6 @@ export const MainChat = () => {
     return true;
   };
 
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [marginLeft, setMarginLeft] = useState(isMobile ? '0px' : '50px');
-
-  useEffect(() => {
-    setMarginLeft(isMobile ? '0px' : '50px');
-  }, [isMobile, isSidebarOpen]);
-
   const promptsMenu = useMenu();
   const dialogRef = useRef(null);
   const sidebarItemRef = useRef(null);
@@ -229,8 +217,6 @@ export const MainChat = () => {
       }
     };
   }, [controllerRef]);
-
-  const limitedPrompts = RANDOM_PROMPTS.slice(0, 5);
 
   return (
     <Box

@@ -7,6 +7,7 @@ import React, {
   useLayoutEffect,
   useMemo,
 } from 'react';
+
 import {
   CodeIcon,
   EmojiEmotionsIcon,
@@ -17,6 +18,7 @@ import { RCSpeedDial } from 'components/themed';
 import { useChatStore } from 'contexts/ChatProvider';
 import { useUserStore } from 'contexts/UserProvider';
 import { useMenu, useMode, useTipTapEditor } from 'hooks';
+
 import { ApiModal } from './ApiModal';
 
 const MemoizedRCSpeedDial = React.memo(RCSpeedDial);
@@ -24,12 +26,10 @@ const MemoizedApiModal = React.memo(ApiModal);
 const MemoizedEmojiPicker = React.memo(EmojiPicker);
 
 export const ToolDial = ({ containerRef }) => {
-    const {
-    actions: {
-      setApiKey,
-    },
+  const {
+    actions: { setApiKey },
   } = useChatStore();
-    const {
+  const {
     state: {
       user: { profile },
     },
