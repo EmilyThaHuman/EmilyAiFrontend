@@ -124,14 +124,26 @@ export const FileDirectory = ({ space, initialItems, initialFolders }) => {
           console.error(`No fetch function defined for space: ${space}`);
           return;
         }
-        const workspaceId = sessionStorage.gettItem('workspaceId');
-        const itemsFolder = await workspacesApi.getWorkspaceFoldersBySpace({
-          workspaceId,
-          space,
-        });
-        const itemsData = itemsFolder[`${space}`];
+        const workspaceId = sessionStorage.getItem('workspaceId');
+        let folderItemData;
+        if (space === 'chatSessions') {
+          folderItemData = {
+            folders: initialFolders,
+            folderItems: initialItems,
+          };
+        } else {
+          const { folder, folderItems } =
+            await workspacesApi.getWorkspaceFoldersBySpace({
+              workspaceId,
+              space,
+            });
+          folderItemData = {
+            folders: [...initialFolders, folder],
+            folderItems,
+          };
+        }
         // const fetchedItems = await fetchFunction();
-        const updatedItems = itemsData.map(item => ({
+        const updatedItems = folderItemData?.folderItems?.map(item => ({
           ...item,
           id: item.id || item._id || item.name,
           name:
@@ -415,7 +427,7 @@ export const FileDirectory = ({ space, initialItems, initialFolders }) => {
   return (
     <DndProvider backend={HTML5Backend}>
       <SidebarManagerContainer>
-        <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <Typography>
             {action == null
               ? 'No item action recorded'

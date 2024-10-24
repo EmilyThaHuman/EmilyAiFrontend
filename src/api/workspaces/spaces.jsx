@@ -124,8 +124,11 @@ export const workspacesApi = {
         `/chat/workspaces/${encodeURIComponent(workspaceId)}/folders/space/${space}`
       );
       console.log('RES', response);
-      console.log('FOLDER', response.folder);
-      return response.folder;
+      console.log('FOLDERS_ARRAY', response.folders);
+      console.log('ITEMS_ARRAY', response.allItems);
+      const folder = response?.folders[0];
+      const folderItems = response.allItems;
+      return { folder, folderItems };
     } catch (error) {
       console.error(`Error fetching chat folders for space ${space}:`, error);
       throw error;

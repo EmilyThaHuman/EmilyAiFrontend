@@ -10,8 +10,8 @@ import {
   Files,
   User,
 } from './panel';
-import SidebarContentFooter from './SidebarContentFooter';
-import SidebarContentHeader from './SidebarContentHeader';
+import { SidebarContentFooter } from './SidebarContentFooter';
+import { SidebarContentHeader } from './SidebarContentHeader';
 
 export const SidebarContent = ({
   tab,

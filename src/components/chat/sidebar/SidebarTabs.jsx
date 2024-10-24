@@ -47,6 +47,8 @@ export const SidebarTabs = ({
         <Tooltip key={item.id} title={item.space} placement="right">
           <IconButton
             onClick={item.onClick} // Use each item's onClick handler
+            onMouseOver={e => (e.currentTarget.style.color = 'white')}
+            onMouseOut={e => (e.currentTarget.style.color = '#94a3b8')}
             sx={{
               mb: 1,
               backgroundColor:

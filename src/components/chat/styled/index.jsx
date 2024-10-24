@@ -154,7 +154,7 @@ export const AnimatedListItem = styled(motion.li)({
 });
 export const SidebarManagerContainer = styled('div')(({ theme }) => ({
   backgroundColor: '#000000',
-  height: '100vh',
+  // height: '100vh',
   display: 'flex',
   flexDirection: 'column',
   width: '100%',

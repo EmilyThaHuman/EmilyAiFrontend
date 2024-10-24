@@ -1,4 +1,4 @@
-import { Box, Card, Divider, MenuItem, TextField } from '@mui/material';
+import { Divider } from '@mui/material';
 import { useState } from 'react';
 
 import { attachmentsApi } from 'api/Ai/chat-sessions';
@@ -9,15 +9,13 @@ import {
   TextAreaAutosizeSection,
   TextFieldSection,
 } from 'components/themed';
-import { useUserStore } from 'contexts/UserProvider';
+import { useChatStore } from 'contexts/ChatProvider';
 
 export function FileUpsert() {
   const {
-    state: {
-      user: { folders },
-    },
-  } = useUserStore();
-  const fileFolder = folders.find(folder => folder.type === 'files');
+    state: { folders },
+  } = useChatStore();
+  const fileFolder = folders?.find(folder => folder.space === 'files');
   const [url, setUrl] = useState('');
   const [library, setLibrary] = useState('');
   const [message, setMessage] = useState('');

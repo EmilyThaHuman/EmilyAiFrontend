@@ -8,7 +8,9 @@ import {
   useTheme,
   CssBaseline,
   Fade,
+  Slide,
 } from '@mui/material';
+import { motion } from 'framer-motion';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 
@@ -18,25 +20,6 @@ import { useAppStore, useChatStore, useUserStore } from 'contexts/index'; // Con
 import { useMode } from 'hooks/app';
 
 export const ChatLayout = () => {
-  const useResponsiveDrawer = () => {
-    const theme = useTheme();
-    const isXs = useMediaQuery(theme.breakpoints.down('xs'));
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const isMd = useMediaQuery(theme.breakpoints.down('md'));
-
-    const drawerWidth = useMemo(() => {
-      if (isMobile) return '100vw';
-      if (isMd) return '350px';
-      return '450px';
-    }, [isMobile, isMd]);
-
-    return {
-      isXs,
-      isMobile,
-      isMd,
-      drawerWidth,
-    };
-  };
   const { workspaceId, sessionId } = useParams();
   const navigate = useNavigate();
   const { theme } = useMode();
@@ -68,13 +51,54 @@ export const ChatLayout = () => {
     state: { isSidebarOpen },
     actions: { setSidebarOpen },
   } = useAppStore();
-
   // -- --
   const folders = selectedWorkspace?.folders || [];
   // -- --
   const sideBarWidthRef = useRef(null);
   const buttonRef = useRef(null);
   const isValidApiKey = Boolean(apiKey);
+  const sidebarVariants = {
+    open: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 30,
+      },
+    },
+    closed: {
+      x: '-100%',
+      opacity: 0,
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 30,
+      },
+    },
+  };
+  const mainContentVariants = {
+    expanded: {
+      marginLeft: isSidebarOpen && !isMobile ? `${drawerWidth}px` : 0,
+      opacity: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 250,
+        damping: 25,
+        duration: 0.5,
+      },
+    },
+    collapsed: {
+      marginLeft: 0,
+      opacity: 0.8,
+      transition: {
+        type: 'spring',
+        stiffness: 250,
+        damping: 25,
+        duration: 0.5,
+      },
+    },
+  };
   // Enhanced sidebar handlers
   const handleSidebarToggle = useCallback(() => {
     setSidebarOpen(prev => !prev);
@@ -172,7 +196,23 @@ export const ChatLayout = () => {
         sideBarWidthRef={sideBarWidthRef}
         dataList={sidebarTabs}
       />
-      <Fade in={isSidebarOpen && activeTab !== null}>
+      <motion.div
+        initial="closed"
+        animate={isSidebarOpen && activeTab !== null ? 'open' : 'closed'}
+        variants={sidebarVariants}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          height: '100vh',
+          width: drawerWidth,
+          background: '#000',
+          color: '#fff',
+          zIndex: 1200,
+          overflow: 'hidden', // Disable any scrolling
+        }}
+      >
+        {/* <Fade in={isSidebarOpen && activeTab !== null}> */}
         <Drawer
           anchor="left"
           open={isSidebarOpen && activeTab !== null}
@@ -180,33 +220,65 @@ export const ChatLayout = () => {
           ModalProps={{ keepMounted: true }}
           PaperProps={{
             sx: {
-              color: '#fff',
               padding: '10px',
-              background: '#000',
               width: drawerWidth,
+              height: '100vh', // Fix the drawer height
               maxWidth: '450px',
+              maxHeight: '100vh',
+              background: '#000',
               borderRight: '1px solid #333',
-              transform:
-                isMobile && !isSidebarOpen ? 'translateX(-100%)' : 'none',
-              transition: 'transform 1.3s ease-in-out',
-              // transition: 'transform 0.3s ease-in-out',
-              // transform: isSidebarOpen ? 'none' : 'translateX(-100%)', // Only hide when `isSidebarOpen` is false
+              overflow: 'hidden', // Disable any scrolling
             },
           }}
           sx={{
             '& .MuiDrawer-paper': {
               width: drawerWidth,
               boxSizing: 'border-box',
+              maxHeight: '100vh',
             },
           }}
+          // PaperProps={{
+          //   sx: {
+          //     color: '#fff',
+          //     padding: '10px',
+          //     background: '#000',
+          //     width: drawerWidth,
+          //     maxWidth: '450px',
+          //     borderRight: '1px solid #333',
+          //     transform:
+          //       isMobile && !isSidebarOpen ? 'translateX(-100%)' : 'none',
+          //     // transition: 'transform 1.3s ease-in-out',
+          //     transition: theme.transitions.create(['width', 'transform'], {
+          //       easing: theme.transitions.easing.sharp,
+          //       duration: theme.transitions.duration.standard,
+          //     }),
+          //     // transition: 'transform 0.3s ease-in-out',
+          //     // transform: isSidebarOpen ? 'none' : 'translateX(-100%)', // Only hide when `isSidebarOpen` is false
+          //   },
+          // }}
+          // sx={{
+          //   '& .MuiDrawer-paper': {
+          //     width: drawerWidth,
+          //     boxSizing: 'border-box',
+          //   },
+          // }}
         >
           <Box
-            sx={{ padding: '16px', height: '100%', boxSizing: 'border-box' }}
+            sx={{
+              flexGrow: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              overflow: 'hidden', // Ensure no overflow happens
+              height: '100%',
+              maxHeight: '100vh',
+            }}
           >
             <div
               style={{
-                transform: isSidebarOpen ? 'none' : 'translateX(-100%)', // Only hide when `isSidebarOpen` is false
-                // transform: isMobile && !isSidebarOpen ? 'translateX(-100%)' : 'none',
+                // transform: isSidebarOpen ? 'none' : 'translateX(-100%)', // Only hide when `isSidebarOpen` is false
+                transform:
+                  isMobile && !isSidebarOpen ? 'translateX(-100%)' : 'none',
                 transition: 'transform 0.3s ease-in-out',
                 color: '#fff',
                 display: 'flex',
@@ -220,22 +292,41 @@ export const ChatLayout = () => {
                 tab={activeTab}
                 user={user}
                 workspaces={workspaces}
-                folders={folders}
                 files={files}
                 chatSessions={chatSessions}
                 assistants={assistants}
                 prompts={prompts}
-                dataList={sidebarTabs}
+                folders={folders}
                 onSave={handleSave}
                 onCancel={handleSidebarClose}
                 buttonRef={buttonRef}
+                dataList={sidebarTabs}
               />
             </div>
           </Box>
         </Drawer>
-      </Fade>
-
-      <Box
+      </motion.div>
+      <motion.main
+        initial={isSidebarOpen && !isMobile ? 'collapsed' : 'expanded'}
+        animate={isSidebarOpen ? 'expanded' : 'collapsed'}
+        variants={mainContentVariants}
+        style={{
+          flexGrow: 1,
+          paddingLeft: '16px',
+          overflow: 'auto', // Allow scrolling for main content
+          height: '100vh',
+        }}
+      >
+        <Outlet
+          context={{
+            workspaceId,
+            sessionId,
+            toggleSidebar: () => setSidebarOpen(prev => !prev),
+            isSidebarOpen,
+          }}
+        />
+      </motion.main>
+      {/* <Box
         component="main"
         sx={{
           flexGrow: 1,
@@ -244,7 +335,7 @@ export const ChatLayout = () => {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
-          marginLeft: isSidebarOpen && !isMobile ? drawerWidth : 0,
+          marginLeft: isSidebarOpen && !isMobile ? `${drawerWidth}px` : 0,
         }}
       >
         <Outlet
@@ -255,9 +346,29 @@ export const ChatLayout = () => {
             isSidebarOpen,
           }}
         />
-      </Box>
+      </Box> */}
     </Box>
   );
+};
+
+export const useResponsiveDrawer = () => {
+  const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.down('xs'));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMd = useMediaQuery(theme.breakpoints.down('md'));
+
+  const drawerWidth = useMemo(() => {
+    if (isMobile) return '100vw';
+    if (isMd) return '350px';
+    return '450px';
+  }, [isMobile, isMd]);
+
+  return {
+    isMd,
+    isXs,
+    isMobile,
+    drawerWidth,
+  };
 };
 
 export default ChatLayout;

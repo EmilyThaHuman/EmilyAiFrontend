@@ -244,6 +244,7 @@ export const WorkspaceCreatorForm = () => {
         label="Temperature"
         valueLabelDisplay="auto"
         value={temperature}
+        marks={marks}
         onChange={setTemperature}
         min={0}
         max={1}
@@ -253,6 +254,20 @@ export const WorkspaceCreatorForm = () => {
         label="Maximum Tokens"
         valueLabelDisplay="auto"
         value={maxTokens}
+        marks={[
+          {
+            value: 1,
+            label: '1',
+          },
+          {
+            value: 10,
+            label: '10',
+          },
+          {
+            value: 100,
+            label: '100',
+          },
+        ]}
         onChange={setMaxTokens}
         min={1}
         max={512}
@@ -273,6 +288,20 @@ export const WorkspaceCreatorForm = () => {
         label="Top P"
         valueLabelDisplay="auto"
         value={topP}
+        marks={[
+          {
+            value: 0,
+            label: '0',
+          },
+          {
+            value: 0.5,
+            label: '0.5',
+          },
+          {
+            value: 1,
+            label: '1',
+          },
+        ]}
         onChange={setTopP}
         min={0}
         max={1}
@@ -282,6 +311,28 @@ export const WorkspaceCreatorForm = () => {
         label="Frequency penalty"
         valueLabelDisplay="auto"
         value={frequencyPenalty}
+        marks={[
+          {
+            value: 0,
+            label: '0',
+          },
+          {
+            value: 0.5,
+            label: '0.5',
+          },
+          {
+            value: 1,
+            label: '1',
+          },
+          {
+            value: 1.5,
+            label: '1.5',
+          },
+          {
+            value: 2,
+            label: '2',
+          },
+        ]}
         onChange={setFrequencyPenalty}
         min={0}
         max={2}

@@ -7,6 +7,7 @@ import { FaSave } from 'react-icons/fa';
 
 import { settingsApi } from 'api/Ai/chat-items';
 import { attachmentsApi } from 'api/Ai/chat-sessions';
+import { PromptCreatorSpace } from 'components/chat/prompts';
 import { RCTabs } from 'components/themed';
 import { useChatStore } from 'contexts/ChatProvider';
 import { useMode } from 'hooks';
@@ -286,6 +287,8 @@ export const Prompts = props => {
             onImport={handleImportPromptTemplate}
           />
         );
+      case 4:
+        return <PromptCreatorSpace />;
       default:
         return null;
     }

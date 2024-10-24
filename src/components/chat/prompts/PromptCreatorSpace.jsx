@@ -20,6 +20,7 @@ export const PromptCreatorSpace = () => {
   });
 
   const handleChange = (event, newValue) => {
+    console.log('Changing tab to', newValue);
     setCurrentTab(newValue);
   };
 
@@ -61,6 +62,12 @@ export const PromptCreatorSpace = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -100 }}
               transition={{ duration: 0.5 }}
+              styles={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100%',
+              }}
             >
               {currentTab === 0 && (
                 <APIAssistantInstructionsGenerator onTest={handleTest} />

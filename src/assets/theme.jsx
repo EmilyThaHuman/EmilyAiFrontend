@@ -66,7 +66,7 @@ const baseThemeData = {
 
 const getPalette = mode => ({
   mode,
-  transparent: colors.transparent,
+  // transparent: colors.transparent,
   white: colors.white,
   brand: colors.brand[mode],
   brandScheme: colors.brandScheme[mode],

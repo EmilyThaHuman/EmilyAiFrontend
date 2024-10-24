@@ -1,3 +1,4 @@
+import { BasePromptGenerator } from 'components/chat';
 import {
   apiChatModelSystemPromptTemplate,
   apiAssistantPromptTemplate,
@@ -10,6 +11,7 @@ export const APIModelSystemPromptGenerator = ({ onTest }) => {
     <BasePromptGenerator
       promptTemplate={apiChatModelSystemPromptTemplate}
       generatorTitle="API Chat Model Prompt Generator"
+      label="System"
       onTest={onTest}
     />
   );
@@ -20,6 +22,7 @@ export const APIAssistantInstructionsGenerator = ({ onTest }) => {
     <BasePromptGenerator
       promptTemplate={apiAssistantPromptTemplate}
       generatorTitle="API Assistant Instructions Generator"
+      label="Assistant"
       onTest={onTest}
     />
   );
@@ -30,6 +33,7 @@ export const FunctionsToolsGenerator = ({ onTest }) => {
     <BasePromptGenerator
       promptTemplate={functionsToolsPromptTemplate}
       generatorTitle="Functions and Tools Generator"
+      label="Function"
       onTest={onTest}
     />
   );
@@ -40,6 +44,7 @@ export const EnhancedQueryOptimizerGenerator = ({ onTest }) => {
     <BasePromptGenerator
       promptTemplate={enhancedQueryPromptTemplate}
       generatorTitle="Enhanced Query Optimizer"
+      label="Query Optimizer"
       onTest={onTest}
     />
   );

@@ -19,6 +19,12 @@ export default {
         },
       },
     },
+    {
+      props: { variant: 'default' },
+      style: {
+        color: '#ffffff',
+      },
+    },
     // Additional custom variants can be defined here
   ],
   styleOverrides: {
