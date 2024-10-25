@@ -18,9 +18,7 @@ const ProviderWrapper = ({ children }) => {
 export const Providers = ({ children }) => {
   return (
     <ContextErrorBoundary>
-      <CopilotKit runtimeUrl="/api/copilotkit">
-        <ProviderWrapper>{children}</ProviderWrapper>
-      </CopilotKit>
+      <ProviderWrapper>{children}</ProviderWrapper>
     </ContextErrorBoundary>
   );
 };

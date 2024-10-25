@@ -211,6 +211,9 @@ const HeroDocs = Loadable(lazy(() => import('views/land/heroDocs')));
 const ReedAiLanding = Loadable(
   lazy(() => import('views/landing/reedAi/Index'))
 );
+const TestAiLanding = Loadable(
+  lazy(() => import('views/landing/testAi/Index'))
+);
 
 const AuthDefault = Loadable(lazy(() => import('views/auth/default')));
 const SignInMain = Loadable(lazy(() => import('views/auth/login')));
@@ -251,7 +254,7 @@ const baseRoutes = [
     children: [
       {
         index: true,
-        element: <Navigate to="/land/heroDocs" />, // Fallback to Hero Docs
+        element: <Navigate to="/land/reedAi" />, // Fallback to Hero Docs
       },
       {
         name: 'Hero Docs',
@@ -269,6 +272,16 @@ const baseRoutes = [
         path: 'reedAi',
         breadcrumb: 'ReedAi',
         element: <ReedAiLanding />,
+        icon: <FolderRoundedIcon />,
+        invisible: false,
+        collapse: false,
+      },
+      {
+        name: 'TestAi',
+        title: 'TestAi',
+        path: 'testAi',
+        breadcrumb: 'TestAi',
+        element: <TestAiLanding />,
         icon: <FolderRoundedIcon />,
         invisible: false,
         collapse: false,

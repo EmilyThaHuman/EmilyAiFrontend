@@ -90,6 +90,8 @@ export default defineConfig(({ mode }) => {
           enabled: true,
           type: 'module',
           navigateFallback: '/offline.html',
+                  navigateFallbackAllowlist: [/^index.html$/]
+
         },
       }),
       monacoEditorPlugin({

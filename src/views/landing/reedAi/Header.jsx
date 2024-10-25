@@ -1,3 +1,14 @@
+import {
+  alpha,
+  Box,
+  Button as MuiButton,
+  Divider,
+  ListItemIcon,
+  ListItemText,
+  Paper,
+  styled,
+  Typography,
+} from '@mui/material';
 import { motion } from 'framer-motion';
 import { MessageSquare } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
@@ -5,9 +16,13 @@ import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/themed/RadixUi/button';
+import routes from '@/routes/index';
 import { useUserStore } from 'contexts/UserProvider';
+import { useMode } from 'hooks/app';
+import { analyzeRoutes } from 'utils/routing';
 
 export const Header = () => {
+  const { theme } = useMode();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const {
     state: { isAuthenticated },
@@ -61,6 +76,7 @@ export const Header = () => {
           >
             About
           </Button>
+          {/* More Info button removed */}
           <Button
             variant="ghost"
             className="text-white hover:text-black hover:bg-white"
@@ -102,6 +118,7 @@ export const Header = () => {
             </>
           )}
         </div>
+        {/* Menu removed */}
       </nav>
     </motion.header>
   );
