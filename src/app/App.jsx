@@ -29,29 +29,27 @@ const App = () => {
   }
 
   return (
-    <React.StrictMode>
-      <ErrorBoundary
-        FallbackComponent={ErrorFallback}
-        onReset={details => {
-          console.log(
-            'reloading the page...',
-            details.reason,
-            window.location.reload()
-          );
-        }}
-        resetKeys={[someKey]} // Reset error boundary when someKey changes
-        onError={(error, errorInfo) => {
-          console.log('Error caught!');
-          console.error(error);
-          console.error(errorInfo);
-        }}
-      >
-        <Providers>
-          <CssBaseline />
-          <RouterProvider router={Router} />
-        </Providers>
-      </ErrorBoundary>
-    </React.StrictMode>
+    <ErrorBoundary
+      FallbackComponent={ErrorFallback}
+      onReset={details => {
+        console.log(
+          'reloading the page...',
+          details.reason,
+          window.location.reload()
+        );
+      }}
+      resetKeys={[someKey]} // Reset error boundary when someKey changes
+      onError={(error, errorInfo) => {
+        console.log('Error caught!');
+        console.error(error);
+        console.error(errorInfo);
+      }}
+    >
+      <Providers>
+        <CssBaseline />
+        <RouterProvider router={Router} />
+      </Providers>
+    </ErrorBoundary>
   );
 };
 

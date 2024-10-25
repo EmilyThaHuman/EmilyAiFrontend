@@ -17,6 +17,7 @@ import remarkGfm from 'remark-gfm';
 
 import { DashboardIcon } from 'assets/humanIcons';
 import { RCDialog } from 'components/themed';
+import { useChatStream } from 'hooks/chat';
 
 import CodePreview from './CodePreview'; // Ensure this component is compatible with MUI
 import FilePreview from './FilePreview'; // Ensure this component is compatible with MUI
@@ -98,6 +99,7 @@ export function MessageContent({ message, isStreaming }) {
   const [openDialog, setOpenDialog] = useState(false);
   const [currentCode, setCurrentCode] = useState('');
   const [currentLanguage, setCurrentLanguage] = useState('');
+  const { content } = useChatStream();
 
   useEffect(() => {
     const storedSnippets = localStorage.getItem('codeSnippets');
@@ -294,6 +296,7 @@ export function MessageContent({ message, isStreaming }) {
               ▊
             </motion.div>
           )}
+          <ReactMarkdown>{content}</ReactMarkdown>
 
           {message?.files && message?.files.length > 0 && (
             <Box

@@ -7,11 +7,15 @@ import {
   useMediaQuery,
   useTheme,
   CssBaseline,
-  Fade,
-  Slide,
 } from '@mui/material';
 import { motion } from 'framer-motion';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 
 import { SidebarContent, SidebarTabs } from 'components';
@@ -79,8 +83,8 @@ export const ChatLayout = () => {
   };
   const mainContentVariants = {
     expanded: {
-      marginLeft: isSidebarOpen && !isMobile ? `${drawerWidth}px` : 0,
-      opacity: 1,
+      marginLeft:
+        isSidebarOpen && !isMobile ? `${drawerWidth}px` : theme.spacing(2),
       transition: {
         type: 'spring',
         stiffness: 250,
@@ -89,8 +93,7 @@ export const ChatLayout = () => {
       },
     },
     collapsed: {
-      marginLeft: 0,
-      opacity: 0.8,
+      marginLeft: theme.spacing(2),
       transition: {
         type: 'spring',
         stiffness: 250,
@@ -99,11 +102,19 @@ export const ChatLayout = () => {
       },
     },
   };
-  // Enhanced sidebar handlers
+  // Handle sidebar animation based on viewport changes
+  useEffect(() => {
+    if (isMobile) {
+      // If on mobile, ensure sidebar is closed initially
+      setSidebarOpen(false);
+    } else {
+      // If not on mobile, open sidebar by default
+      setSidebarOpen(true);
+    }
+  }, [isMobile, setSidebarOpen]);
   const handleSidebarToggle = useCallback(() => {
     setSidebarOpen(prev => !prev);
   }, [setSidebarOpen]);
-
   const handleSidebarOpen = useCallback(
     index => {
       setActiveTab(index);
@@ -111,12 +122,10 @@ export const ChatLayout = () => {
     },
     [setSidebarOpen]
   );
-
   const handleSidebarClose = useCallback(() => {
     setSidebarOpen(false);
     setActiveTab(null);
   }, [setSidebarOpen]);
-
   const chatState = useMemo(
     () => ({
       apiKey,
@@ -148,7 +157,6 @@ export const ChatLayout = () => {
     }),
     []
   );
-
   // Generate sidebar tabs with dynamic data
   const sidebarTabs = useMemo(
     () =>
@@ -162,7 +170,6 @@ export const ChatLayout = () => {
       })),
     [chatState, user, profile, navigate, handleSidebarOpen]
   );
-
   // Enhanced save handler with error handling
   const handleSave = useCallback(() => {
     try {
@@ -181,7 +188,9 @@ export const ChatLayout = () => {
   }, [sidebarTabs, activeTab, chatActions, handleSidebarClose]);
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box
+      sx={{ display: 'flex', minHeight: '100vh', padding: theme.spacing(1) }}
+    >
       <CssBaseline />
       {/* -- SIDEBAR SECTION ICON BUTTONS -- */}
       <SidebarTabs
@@ -307,14 +316,21 @@ export const ChatLayout = () => {
         </Drawer>
       </motion.div>
       <motion.main
-        initial={isSidebarOpen && !isMobile ? 'collapsed' : 'expanded'}
+        initial={isSidebarOpen && !isMobile ? 'expanded' : 'collapsed'}
         animate={isSidebarOpen ? 'expanded' : 'collapsed'}
         variants={mainContentVariants}
         style={{
           flexGrow: 1,
-          paddingLeft: '16px',
-          overflow: 'auto', // Allow scrolling for main content
-          height: '100vh',
+          padding: theme.spacing(2),
+          // marginLeft:
+          //   isSidebarOpen && !isMobile
+          //     ? `calc(${drawerWidth} + ${theme.spacing(2)})`
+          //     : 0,
+          transition: 'margin-left 0.3s ease-in-out',
+          overflow: 'auto',
+          // height: '100vh',
+          // height: 'calc(100vh - 2 * theme.spacing(1))',
+          boxSizing: 'border-box',
         }}
       >
         <Outlet
@@ -351,6 +367,25 @@ export const ChatLayout = () => {
   );
 };
 
+// export const useResponsiveDrawer = () => {
+//   const theme = useTheme();
+//   const isXs = useMediaQuery(theme.breakpoints.down('xs'));
+//   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+//   const isMd = useMediaQuery(theme.breakpoints.down('md'));
+
+//   const drawerWidth = useMemo(() => {
+//     if (isMobile) return '100vw';
+//     if (isMd) return '350px';
+//     return '450px';
+//   }, [isMobile, isMd]);
+
+//   return {
+//     isMd,
+//     isXs,
+//     isMobile,
+//     drawerWidth,
+//   };
+// };
 export const useResponsiveDrawer = () => {
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.down('xs'));
@@ -358,7 +393,7 @@ export const useResponsiveDrawer = () => {
   const isMd = useMediaQuery(theme.breakpoints.down('md'));
 
   const drawerWidth = useMemo(() => {
-    if (isMobile) return '100vw';
+    if (isMobile) return '80vw'; // Slightly less than full width for aesthetics
     if (isMd) return '350px';
     return '450px';
   }, [isMobile, isMd]);
@@ -370,286 +405,4 @@ export const useResponsiveDrawer = () => {
     drawerWidth,
   };
 };
-
 export default ChatLayout;
-
-// export const ChatLayout = () => {
-//   const { workspaceId, sessionId } = useParams();
-//   const { theme } = useMode();
-//   const navigate = useNavigate();
-//   const isXs = useMediaQuery(theme.breakpoints.down('xs'));
-//   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-//   const isMd = useMediaQuery(theme.breakpoints.down('md'));
-//   const [tab, setTab] = useState(null);
-//   const {
-//     state: { user, isAuthenticated, profile },
-//   } = useUserStore();
-//   const {
-//     state: {
-//       apiKey,
-//       chatSessions,
-//       workspaces,
-//       prompts,
-//       files,
-//       assistants,
-//       selectedWorkspace,
-//     },
-//     actions: {
-//       updateWorkspace,
-//       updateChatSession,
-//       updateAssistant,
-//       updatePrompt,
-//       updateFile,
-//       updateUser,
-//     },
-//   } = useChatStore();
-//   const {
-//     state: { isSidebarOpen },
-//     actions: { setSidebarOpen },
-//   } = useAppStore();
-
-//   const drawerWidth = isMobile ? '100vw' : isMd ? '350px' : '450px';
-//   const handleDrawerToggle = () => {
-//     setSidebarOpen(!isSidebarOpen);
-//   };
-//   const handleSidebarOpen = useCallback(
-//     index => {
-//       setTab(index);
-//       setSidebarOpen(true);
-//     },
-//     [setSidebarOpen]
-//   );
-//   const handleSidebarClose = useCallback(() => {
-//     setSidebarOpen(false);
-//     setTab(null); // Reset the tab when closing
-//   }, [setSidebarOpen]);
-//   const SIDEBAR_TABS = useMemo(
-//     () => [
-//       {
-//         id: 0,
-//         space: 'workspace',
-//         component: 'Workspace',
-//         icon: <SettingsIcon />,
-//         onClick: () => handleSidebarOpen(0),
-//         data: workspaces,
-//       },
-//       {
-//         id: 1,
-//         space: 'chatSessions',
-//         component: 'ChatSession',
-//         icon: <ChatIcon />,
-//         onClick: () => handleSidebarOpen(1),
-//         data: chatSessions,
-//       },
-//       {
-//         id: 2,
-//         space: 'assistants',
-//         component: 'Assistants',
-//         icon: <AssistantIcon />,
-//         onClick: () => handleSidebarOpen(2),
-//         data: assistants,
-//       },
-//       {
-//         id: 3,
-//         space: 'prompts',
-//         component: 'Prompts',
-//         icon: <EditIcon />,
-//         onClick: () => handleSidebarOpen(3),
-//         data: prompts,
-//       },
-//       {
-//         id: 4,
-//         space: 'files',
-//         component: 'Files',
-//         icon: <FilePresentIcon />,
-//         onClick: () => handleSidebarOpen(4),
-//         data: files,
-//       },
-//       {
-//         id: 5,
-//         space: 'user',
-//         component: 'User',
-//         icon: <AccountCircleRoundedIcon />,
-//         onClick: () => handleSidebarOpen(5),
-//         data: { ...user, ...profile },
-//       },
-//       {
-//         id: 6,
-//         space: 'Home',
-//         component: 'Home',
-//         icon: <HomeIcon />,
-//         onClick: () => navigate('/admin/dashboard'), // Use navigate for the Home icon
-//         data: null,
-//       },
-//     ],
-//     [
-//       workspaces,
-//       chatSessions,
-//       assistants,
-//       prompts,
-//       files,
-//       user,
-//       navigate,
-//       handleSidebarOpen,
-//       profile,
-//     ]
-//   );
-//   const onSave = useCallback(() => {
-//     const selectedTabData = SIDEBAR_TABS.find(item => item.space === tab);
-//     if (!selectedTabData) return;
-
-//     const updateActions = {
-//       Workspace: updateWorkspace,
-//       ChatSession: updateChatSession,
-//       Assistants: updateAssistant,
-//       Prompts: updatePrompt,
-//       Files: updateFile,
-//       User: updateUser,
-//     };
-
-//     const updateAction = updateActions[selectedTabData.component];
-//     if (updateAction) {
-//       updateAction(selectedTabData.data);
-//     } else {
-//       console.log('No matching component for saving');
-//     }
-//     handleSidebarClose();
-//   }, [
-//     SIDEBAR_TABS,
-//     updateWorkspace,
-//     updateChatSession,
-//     updateAssistant,
-//     updatePrompt,
-//     updateFile,
-//     updateUser,
-//     handleSidebarClose,
-//     tab,
-//   ]);
-
-//   const onCancel = useCallback(() => {
-//     handleSidebarClose();
-//   }, [handleSidebarClose]);
-
-//   useEffect(() => {
-//     if (isXs && tab !== null) {
-//       setSidebarOpen(true);
-//     }
-//   }, [isXs, tab, setSidebarOpen]);
-
-//   return (
-//     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-//       <CssBaseline />
-
-//       {/* Sidebar Drawer with Enhanced Animations and Responsiveness */}
-//       <Slide
-//         direction="right"
-//         in={isSidebarOpen && tab !== null}
-//         mountOnEnter
-//         unmountOnExit
-//       >
-//         <Drawer
-//           anchor="left"
-//           open={isSidebarOpen && tab !== null}
-//           onClose={handleSidebarClose}
-//           ModalProps={{
-//             keepMounted: true, // Better open performance on mobile
-//           }}
-//           PaperProps={{
-//             sx: {
-//               color: '#fff',
-//               padding: '10px',
-//               background: '#000',
-//               flexShrink: 0,
-//               width: drawerWidth, // Dynamic width based on screen size
-//               maxWidth: isMd ? '350px' : '450px', // Ensure it doesn't exceed maxWidth
-//               borderRight: '1px solid #333',
-// transition: theme.transitions.create(['width', 'transform'], {
-//   easing: theme.transitions.easing.sharp,
-//   duration: theme.transitions.duration.standard,
-// }),
-//             },
-//           }}
-//           sx={{
-//             '& .MuiDrawer-paper': {
-//               width: drawerWidth,
-//               boxSizing: 'border-box',
-//             },
-//           }}
-//         >
-//           <ChatSidebar
-//             workspaceId={workspaceId}
-//             onOpen={handleSidebarOpen}
-//             onClose={handleSidebarClose}
-//             onSave={onSave}
-//             onCancel={onCancel}
-//             tab={tab}
-//             tabs={SIDEBAR_TABS}
-//           />
-//         </Drawer>
-//       </Slide>
-
-//       {/* Main Content */}
-//       <Box
-//         component="main"
-//         sx={{
-//           flexGrow: 1,
-//           p: 3,
-//           transition: theme.transitions.create(['margin', 'width'], {
-//             easing: theme.transitions.easing.sharp,
-//             duration: theme.transitions.duration.leavingScreen,
-//           }),
-//           marginLeft: isSidebarOpen && !isMobile ? `${drawerWidth}px` : 0,
-//         }}
-//       >
-//         <Outlet
-//           context={{
-//             workspaceId,
-//             sessionId,
-//             toggleSidebar: handleDrawerToggle,
-//             isSidebarOpen,
-//           }}
-//         />
-//       </Box>
-//     </Box>
-//   );
-// };
-
-// export default ChatLayout;
-
-// import { Box, Portal, useMediaQuery } from '@mui/material';
-// import { Outlet, useParams } from 'react-router-dom';
-
-// import { ChatSidebar } from 'components/chat/sidebar';
-
-// // =========================================================
-// // [ChatLayout] | This code provides the chat layout for the app
-// // =========================================================
-// export const ChatLayout = props => {
-//   const { workspaceId, sessionId } = useParams();
-
-//   return (
-//     <Box
-//       id="chat-layout-container"
-//       sx={{
-//         display: 'flex',
-//         flexDirection: 'column',
-//         minHeight: '100vh',
-//         height: '100vh',
-//         width: '100%',
-//         minWidth: '100vw',
-//         // overflow: 'hidden',
-//       }}
-//     >
-//       <>
-//         <Portal>
-//           <ChatSidebar workspaceId={workspaceId} />
-//         </Portal>
-//       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-//         <Outlet context={{ workspaceId, sessionId }} />
-//       </Box>
-//       </>
-//     </Box>
-//   );
-// };
-
-// export default ChatLayout;

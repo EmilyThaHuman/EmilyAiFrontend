@@ -3,13 +3,7 @@
 // =========================================================
 // [CHAT BOT] | React Chatbot
 // =========================================================
-import {
-  Box,
-  CircularProgress,
-  Grid,
-  Paper,
-  useMediaQuery,
-} from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import React, {
   useCallback,
   useEffect,
@@ -27,43 +21,23 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { ChatHeader, MessageInput } from 'components/chat';
 import { MessageBox } from 'components/chat/messages';
-import { RANDOM_PROMPTS } from 'config/data-configs';
+import { CODE_PROMPT_OPTIONS, RANDOM_PROMPTS } from 'config/data-configs';
 import { useAppStore } from 'contexts/AppProvider';
 import { useChatStore } from 'contexts/ChatProvider';
 import { useChatHandler, useMenu, useMode, useTipTapEditor } from 'hooks';
 import 'styles/ChatStyles.css';
-const codePromptOptions = [
-  {
-    title: 'Explain Code',
-    description: 'Get a detailed explanation of your code',
-    prompt:
-      'Please explain this code in detail:\n```\n// Paste your code here\n```',
-  },
-  {
-    title: 'Debug Code',
-    description: 'Find and fix issues in your code',
-    prompt:
-      'Please help me debug this code and identify potential issues:\n```\n// Paste your code here\n```',
-  },
-  {
-    title: 'Optimize Code',
-    description: 'Get suggestions for code optimization',
-    prompt:
-      'Please suggest optimizations for this code:\n```\n// Paste your code here\n```',
-  },
-  {
-    title: 'Convert Code',
-    description: 'Convert code between languages',
-    prompt:
-      'Please convert this code from [source language] to [target language]:\n```\n// Paste your code here\n```',
-  },
-];
 
 export const MainChat = () => {
   const navigate = useNavigate();
   const { workspace } = useLoaderData(); // This is the workspace object returned from your loader
   const {
-    state: { userInput, isStreaming, selectedChatSession, chatLoading },
+    state: {
+      userInput,
+      isStreaming,
+      selectedChatSession,
+      chatLoading,
+      chatDisabled,
+    },
     actions: {
       setWorkspaceId,
       setHomeWorkSpace,
@@ -81,14 +55,7 @@ export const MainChat = () => {
     },
   } = useChatStore();
   const chatContainerRef = useRef(null);
-  const { insertContentAndSync } = useTipTapEditor(userInput);
-  const {
-    // messages,
-    controllerRef,
-    handleSendMessage,
-    handleRegenerateResponse,
-    handleStop,
-  } = useChatHandler();
+  const { controllerRef, handleSendMessage } = useChatHandler();
 
   // First useEffect for workspace initialization
   useEffect(() => {
@@ -224,41 +191,38 @@ export const MainChat = () => {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        // height: '100%', // Fill the available height
         transition: 'width 0.3s ease-in-out',
         flex: 1,
         p: 4,
-        height: '100vh', // Take full viewport height
-
-        overflowY: 'hidden',
+        height: '100%', // Take full viewport height
+        // overflowY: 'hidden',
         backgroundColor: '#1C1C1C',
         borderRadius: '14px',
       }}
     >
-      {/* Chat header */}
+      {/* --- CHAT HEADER --- */}
       <ChatHeader />
-      {/* Chat messages container with scrollable area */}
+      {/* --- CHAT MESSAGE SCROLL AREA --- */}
       <Box
         ref={chatContainerRef}
         sx={{
-          flexGrow: 1, // This makes the messages area take up remaining space
+          flexGrow: 1,
           overflowY: 'auto',
           marginTop: '20px',
           marginBottom: '20px',
         }}
       >
-        {/* Replace this with your actual messages rendering logic */}
         {selectedChatSession && selectedChatSession?.messages?.length > 0 ? (
           <MessageBox
             handlePromptSelect={handlePromptSelect}
-            codePromptOptions={codePromptOptions}
+            codePromptOptions={CODE_PROMPT_OPTIONS}
           />
         ) : (
           <Box sx={{ textAlign: 'center', marginTop: '50px' }}>
             <h3>No messages yet, try one of these prompts:</h3>
             <MessageBox
               handlePromptSelect={handlePromptSelect}
-              codePromptOptions={codePromptOptions}
+              codePromptOptions={CODE_PROMPT_OPTIONS}
             />
             {chatLoading && (
               <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
@@ -279,21 +243,9 @@ export const MainChat = () => {
         }}
       >
         <MessageInput
-          disabled={chatLoading || isStreaming || false}
-          onSend={handleSendMessage}
-          inputContent={userInput}
-          isSubmitting={chatLoading}
-          setIsSubmitting={setChatLoading}
-          onStop={handleStop}
-          onRegenerate={handleRegenerateResponse}
-          onChange={insertContentAndSync}
-          // disabled={chatLoading}
-          // onSend={handleSendMessage}
+          disabled={chatDisabled || chatLoading || isStreaming || false}
         />
       </Box>
-      {/* </Box> */}
-      {/* </Box>
-      </Paper> */}
     </Box>
   );
 };

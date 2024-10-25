@@ -22,9 +22,31 @@ const REDUX_NAME = 'user';
 
 const initialState = {
   ...getLocalData(LOCAL_NAME, REDUX_NAME),
+  isLoggingIn: false,
+  isSigningUp: false,
   isSettingUp: false,
+  isSignedUp: false,
+  isSetup: false,
+  isAuthenticated: false,
   loading: false,
   isAuthLoading: false,
+  redirects: {
+    login: {
+      success: '/admin/workspaces',
+    },
+    signup: {
+      success: '/auth/setup',
+    },
+    setup: {
+      success: '/admin/workspaces',
+    },
+    sessionExpiry: {
+      success: '/auth/login',
+    },
+    unAuthorized: {
+      success: '/land/reedai',
+    },
+  },
 };
 
 function setLocalUserData(data) {
@@ -269,6 +291,22 @@ export const userSlice = createSlice({
       state.isSettingUp = action.payload;
       setLocalUserData({ ...state, isSettingUp: action.payload });
     },
+    setIsSigningUp: (state, action) => {
+      state.isSigningUp = action.payload;
+      setLocalUserData({ ...state, isSigningUp: action.payload });
+    },
+    setIsLoggingIn: (state, action) => {
+      state.isLoggingIn = action.payload;
+      setLocalUserData({ ...state, isLogginIn: action.payload });
+    },
+    setIsSignedUp: (state, action) => {
+      state.isSignedUp = action.payload;
+      setLocalUserData({ ...state, isSignedUp: action.payload });
+    },
+    setIsSetup: (state, action) => {
+      state.isSetUp = action.payload;
+      setLocalUserData({ ...state, isSetUp: action.payload });
+    },
     setIsAuthLoading: (state, action) => {
       state.isAuthLoading = action.payload;
       setLocalUserData({ ...state, isAuthLoading: action.payload });
@@ -336,6 +374,9 @@ export const {
   setIsSettingUp,
   setIsAuthLoading,
   clearUser,
+  setIsSigningUp,
+  setIsSignedUp,
+  setIsSetup,
 } = userSlice.actions;
 
 export default userSlice.reducer;

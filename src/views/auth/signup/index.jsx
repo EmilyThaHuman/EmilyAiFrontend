@@ -14,7 +14,12 @@ export const Signup = props => {
   const [loading, setLoading] = useState(false);
   const {
     state: { isAuthenticated, isAuthLoading },
-    actions: { handleAuthSubmit, setIsAuthLoading },
+    actions: {
+      handleAuthSubmit,
+      setIsAuthLoading,
+      setIsSignedUp,
+      setIsSettingUp,
+    },
   } = useUserStore();
 
   const navigate = useNavigate(); // Use navigate
@@ -25,6 +30,8 @@ export const Signup = props => {
       setIsAuthLoading(true);
       try {
         const result = handleAuthSubmit(values);
+        setIsSignedUp(true);
+        setIsSettingUp(true);
         navigate(result.navigateTo);
         // navigate('/auth/setup'); // Navigate to '/auth/setup' on successful signup
       } catch (error) {
@@ -36,7 +43,7 @@ export const Signup = props => {
         setIsAuthLoading(false);
       }
     },
-    [handleAuthSubmit, navigate, setIsAuthLoading] // Added navigate to dependencies
+    [handleAuthSubmit, navigate, setIsAuthLoading, setIsSignedUp] // Added navigate to dependencies
   );
 
   const handleResetPassword = async email => {

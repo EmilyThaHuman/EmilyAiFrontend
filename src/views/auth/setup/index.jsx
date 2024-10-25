@@ -42,7 +42,7 @@ const ErrorText = styled(Typography)(({ theme }) => ({
 export const AuthStepper = () => {
   const {
     state: { user },
-    actions: { setProfile },
+    actions: { setProfile, setIsSetup },
   } = useUserStore();
   const {
     actions: { setApiKey },
@@ -90,11 +90,18 @@ export const AuthStepper = () => {
       const updatedProfile = await userApi.updateProfile(userId, profileData);
       setProfile(updatedProfile);
       setApiKey(updatedProfile.openai.apiKey);
+      setIsSetup(true);
       await setupWorkspaceAndNavigate(userId);
     } catch (error) {
       console.error('Error updating profile:', error);
     }
-  }, [profileData, setProfile, setApiKey, setupWorkspaceAndNavigate]);
+  }, [
+    profileData,
+    setProfile,
+    setApiKey,
+    setIsSetup,
+    setupWorkspaceAndNavigate,
+  ]);
 
   const handleShouldProceed = useCallback(
     proceed => {

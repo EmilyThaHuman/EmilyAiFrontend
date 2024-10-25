@@ -12,13 +12,7 @@ import routes from '@/routes/index';
 import { SidebarContext, useUserStore } from 'contexts';
 import { useDisclosure } from 'hooks/ui';
 import { FooterAdmin, AdminNavbar } from 'layouts';
-import {
-  getActiveNavbar,
-  getActiveNavbarText,
-  getActiveRoute,
-  getLayoutRoute,
-  getMenuItems,
-} from 'utils';
+import { getActiveNavbar, getActiveNavbarText, getActiveRoute } from 'utils';
 
 // =========================================================
 // [AdminLayout] | This code provides the admin layout for the app
@@ -64,7 +58,7 @@ export const AdminLayout = props => {
   const params = useParams();
   const isChatBotRoute = location.pathname.includes('/admin/workspaces');
   const {
-    state: { isSettingUp, isAuthenticated, isAuthLoading },
+    state: { user, isAuthLoading },
   } = useUserStore();
 
   if (isAuthLoading) {
@@ -81,9 +75,9 @@ export const AdminLayout = props => {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!user.isAuthenticated) {
     // User is not authenticated, redirect to landing page
-    return <Navigate to="/" replace />;
+    return <Navigate to="/land/reedai" replace />;
   }
 
   return (

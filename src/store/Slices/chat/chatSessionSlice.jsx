@@ -226,6 +226,7 @@ export const chatSessionsSlice = createSlice({
       setLocalSessionData({
         ...state,
         selectedChatSession: action.payload,
+        chatMessages: action.payload?.messages,
       });
     },
     /* --- Chat Input --- */
@@ -248,12 +249,14 @@ export const chatSessionsSlice = createSlice({
       setLocalSessionData({ ...state, chatMessages: action.payload });
     },
     addChatMessage: (state, action) => {
+      console.log('ADDING CHAT MESSAGE:', action.payload);
       state.chatMessages.push(action.payload);
       state.pendingSync = true;
       setLocalSessionData({ ...state, chatMessages: state.chatMessages });
     },
     appendToChatMessage: (state, action) => {
       const { _id, content } = action.payload;
+      console.log('APPENDING TO CHAT MESSAGE:', action.payload);
       const message = state.chatMessages.find(msg => msg._id === _id);
       if (message) {
         message.content += content;
@@ -266,6 +269,7 @@ export const chatSessionsSlice = createSlice({
         message.isComplete = true;
         message.content = content;
       }
+      console.log('COMPLETED CHAT MESSAGE:', action.payload);
       state.streaming = false;
       state.streamingMessageId = null;
     },

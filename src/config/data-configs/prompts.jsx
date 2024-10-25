@@ -47,8 +47,36 @@ export const RANDOM_PROMPTS = [
   'A Space Shuttle flying above Cape Town, digital art',
 ];
 
+export const CODE_PROMPT_OPTIONS = [
+  {
+    title: 'Explain Code',
+    description: 'Get a detailed explanation of your code',
+    prompt:
+      'Please explain this code in detail:\n```\n// Paste your code here\n```',
+  },
+  {
+    title: 'Debug Code',
+    description: 'Find and fix issues in your code',
+    prompt:
+      'Please help me debug this code and identify potential issues:\n```\n// Paste your code here\n```',
+  },
+  {
+    title: 'Optimize Code',
+    description: 'Get suggestions for code optimization',
+    prompt:
+      'Please suggest optimizations for this code:\n```\n// Paste your code here\n```',
+  },
+  {
+    title: 'Convert Code',
+    description: 'Convert code between languages',
+    prompt:
+      'Please convert this code from [source language] to [target language]:\n```\n// Paste your code here\n```',
+  },
+];
+
 export const promptsConfig = {
   RANDOM_PROMPTS,
+  CODE_PROMPT_OPTIONS,
 };
 
 export default promptsConfig;

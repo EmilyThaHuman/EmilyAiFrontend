@@ -14,6 +14,9 @@ import {
   setAuthSession,
   setIsSettingUp,
   setIsAuthLoading,
+  setIsSigningUp,
+  setIsSignedUp,
+  setIsSetup,
 } from 'store/Slices';
 
 const UserContext = createContext(null);
@@ -26,6 +29,9 @@ export const UserProvider = ({ children }) => {
     setIsAuthLoading: isAuthLoading =>
       dispatch(setIsAuthLoading(isAuthLoading)),
     setIsSettingUp: isSettingUp => dispatch(setIsSettingUp(isSettingUp)),
+    setIsSigningUp: isSigningUp => dispatch(setIsSigningUp(isSigningUp)),
+    setIsSignedUp: isSignedUp => dispatch(setIsSignedUp(isSignedUp)),
+    setIsSetup: isSetup => dispatch(setIsSetup(isSetup)),
     setAuthSession: (token, refreshToken) =>
       dispatch(setAuthSession(token, refreshToken)),
     setProfile: profile => dispatch(setProfile(profile)),

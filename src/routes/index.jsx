@@ -333,7 +333,7 @@ const adminRoutes = [
         children: [
           {
             index: true,
-            element: <Navigate to="/admin/workspaces/home" />, // Fallback to Workspace Home
+            element: <Navigate to="/admin/workspaces/:workspaceId" />, // Fallback to Workspace Home
           },
           {
             name: 'Workspace Home',

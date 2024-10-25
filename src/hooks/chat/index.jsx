@@ -11,3 +11,4 @@ export * from './usePromptAndCommand';
 export * from './useTipTapEditor';
 export * from './useDynamicState';
 export * from './useWorkspaceHandler';
+export * from './useChatStream';

@@ -1,6 +1,7 @@
 // LAYOUTS: auth/index.js
 import { Box, CircularProgress, CssBaseline } from '@mui/material';
-import { Navigate, Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 
 import { useUserStore } from 'contexts/UserProvider';
 
@@ -9,18 +10,32 @@ import { useUserStore } from 'contexts/UserProvider';
 // =========================================================
 export const AuthLayout = () => {
   const blackestBG = '#000000';
-  const {
-    state: { isSettingUp, isAuthenticated, isAuthLoading },
-  } = useUserStore();
-  if (isSettingUp) {
-    // User is authenticated but still setting up, redirect to /auth/setup
-    return <Navigate to="/auth/setup" replace />;
-  }
+  const navigate = useNavigate();
 
-  if (!isSettingUp && isAuthenticated) {
-    // User is authenticated, redirect to admin/dashboard
-    return <Navigate to="/admin/dashboard" replace />;
-  }
+  const {
+    state: {
+      isSigningUp,
+      isSignedUp,
+      isSettingUp,
+      isSetup,
+      isAuthenticated,
+      isAuthLoading,
+      redirects,
+    },
+  } = useUserStore();
+
+  useEffect(() => {
+    // Redirect logic based on authentication and setup status
+    if (isSignedUp && isSettingUp && !isSetup) {
+      // User is authenticated but still setting up, redirect to /auth/setup
+      navigate('/auth/setup', { replace: true });
+    } else if (isSignedUp && isSetup) {
+      navigate('/admin/dashboard', { replace: true });
+    } else if (!isSettingUp && isAuthenticated) {
+      // User is authenticated, redirect to admin/dashboard
+      navigate('/admin/workspaces', { replace: true });
+    }
+  }, [isSettingUp, isAuthenticated, redirects, navigate, isSignedUp, isSetup]);
 
   if (isAuthLoading) {
     // Show a loading indicator while checking authentication

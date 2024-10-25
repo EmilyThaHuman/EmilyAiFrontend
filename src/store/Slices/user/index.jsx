@@ -17,6 +17,9 @@ import userReducer, {
   setAuthSession,
   setIsAuthLoading,
   setIsSettingUp,
+  setIsSigningUp,
+  setIsSignedUp,
+  setIsSetup,
 } from './userSlice';
 
 // Exporting all actions and thunks
@@ -39,6 +42,9 @@ export {
   setUserOpenAiSettings,
   setAuthUserData,
   setAuthSession,
+  setIsSigningUp,
+  setIsSignedUp,
+  setIsSetup,
 };
 
 // Exporting reducers

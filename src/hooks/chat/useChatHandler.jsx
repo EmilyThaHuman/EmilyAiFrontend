@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { useChatStore } from 'contexts';
 
+import { useChatStream } from './useChatStream';
 import { useTipTapEditor } from './useTipTapEditor';
 
 const logError = (message, error) => {
@@ -23,70 +24,20 @@ export const useChatHandler = () => {
       setChatLoading,
       setChatError,
       setIsRegenerating,
-      setStreamingMessageIndex,
       setStreamingMessageId,
-      setChatMessages,
-      markChatMessageError,
-      // setChatMessage,
       addChatMessage,
       appendToChatMessage,
       completeChatMessage,
+      markChatMessageError,
     },
   } = useChatStore();
+
   const { insertContentAndSync, clearInput } = useTipTapEditor(userInput);
+  const { setContent } = useChatStream();
+
   const [messageCount, setMessageCount] = useState(0);
-  const [isMessagesSync, setIsMessagesSync] = useState(true);
-
-  useEffect(() => {
-    if (!isMessagesSync) {
-      setIsMessagesSync(true);
-    }
-  }, [isMessagesSync]);
-
-  const handleToken = useCallback(
-    (token, assistantMessageId) => {
-      console.log('Received token:', token);
-      let parsedToken = token;
-
-      appendToChatMessage({
-        role: 'assistant',
-        content: parsedToken,
-        _id: assistantMessageId,
-        isStreaming: true,
-        isComplete: false,
-      });
-    },
-    [appendToChatMessage]
-  );
-
-  const handleServerEvent = useCallback(
-    (data, assistantMessageId) => {
-      switch (data.type) {
-        case 'token':
-          handleToken(data.content, assistantMessageId);
-          break;
-        case 'run_start':
-          console.log('Run started');
-          break;
-        case 'run_end':
-          setChatStreaming(false);
-          console.log('Run ended', data.final_output);
-          completeChatMessage({
-            _id: assistantMessageId,
-            content: data.final_output,
-          });
-          break;
-        case 'error':
-          console.error('Server error:', data.message);
-          setChatStreaming(false);
-          setChatError(data.message);
-          break;
-        default:
-          break;
-      }
-    },
-    [handleToken, setChatStreaming, completeChatMessage, setChatError]
-  );
+  const [startAccumulating, setStartAccumulating] = useState(false);
+  const [streamCompleted, setStreamCompleted] = useState(false);
 
   const handleSendMessage = useCallback(
     async (content, isNewSession = false) => {
@@ -104,7 +55,6 @@ export const useChatHandler = () => {
         timestamp: format(new Date(), 'yyyy-MM-dd').toString(),
       };
       addChatMessage(userMessage);
-      // setChatMessage(userMessage);
 
       if (controllerRef.current) {
         controllerRef.current.abort();
@@ -150,15 +100,11 @@ export const useChatHandler = () => {
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
-        let done = false;
         let buffer = '';
-        let fullResponse = '';
-        const fullLines = [];
-        const fullParsedLines = [];
+        let done = false;
 
-        const assistantMessageId = Date.now().toString();
-
-        let newMessage = {
+        const assistantMessageId = uuidv4();
+        const assistantMessage = {
           _id: assistantMessageId,
           role: 'assistant',
           content: '',
@@ -166,46 +112,100 @@ export const useChatHandler = () => {
           isComplete: false,
         };
         setStreamingMessageId(assistantMessageId);
-        addChatMessage(newMessage);
+        addChatMessage(assistantMessage);
+
         while (!done) {
           const { value, done: readerDone } = await reader.read();
           done = readerDone;
-          if (value) {
-            const chunk = decoder.decode(value, { stream: true });
-            buffer += chunk;
-            if (buffer.includes('[DONE]')) {
-              done = true;
-            }
-            fullResponse += chunk;
-            let lines = buffer.split('\n\n');
 
-            buffer = lines.pop(); // Keep incomplete line in buffer
+          const chunk = decoder.decode(value || new Uint8Array(), {
+            stream: true,
+          });
+          buffer += chunk;
 
-            for (let line of lines) {
-              fullLines.push(line);
-              if (line.startsWith('data: ')) {
-                const jsonData = line.slice(6);
-                fullParsedLines.push(JSON.parse(jsonData));
-                if (jsonData === '[DONE]') {
-                  setChatStreaming(false);
+          let boundary = buffer.indexOf('\n\n');
+          while (boundary !== -1) {
+            const line = buffer.substring(0, boundary);
+            buffer = buffer.substring(boundary + 2);
+            boundary = buffer.indexOf('\n\n');
+
+            if (line.startsWith('data: ')) {
+              const dataStr = line.substring(6).trim();
+              try {
+                // Sanitize control characters
+                const sanitizedDataStr = dataStr.replace(
+                  // eslint-disable-next-line no-control-regex
+                  /[\u0000-\u001F\u007F]/g,
+                  c => '\\u' + ('000' + c.charCodeAt(0).toString(16)).slice(-4)
+                );
+                const dataObj = JSON.parse(sanitizedDataStr);
+
+                if (dataObj.type === 'token' && dataObj.content) {
+                  // Check if we should start accumulating
+                  if (!startAccumulating) {
+                    const indexOfHash = dataObj.content.indexOf('#');
+                    if (indexOfHash !== -1) {
+                      setStartAccumulating(true);
+                      const contentFromHash =
+                        dataObj.content.substring(indexOfHash);
+                      appendToChatMessage({
+                        _id: assistantMessageId,
+                        content: contentFromHash,
+                        isStreaming: true,
+                      });
+                    }
+                  } else {
+                    // Already started accumulating
+                    appendToChatMessage({
+                      _id: assistantMessageId,
+                      content: dataObj.content,
+                      isStreaming: true,
+                    });
+                  }
+                } else if (dataObj.type === 'markdown' && dataObj.content) {
+                  // Handle the final markdown content
+                  setStreamCompleted(true);
+                  completeChatMessage({
+                    _id: assistantMessageId,
+                    content: dataObj.content,
+                  });
+                } else if (dataObj.type === '[DONE]') {
+                  // Stream has completed
+                  setStreamCompleted(true);
+                  completeChatMessage({
+                    _id: assistantMessageId,
+                    isStreaming: false,
+                    isComplete: true,
+                  });
+                  break;
+                } else if (dataObj.type === 'error') {
+                  // Handle error from server
+                  logError('Server error', new Error(dataObj.message));
+                  markChatMessageError({
+                    _id: assistantMessageId,
+                    error: dataObj.message,
+                  });
                   break;
                 }
-                const data = JSON.parse(jsonData);
-                handleServerEvent(data, newMessage._id);
+              } catch (e) {
+                console.error('Failed to parse JSON:', e, 'Data:', dataStr);
+                logError('An error occurred while processing the message', e);
+                markChatMessageError({
+                  _id: assistantMessageId,
+                  error: e.message,
+                });
+                break;
               }
             }
           }
         }
-
-        setChatStreaming(false);
-        setIsMessagesSync(false);
       } catch (error) {
         if (controllerRef.current.signal.aborted) {
           logError('Request aborted', error);
         } else {
           logError('An error occurred while sending the message', error);
           markChatMessageError({
-            _id: `assistant-${Date.now()}`, // Or use another identifier
+            _id: uuidv4(),
             error: error.message,
           });
         }
@@ -225,14 +225,14 @@ export const useChatHandler = () => {
       isRegenerating,
       messageCount,
       clearInput,
-      chatMessages?.length,
-      setStreamingMessageIndex,
       setStreamingMessageId,
-      handleServerEvent,
+      appendToChatMessage,
+      completeChatMessage,
+      startAccumulating,
+      setStreamCompleted,
       markChatMessageError,
     ]
   );
-
   const handleRegenerateResponse = useCallback(async () => {
     setIsRegenerating(true);
     const lastUserMessage =
@@ -278,6 +278,80 @@ export const useChatHandler = () => {
   );
 };
 export default useChatHandler;
+// for (let line of lines) {
+//   fullLines.push(line);
+//   if (line.startsWith('data: ')) {
+//     const dataStr = line.slice(6);
+//     fullParsedLines.push(JSON.parse(dataStr));
+//     if (dataStr === '[DONE]') {
+//       setChatStreaming(false);
+//       break;
+//     }
+//     // Replace unescaped control characters
+//     const sanitizedDataStr = dataStr.replace(
+//       // eslint-disable-next-line no-control-regex
+//       /[\u0000-\u001F\u007F]/g,
+//       c =>
+//         '\\u' + ('000' + c.charCodeAt(0).toString(16)).slice(-4)
+//     );
+
+//     // Parse the sanitized string
+//     const dataObj = JSON.parse(sanitizedDataStr);
+//     if (dataObj.type === 'token' && dataObj.content) {
+//       if (!startAccumulating) {
+//         const indexOfHash = dataObj.content.indexOf('#');
+//         if (indexOfHash !== -1) {
+//           setStartAccumulating(true);
+//           const contentFromHash =
+//             dataObj.content.substring(indexOfHash);
+//           setContent(
+//             prevContent => prevContent + contentFromHash
+//           );
+//           continue;
+//         } else {
+//           continue;
+//         }
+//       }
+
+//       // If already started accumulating, append the content
+//       if (startAccumulating) {
+//         setContent(prevContent => prevContent + dataObj.content);
+//       }
+//     } else if (dataObj.type === 'markdown' && dataObj.content) {
+//       // Handle the final markdown content
+//       setStreamCompleted(true);
+//       setContent(dataObj.content);
+//       // Optionally break out of the loop if the stream ends here
+//       if (done) break;
+//     } else if (dataObj.type === '[DONE]') {
+//       // Stream has completed
+//       setStreamCompleted(true);
+//       break;
+//     }
+//     handleServerEvent(dataObj, newMessage._id);
+//   }
+// }
+// }
+// }
+
+//   setChatStreaming(false);
+//   setIsMessagesSync(false);
+// } catch (error) {
+//   if (controllerRef.current.signal.aborted) {
+//     logError('Request aborted', error);
+//   }
+//   else {
+//     logError('An error occurred while sending the message', error);
+//     markChatMessageError({
+//       _id: `assistant-${Date.now()}`, // Or use another identifier
+//       error: error.message,
+//     });
+//   }
+// } finally {
+//   setChatStreaming(false);
+//   setChatLoading(false);
+//   setMessageCount(prev => prev + 1);
+// }
 
 // const [stream, setStream] = useState('');
 // const callback = useCallback(
