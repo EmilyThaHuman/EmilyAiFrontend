@@ -49,7 +49,7 @@ export const Tests = () => {
       {/* Dialog for the first test */}
       {chatTestDialog.open && (
         <Dialog open={chatTestDialog.open} onClose={chatTestDialog.handleClose}>
-          <Chat />
+          <Chat onClose={chatTestDialog.handleClose} />
         </Dialog>
       )}
 

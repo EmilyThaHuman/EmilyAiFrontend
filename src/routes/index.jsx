@@ -623,7 +623,7 @@ const rootRoutes = [
     children: [
       {
         index: true,
-        element: <Navigate to="/land/heroDocs" />, // Redirect to '/land/heroDocs'
+        element: <Navigate to="/land/reedAi" />, // Redirect to '/land/heroDocs'
       },
       ...baseRoutes,
       ...adminRoutes,

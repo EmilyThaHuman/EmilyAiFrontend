@@ -16,6 +16,15 @@ export const workspacesApi = {
       throw error;
     }
   },
+  getUserWorkspaces: async () => {
+    try {
+      const data = await apiUtils.get(`${baseUrl}/${encodeURIComponent(sessionStorage.getItem('userId'))}`);
+      return data;
+    } catch (error) {
+      console.error('Error fetching workspaces:', error);
+      throw error;
+    }
+  },
   getWorkspace: async () => {
     const workspaceId = sessionStorage.getItem('workspaceId');
     try {

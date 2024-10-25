@@ -11,7 +11,6 @@ export function analyzeRoutes(routes) {
   const traverseRoutes = (routeArray, parentPath = '') => {
     routeArray.forEach(route => {
       const currentPath = parentPath + (route.path || '');
-      const base = `${window.location.origin}`;
 
       // Skip root, index, and dynamic routes
       if (!route.index && !isDynamicRoute(currentPath) && currentPath !== '/') {
@@ -19,7 +18,7 @@ export function analyzeRoutes(routes) {
           id: uniqueId(currentPath),
           title: route.title || route.name || 'Untitled',
           path: currentPath,
-          link: `${base}${currentPath}`,
+          link: `${window.location.origin}${currentPath}`,
           icon: route.icon || null,
         });
       }

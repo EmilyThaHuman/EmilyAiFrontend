@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import { Close } from '@mui/icons-material';
 import {
   Box,
@@ -8,121 +9,53 @@ import {
   IconButton,
   CircularProgress,
   useTheme,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
-import React, { useState, memo } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import remarkMath from 'remark-math';
+import React, { useRef, useState } from 'react';
 
 import { ChatApiService } from 'api/Ai';
 import { useUserStore } from 'contexts/UserProvider';
 
-import MessageCodeBlock from './CodeBlock';
+import { MessageMarkdown } from './MessageMarkdown';
+import Dialog from '../../Dialog';
 
-export const MessageMarkdownMemoized = memo(
-  function MessageMarkdownMemoized(props) {
-    return <ReactMarkdown {...props} />;
-  }
-);
-
-const StyledBox = styled(Box)(({ theme }) => ({
-  '& .prose': {
-    minWidth: '100%',
-    color: theme.palette.text.primary,
-    '& p': {
-      marginBottom: theme.spacing(2),
-      '&:last-child': {
-        marginBottom: 0,
-      },
-    },
-    '& pre': {
-      padding: 0,
-    },
-  },
-}));
-
-export const MessageMarkdown = ({ content }) => {
-  return (
-    <StyledBox>
-      <MessageMarkdownMemoized
-        className="prose"
-        remarkPlugins={[remarkGfm, remarkMath]}
-        components={{
-          p({ children }) {
-            return <Typography paragraph>{children}</Typography>;
-          },
-          img({ node, ...props }) {
-            return <Box component="img" sx={{ maxWidth: '67%' }} {...props} />;
-          },
-          code({ node, className, children, ...props }) {
-            const childArray = React.Children.toArray(children);
-            const firstChild = childArray[0];
-            const firstChildAsString = React.isValidElement(firstChild)
-              ? firstChild.props.children
-              : firstChild;
-
-            if (firstChildAsString === '▍') {
-              return (
-                <Box
-                  component="span"
-                  sx={{
-                    mt: 1,
-                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    cursor: 'default',
-                  }}
-                >
-                  ▍
-                </Box>
-              );
-            }
-
-            if (typeof firstChildAsString === 'string') {
-              childArray[0] = firstChildAsString.replace('`▍`', '▍');
-            }
-
-            const match = /language-(\w+)/.exec(className || '');
-
-            if (
-              typeof firstChildAsString === 'string' &&
-              !firstChildAsString.includes('\n')
-            ) {
-              return (
-                <Typography component="code" className={className} {...props}>
-                  {childArray}
-                </Typography>
-              );
-            }
-
-            return (
-              <MessageCodeBlock
-                key={Math.random()}
-                language={(match && match[1]) || ''}
-                value={String(childArray).replace(/\n$/, '')}
-                {...props}
-              />
-            );
-          },
-        }}
-      >
-        {content}
-      </MessageMarkdownMemoized>
-    </StyledBox>
-  );
+const RESPONSE_TYPES = {
+  TEXT: 'TEXT',
+  TEXT_STREAM: 'TEXT_STREAM',
+  CHAT: 'CHAT',
+  CHAT_STREAM: 'CHAT_STREAM',
+  RAG: 'RAG',
 };
 
-export const Chat = () => {
+export const Chat = ({ onClose }) => {
   const {
     state: { user },
     actions: { setUserProfile },
   } = useUserStore();
   const [userInput, setUserInput] = useState('');
-  const [response, setResponse] = useState('');
+  const [messages, setMessages] = useState([]); // To store chat history
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const theme = useTheme();
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false); // State for Dialog
+  const [responseType, setResponseType] = useState(RESPONSE_TYPES.TEXT);
+  const aiMessageRef = useRef(''); // To keep track of AI message content
+  const debounceRef = useRef(null); // For debouncing state updates
+
+  // Handle opening the dialog
+  const handleDialogOpen = () => {
+    setDialogOpen(true);
+  };
+
+  // Handle closing the dialog
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -130,18 +63,153 @@ export const Chat = () => {
       setError('Please enter a message.');
       return;
     }
+
+    // Add user message to chat history
+    const newMessage = { sender: 'user', content: userInput };
+    setMessages(prev => [...prev, newMessage]);
+
     setIsLoading(true);
     setError(null);
+    setUserInput('');
+
     try {
-      const prompt = userInput;
       const apiKey = user.profile.openai.apiKey;
       if (!apiKey) {
         setError('API key is missing.');
         setIsLoading(false);
         return;
       }
-      const apiResponse = await ChatApiService.generateText(prompt, apiKey);
-      setResponse(apiResponse);
+
+      let apiResponse = '';
+
+      switch (responseType) {
+        case RESPONSE_TYPES.TEXT:
+          // Handle standard text response
+          apiResponse = await ChatApiService.generateText(userInput, apiKey);
+          setMessages(prev => [
+            ...prev,
+            { sender: 'ai', content: apiResponse },
+          ]);
+          break;
+
+        case RESPONSE_TYPES.TEXT_STREAM:
+          // Handle streamed text response
+          setMessages(prev => [...prev, { sender: 'ai', content: '' }]);
+          await ChatApiService.streamTextGeneration(
+            userInput,
+            apiKey,
+            chunk => {
+              // Log the chunk for debugging
+              console.log('Received chunk:', chunk, typeof chunk);
+
+              let text = '';
+              if (typeof chunk === 'string') {
+                text = chunk;
+              } else if (Array.isArray(chunk)) {
+                text = chunk.join('');
+              } else if (typeof chunk === 'object') {
+                text = Object.values(chunk).join('');
+              } else {
+                text = String(chunk);
+              }
+
+              aiMessageRef.current += text;
+
+              // Debounce the state update to prevent excessive re-renders
+              clearTimeout(debounceRef.current);
+              debounceRef.current = setTimeout(() => {
+                setMessages(prev => {
+                  const updated = [...prev];
+                  const lastIndex = updated.length - 1;
+                  if (
+                    updated[lastIndex] &&
+                    updated[lastIndex].sender === 'ai'
+                  ) {
+                    // Create a new object to trigger re-render
+                    updated[lastIndex] = {
+                      ...updated[lastIndex],
+                      content: aiMessageRef.current,
+                    };
+                  }
+                  return updated;
+                });
+              }, 100); // Adjust the delay as needed
+            }
+          );
+          break;
+
+        case RESPONSE_TYPES.CHAT:
+          // Handle standard chat response with context
+          const chatMessages = messages
+            .filter(msg => msg.sender !== 'ai')
+            .map(msg => ({ role: 'user', content: msg.content }));
+          chatMessages.push({ role: 'user', content: userInput });
+          apiResponse = await ChatApiService.chatCompletion(
+            chatMessages,
+            apiKey
+          );
+          setMessages(prev => [
+            ...prev,
+            { sender: 'ai', content: apiResponse },
+          ]);
+          break;
+
+        case RESPONSE_TYPES.CHAT_STREAM:
+          // Handle streamed chat response with context
+          setMessages(prev => [...prev, { sender: 'ai', content: '' }]);
+          const chatStreamMessages = messages
+            .filter(msg => msg.sender !== 'ai')
+            .map(msg => ({ role: 'user', content: msg.content }));
+          chatStreamMessages.push({ role: 'user', content: userInput });
+          await ChatApiService.streamChatCompletion(
+            chatStreamMessages,
+            apiKey,
+            chunk => {
+              // Optionally log each chunk for debugging
+              console.log('Received chunk:', chunk);
+
+              aiMessageRef.current += chunk;
+              // Debounce the state update to prevent excessive re-renders
+              clearTimeout(debounceRef.current);
+              debounceRef.current = setTimeout(() => {
+                setMessages(prev => {
+                  const updated = [...prev];
+                  const lastIndex = updated.length - 1;
+                  if (
+                    updated[lastIndex] &&
+                    updated[lastIndex].sender === 'ai'
+                  ) {
+                    // Create a new object to trigger re-render
+                    updated[lastIndex] = {
+                      ...updated[lastIndex],
+                      content: aiMessageRef.current,
+                    };
+                  }
+                  return updated;
+                });
+              }, 100); // Adjust the delay as needed
+            }
+          );
+          break;
+
+        case RESPONSE_TYPES.RAG:
+          // Handle RAG response
+          // Derive the vector based on your application logic
+          const vector = 'mocked-vector-data';
+          apiResponse = await ChatApiService.ragQuery(
+            userInput,
+            vector,
+            apiKey
+          );
+          setMessages(prev => [
+            ...prev,
+            { sender: 'ai', content: apiResponse },
+          ]);
+          break;
+
+        default:
+          throw new Error('Unsupported response type');
+      }
     } catch (err) {
       setError('Error generating response. Please try again.');
       console.error(err);
@@ -149,6 +217,11 @@ export const Chat = () => {
       setIsLoading(false);
     }
   };
+
+  const handleResponseTypeChange = event => {
+    setResponseType(event.target.value);
+  };
+
   return (
     <div className="chat-interface">
       <AnimatePresence>
@@ -174,11 +247,32 @@ export const Chat = () => {
               alignItems: 'center',
             }}
           >
-            <Typography variant="h6">Test Chat UI</Typography>
-            {/* <IconButton onClick={onClose} aria-label="Close Test Chat UI">
+            <Typography variant="h6">Advanced Chat UI</Typography>
+            <IconButton onClick={onClose} aria-label="Close Test Chat UI">
               <Close />
-            </IconButton> */}
+            </IconButton>
           </Box>
+
+          {/* Dropdown Menu for Response Types */}
+          <Box sx={{ mt: 2, mb: 2 }}>
+            <FormControl fullWidth variant="outlined">
+              <InputLabel id="response-type-label">Response Type</InputLabel>
+              <Select
+                labelId="response-type-label"
+                value={responseType}
+                onChange={handleResponseTypeChange}
+                label="Response Type"
+              >
+                {Object.values(RESPONSE_TYPES).map(type => (
+                  <MenuItem key={type} value={type}>
+                    {type.replace('_', ' ').toUpperCase()}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+
+          {/* Message Display Area */}
           <Box
             sx={{
               mt: 2,
@@ -190,29 +284,50 @@ export const Chat = () => {
               borderRadius: theme.shape.borderRadius,
             }}
           >
-            {userInput && (
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" color="textSecondary">
-                  Prompt Request:
-                </Typography>
-                <MessageMarkdown content={userInput} />
-              </Box>
-            )}
-            {response && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <MessageMarkdown content={response} />
-              </motion.div>
-            )}
+            <AnimatePresence>
+              {messages.map((msg, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Box
+                    sx={{
+                      mb: 2,
+                      textAlign: msg.sender === 'user' ? 'right' : 'left',
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      color={msg.sender === 'user' ? 'primary' : 'secondary'}
+                    >
+                      {msg.sender === 'user' ? 'You' : 'AI'}
+                    </Typography>
+                    <MessageMarkdown content={msg.content} />
+                  </Box>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+            {isLoading &&
+              (responseType.endsWith('STREAM') ||
+                responseType === RESPONSE_TYPES.RAG) && (
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                  <CircularProgress size={20} />
+                  <Typography variant="body2" sx={{ ml: 1 }}>
+                    Generating response...
+                  </Typography>
+                </Box>
+              )}
             {error && (
               <Typography color="error" sx={{ mt: 1 }}>
                 {error}
               </Typography>
             )}
           </Box>
+
+          {/* Input Form */}
           <form onSubmit={handleSubmit}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <TextField
@@ -237,6 +352,36 @@ export const Chat = () => {
           </form>
         </motion.div>
       </AnimatePresence>
+
+      {/* Settings Dialog */}
+      <Dialog open={dialogOpen} onClose={handleDialogClose}>
+        <Typography variant="h6" gutterBottom>
+          Settings
+        </Typography>
+        {/* Settings Content */}
+        <Box>
+          <Typography variant="body1" gutterBottom>
+            Configure your chat settings below:
+          </Typography>
+          {/* Example Setting: Toggle Dark Mode */}
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Typography variant="body2" sx={{ mr: 2 }}>
+              Enable Dark Mode
+            </Typography>
+            <Button variant="contained" color="secondary">
+              Toggle
+            </Button>
+          </Box>
+          {/* Add more settings as needed */}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleDialogClose}
+          >
+            Save Changes
+          </Button>
+        </Box>
+      </Dialog>
     </div>
   );
 };
