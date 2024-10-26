@@ -8,7 +8,7 @@ import {
   systemConfig,
   promptsConfig,
 } from './data-configs';
-import { authConfigs, coverLetterConfigs } from './form-configs';
+import { authConfigs } from './form-configs';
 import {
   formTemplatesMenuItems,
   routerMenuData,
@@ -31,7 +31,6 @@ const data = {
   prompts: promptsConfig,
 };
 const forms = {
-  coverLetterConfigs: coverLetterConfigs,
   authConfigs: authConfigs,
 };
 const menus = {

@@ -3,6 +3,7 @@
 // CUSTOM
 import {
   AiIcon,
+  // GitHubIcon as GithubIcon2,
   ActivityIcon,
   UpArrowIcon,
   DownArrowIcon,
@@ -129,6 +130,7 @@ import OpenAISVG from './openai-svg';
 export {
   // CUSTOM
   AiIcon,
+  // GitHubIcon2,
   ActivityIcon,
   UpArrowIcon,
   DownArrowIcon,
@@ -248,6 +250,7 @@ export {
 const reedThaHumansIconLibrary = {
   // CUSTOM
   AiIcon,
+  // GitHubIcon2,
   ActivityIcon,
   UpArrowIcon,
   DownArrowIcon,

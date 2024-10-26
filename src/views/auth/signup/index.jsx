@@ -1,5 +1,6 @@
 // components/Signup.js
 import { Box, CircularProgress } from '@mui/material';
+import { motion } from 'framer-motion';
 import React, { useCallback, useState } from 'react';
 import { redirect, useNavigate } from 'react-router-dom'; // Added useNavigate
 
@@ -11,45 +12,24 @@ import { AuthForm } from '../components/AuthForm';
 
 export const Signup = props => {
   const [errorMessage, setErrorMessage] = useState('');
-  const [loading, setLoading] = useState(false);
   const {
     state: { isAuthenticated, isAuthLoading },
-    actions: {
-      handleAuthSubmit,
-      setIsAuthLoading,
-      setIsSignedUp,
-      setIsSettingUp,
-    },
+    actions: { handleAuthSubmit, setIsSignedUp },
   } = useUserStore();
 
-  const navigate = useNavigate(); // Use navigate
+  const navigate = useNavigate();
 
   const handleSignUp = useCallback(
     async values => {
-      setLoading(true);
-      setIsAuthLoading(true);
       try {
-        const result = handleAuthSubmit(values);
+        await handleAuthSubmit(values);
         setIsSignedUp(true);
-        setIsSettingUp(true);
-        navigate(result.navigateTo);
-        // navigate('/auth/setup'); // Navigate to '/auth/setup' on successful signup
+        navigate('/auth/setup');
       } catch (error) {
-        setErrorMessage(
-          `Sign Up failed: ${error.response?.data?.message || 'Unknown error'}`
-        );
-      } finally {
-        setLoading(false);
-        setIsAuthLoading(false);
+        setErrorMessage(`Sign Up failed: ${error.message || 'Unknown error'}`);
       }
     },
-    [
-      handleAuthSubmit,
-      navigate,
-      setIsAuthLoading,
-      setIsSettingUp,
-      setIsSignedUp,
-    ] // Added navigate to dependencies
+    [handleAuthSubmit, navigate, setIsSignedUp]
   );
 
   const handleResetPassword = async email => {
@@ -63,7 +43,7 @@ export const Signup = props => {
     }
   };
 
-  if (loading || isAuthLoading) {
+  if (isAuthLoading) {
     return (
       <Box
         display="flex"
@@ -79,10 +59,10 @@ export const Signup = props => {
   return (
     <AuthForm
       isSignup={true}
-      onSubmit={handleSignUp}
       errorMessage={errorMessage}
-      handleResetPassword={handleResetPassword}
       formFieldsConfigs={authConfigs}
+      onSubmit={handleSignUp}
+      handleResetPassword={handleResetPassword}
     />
   );
 };

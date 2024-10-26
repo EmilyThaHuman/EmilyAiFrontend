@@ -20,7 +20,6 @@ import {
   PersonIcon,
 } from 'assets/humanIcons';
 import { LoadingIndicator } from 'components/index';
-import { Loadable } from 'layouts/navigation/navbar/components';
 import { dispatch, setField } from 'store/index';
 
 import { createChatAction, logoutAction } from './actions';
@@ -29,6 +28,7 @@ import {
   homeWorkspaceLoader,
   workspaceLoader,
 } from './loaders';
+import { Loadable } from './utils';
 
 /* *** Components *** */
 const ErrorElement = Loadable(
@@ -62,6 +62,7 @@ const SetUpMain = Loadable(lazy(() => import('views/auth/setup')));
 const MainDashboard = Loadable(lazy(() => import('views/admin/default')));
 const UserProfile = Loadable(lazy(() => import('views/admin/profile')));
 
+const WorkspaceMain = lazy(() => import('views/admin/workspace'));
 const ChatMain = lazy(() => import('views/admin/chat'));
 const CodeEditor = Loadable(lazy(() => import('views/admin/editor')));
 
@@ -194,7 +195,7 @@ const adminRoutes = [
             breadcrumb: 'Workspace Home',
             element: (
               <Suspense fallback={<LoadingIndicator />}>
-                <ChatMain />
+                <WorkspaceMain />
               </Suspense>
             ),
             icon: <HomeIcon />,
@@ -209,7 +210,7 @@ const adminRoutes = [
             breadcrumb: 'Active Workspace',
             element: (
               <Suspense fallback={<LoadingIndicator />}>
-                <ChatMain />
+                <WorkspaceMain />
               </Suspense>
             ),
             icon: <HomeIcon />,
@@ -275,7 +276,11 @@ const adminRoutes = [
                     title: 'NewChat',
                     path: 'new',
                     breadcrumb: 'New Chat',
-                    element: <NewChat />,
+                    element: (
+                      <Suspense fallback={<LoadingIndicator />}>
+                        <NewChat />
+                      </Suspense>
+                    ),
                     action: createChatAction,
                   },
                   {

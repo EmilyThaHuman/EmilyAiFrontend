@@ -1,3 +1,5 @@
+import * as Yup from 'yup';
+
 export const authConfigs = [
   {
     label: 'Username',
@@ -5,6 +7,8 @@ export const authConfigs = [
     required: true,
     fullWidth: true,
     margin: 'dense',
+        validation: Yup.string().min(6, 'Minimum 6 characters').required('Required'),
+
   },
   {
     label: 'Password',
@@ -13,6 +17,8 @@ export const authConfigs = [
     required: true,
     fullWidth: true,
     margin: 'dense',
+        validation: Yup.string().required('Required'),
+
   },
   {
     label: 'Email',
@@ -22,5 +28,7 @@ export const authConfigs = [
     fullWidth: true,
     margin: 'dense',
     conditional: 'isSignup', // Only show this field if isSignup is true
+        validation: Yup.string().email('Invalid email').required('Required'),
+
   },
 ];

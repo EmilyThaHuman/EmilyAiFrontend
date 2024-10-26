@@ -8,7 +8,10 @@ import {
   Paper,
   styled,
   Typography,
+  IconButton,
 } from '@mui/material';
+import GitHubIcon from '@mui/icons-material/GitHub';
+
 import { motion } from 'framer-motion';
 import { MessageSquare } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
@@ -89,13 +92,13 @@ export const Header = () => {
           >
             Contact
           </Button>
-          <Button
-            variant="outline"
-            className="bg-transparent text-white border-white hover:bg-white hover:text-black"
-          >
-            <span className="mr-2">28.5k</span>
-            <MessageSquare className="h-4 w-4" />
-          </Button>
+          <a href="https://github.com/EmilyThaHuman/EmilyAiFrontend" target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-black">
+                  <span className="mr-2">28.5k</span>
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  <GitHubIcon className="h-4 w-4" />
+              </Button>
+          </a>
           {isLoggedIn ? (
             <Button variant="destructive" onClick={handleLogout}>
               Logout

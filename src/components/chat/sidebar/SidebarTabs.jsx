@@ -1,18 +1,13 @@
 import { Avatar, Box, IconButton, Tooltip, useTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 
-import { AiIcon, FingerprintIcon, KeyIcon } from 'assets/humanIcons';
-import ValidationIcon from 'components/themed/ValidationIcon';
+import { AiIcon } from 'assets/humanIcons';
 
 const MotionBox = motion(Box);
 
 export const SidebarTabs = ({
   tab,
-  handleSidebarOpen,
-  isXs,
   isSidebarOpen,
-  isValidApiKey,
-  isAuthenticated,
   isMobile,
   sideBarWidthRef,
   dataList,
@@ -38,7 +33,7 @@ export const SidebarTabs = ({
       variants={sidebarVariants}
       initial={isMobile ? 'hidden' : 'visible'}
       animate={isMobile && !isSidebarOpen ? 'hidden' : 'visible'}
-      style={{ width: 'fit-content' }} // Allow width to adjust based on content
+      style={{ width: 'fit-content' }}
       aria-hidden={isMobile && !isSidebarOpen}
       sx={{
         display: 'flex',

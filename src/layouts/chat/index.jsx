@@ -30,7 +30,7 @@ export const ChatLayout = () => {
   const { isXs, isMobile, isMd, drawerWidth } = useResponsiveDrawer();
   const [activeTab, setActiveTab] = useState(null);
   const {
-    state: { user, isAuthenticated, profile },
+    state: { user, profile },
   } = useUserStore();
   const {
     state: {
@@ -43,6 +43,7 @@ export const ChatLayout = () => {
       selectedWorkspace,
     },
     actions: {
+      setFolders,
       updateWorkspace,
       updateChatSession,
       updateAssistant,
@@ -56,11 +57,14 @@ export const ChatLayout = () => {
     actions: { setSidebarOpen },
   } = useAppStore();
   // -- --
-  const folders = selectedWorkspace?.folders || [];
+  let folders;
+  if (selectedWorkspace) {
+    folders = selectedWorkspace.folders;
+    setFolders(folders);
+  }
   // -- --
   const sideBarWidthRef = useRef(null);
   const buttonRef = useRef(null);
-  const isValidApiKey = Boolean(apiKey);
   const sidebarVariants = {
     open: {
       x: 0,
@@ -102,19 +106,13 @@ export const ChatLayout = () => {
       },
     },
   };
-  // Handle sidebar animation based on viewport changes
   useEffect(() => {
     if (isMobile) {
-      // If on mobile, ensure sidebar is closed initially
       setSidebarOpen(false);
     } else {
-      // If not on mobile, open sidebar by default
       setSidebarOpen(true);
     }
   }, [isMobile, setSidebarOpen]);
-  const handleSidebarToggle = useCallback(() => {
-    setSidebarOpen(prev => !prev);
-  }, [setSidebarOpen]);
   const handleSidebarOpen = useCallback(
     index => {
       setActiveTab(index);
@@ -195,12 +193,7 @@ export const ChatLayout = () => {
       {/* -- SIDEBAR SECTION ICON BUTTONS -- */}
       <SidebarTabs
         tab={activeTab}
-        setTab={setActiveTab}
-        handleSidebarOpen={handleSidebarOpen}
-        isXs={isXs}
         isSidebarOpen={isSidebarOpen}
-        isValidApiKey={isValidApiKey || profile.openai.apiKey ? true : false}
-        isAuthenticated={isAuthenticated}
         isMobile={isMobile}
         sideBarWidthRef={sideBarWidthRef}
         dataList={sidebarTabs}
@@ -221,7 +214,6 @@ export const ChatLayout = () => {
           overflow: 'hidden', // Disable any scrolling
         }}
       >
-        {/* <Fade in={isSidebarOpen && activeTab !== null}> */}
         <Drawer
           anchor="left"
           open={isSidebarOpen && activeTab !== null}
@@ -246,31 +238,6 @@ export const ChatLayout = () => {
               maxHeight: '100vh',
             },
           }}
-          // PaperProps={{
-          //   sx: {
-          //     color: '#fff',
-          //     padding: '10px',
-          //     background: '#000',
-          //     width: drawerWidth,
-          //     maxWidth: '450px',
-          //     borderRight: '1px solid #333',
-          //     transform:
-          //       isMobile && !isSidebarOpen ? 'translateX(-100%)' : 'none',
-          //     // transition: 'transform 1.3s ease-in-out',
-          //     transition: theme.transitions.create(['width', 'transform'], {
-          //       easing: theme.transitions.easing.sharp,
-          //       duration: theme.transitions.duration.standard,
-          //     }),
-          //     // transition: 'transform 0.3s ease-in-out',
-          //     // transform: isSidebarOpen ? 'none' : 'translateX(-100%)', // Only hide when `isSidebarOpen` is false
-          //   },
-          // }}
-          // sx={{
-          //   '& .MuiDrawer-paper': {
-          //     width: drawerWidth,
-          //     boxSizing: 'border-box',
-          //   },
-          // }}
         >
           <Box
             sx={{
@@ -278,14 +245,13 @@ export const ChatLayout = () => {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              overflow: 'hidden', // Ensure no overflow happens
+              overflow: 'hidden',
               height: '100%',
               maxHeight: '100vh',
             }}
           >
             <div
               style={{
-                // transform: isSidebarOpen ? 'none' : 'translateX(-100%)', // Only hide when `isSidebarOpen` is false
                 transform:
                   isMobile && !isSidebarOpen ? 'translateX(-100%)' : 'none',
                 transition: 'transform 0.3s ease-in-out',
@@ -315,6 +281,8 @@ export const ChatLayout = () => {
           </Box>
         </Drawer>
       </motion.div>
+
+      {/* -- MAIN CONTENT -- */}
       <motion.main
         initial={isSidebarOpen && !isMobile ? 'expanded' : 'collapsed'}
         animate={isSidebarOpen ? 'expanded' : 'collapsed'}
@@ -322,14 +290,8 @@ export const ChatLayout = () => {
         style={{
           flexGrow: 1,
           padding: theme.spacing(2),
-          // marginLeft:
-          //   isSidebarOpen && !isMobile
-          //     ? `calc(${drawerWidth} + ${theme.spacing(2)})`
-          //     : 0,
           transition: 'margin-left 0.3s ease-in-out',
           overflow: 'auto',
-          // height: '100vh',
-          // height: 'calc(100vh - 2 * theme.spacing(1))',
           boxSizing: 'border-box',
         }}
       >
@@ -342,50 +304,10 @@ export const ChatLayout = () => {
           }}
         />
       </motion.main>
-      {/* <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          paddingLeft: 2,
-          transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
-          marginLeft: isSidebarOpen && !isMobile ? `${drawerWidth}px` : 0,
-        }}
-      >
-        <Outlet
-          context={{
-            workspaceId,
-            sessionId,
-            toggleSidebar: handleSidebarToggle,
-            isSidebarOpen,
-          }}
-        />
-      </Box> */}
     </Box>
   );
 };
 
-// export const useResponsiveDrawer = () => {
-//   const theme = useTheme();
-//   const isXs = useMediaQuery(theme.breakpoints.down('xs'));
-//   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-//   const isMd = useMediaQuery(theme.breakpoints.down('md'));
-
-//   const drawerWidth = useMemo(() => {
-//     if (isMobile) return '100vw';
-//     if (isMd) return '350px';
-//     return '450px';
-//   }, [isMobile, isMd]);
-
-//   return {
-//     isMd,
-//     isXs,
-//     isMobile,
-//     drawerWidth,
-//   };
-// };
 export const useResponsiveDrawer = () => {
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.down('xs'));

@@ -1,21 +1,19 @@
+// MainWorkspace.js
 'use client';
 /* eslint-disable no-constant-condition */
 import React, { useEffect } from 'react';
-import { useNavigate, useLoaderData } from 'react-router-dom';
+import { Outlet, useLoaderData } from 'react-router-dom';
 
 import { useChatStore } from 'contexts/ChatProvider';
 
 export const MainWorkspace = () => {
-  const navigate = useNavigate();
-  const { workspace } = useLoaderData(); // The workspace object returned from your loader
+  const { workspace } = useLoaderData(); // Loaded via workspaceLoader
   const {
     actions: {
       setWorkspaceId,
       setHomeWorkSpace,
       setSelectedWorkspace,
       setChatSessions,
-      setSessionId,
-      setSelectedChatSession,
       setAssistants,
       setFolders,
       setPrompts,
@@ -23,7 +21,7 @@ export const MainWorkspace = () => {
     },
   } = useChatStore();
 
-  // UseEffect for workspace initialization
+  // Initialize workspace data in the store
   useEffect(() => {
     if (workspace) {
       const { chatSessions, assistants, prompts, tools } = workspace;
@@ -36,23 +34,27 @@ export const MainWorkspace = () => {
       setAssistants(assistants);
       setPrompts(prompts);
       setTools(tools);
-
-      if (chatSessions?.length > 0) {
-        setSessionId(chatSessions[0]._id);
-        setSelectedChatSession(chatSessions[0]);
-      }
     }
-  }, [workspace]);
+  }, [
+    workspace,
+    setWorkspaceId,
+    setSelectedWorkspace,
+    setFolders,
+    setHomeWorkSpace,
+    setChatSessions,
+    setAssistants,
+    setPrompts,
+    setTools,
+  ]);
 
-  // If workspace is not available, show loading or navigate
   if (!workspace) {
     return <div>Loading workspace...</div>;
   }
 
   return (
     <div>
-      {/* Render the MainChat component, passing necessary props if needed */}
-      <MainChat workspace={workspace} />
+      {/* Render child routes, e.g., MainChat */}
+      <Outlet />
     </div>
   );
 };

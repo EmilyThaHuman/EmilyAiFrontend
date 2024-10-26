@@ -50,7 +50,10 @@ export const AuthForm = React.memo(
     const formik = useFormik({
       initialValues: formFieldsConfigs.reduce((values, field) => {
         values[field.name] = '';
-        return values;
+        return {
+          ...values,
+          isSignup: isSignup,
+        }
       }, {}),
       validationSchema,
       onSubmit: async values => {

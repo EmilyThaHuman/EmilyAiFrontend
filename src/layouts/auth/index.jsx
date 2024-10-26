@@ -32,7 +32,15 @@ export const AuthLayout = () => {
   }
 
   return (
-    <Box>
+    <Box
+      sx={{
+        background: '#000',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <CssBaseline />
       <motion.div
         initial={{ opacity: 0 }}

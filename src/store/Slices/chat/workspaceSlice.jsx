@@ -47,6 +47,9 @@ export const workspaceSlice = createSlice({
       } else {
         const warn = 'No workspace ID provided. Using default workspace ID.';
         toast.warning(warn);
+        const userStore = JSON.parse(localStorage.getItem('userStore'));
+        sessionStorage.setItem('workspaceId', userStore.user.homeWorkspaceId);
+        workspaceId === userStore.user.homeWorkspaceId;
       }
       state.workspaceId = workspaceId;
       sessionStorage.setItem('workspaceId', workspaceId);

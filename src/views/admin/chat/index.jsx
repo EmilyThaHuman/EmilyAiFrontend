@@ -1,140 +1,69 @@
+// MainChat.js
 'use client';
 /* eslint-disable no-constant-condition */
-// =========================================================
-// [CHAT BOT] | React Chatbot
-// =========================================================
 import { Box, CircularProgress } from '@mui/material';
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
-import {
-  useActionData,
-  useLoaderData,
-  useNavigate,
-  useParams,
-} from 'react-router-dom';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import { useLoaderData, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ChatHeader, MessageInput } from 'components/chat';
 import { MessageBox } from 'components/chat/messages';
-import { CODE_PROMPT_OPTIONS, RANDOM_PROMPTS } from 'config/data-configs';
-import { useAppStore } from 'contexts/AppProvider';
+import { CODE_PROMPT_OPTIONS } from 'config/data-configs';
 import { useChatStore } from 'contexts/ChatProvider';
-import { useChatHandler, useMenu, useMode, useTipTapEditor } from 'hooks';
+import { useChatHandler, useMenu } from 'hooks';
 import 'styles/ChatStyles.css';
 
 export const MainChat = () => {
   const navigate = useNavigate();
-  const { workspace } = useLoaderData(); // This is the workspace object returned from your loader
+  const { chatSession } = useLoaderData(); // Loaded via chatSessionLoader
   const {
-    state: {
-      userInput,
-      isStreaming,
-      selectedChatSession,
-      chatLoading,
-      chatDisabled,
-    },
+    state: { userInput, isStreaming, chatLoading, chatDisabled },
     actions: {
-      setWorkspaceId,
-      setHomeWorkSpace,
-      setSelectedWorkspace,
-      setChatSessions,
       setSessionId,
-      setSelectedChatSession,
-      setAssistants,
-      setFolders,
-      setChatLoading,
       setChatMessages,
       /* --- add server-side file population here --- */
-      setPrompts,
-      setTools,
     },
   } = useChatStore();
+
   const chatContainerRef = useRef(null);
   const { controllerRef, handleSendMessage } = useChatHandler();
 
-  // First useEffect for workspace initialization
+  // Initialize chat session data
   useEffect(() => {
-    if (workspace) {
-      const { chatSessions, assistants, prompts, tools } = workspace;
-
-      setWorkspaceId(workspace._id);
-      setSelectedWorkspace(workspace);
-      setFolders(workspace.folders);
-      setHomeWorkSpace(workspace);
-      setChatSessions(chatSessions);
-      setAssistants(assistants);
-      setPrompts(prompts);
-      setTools(tools);
-
-      if (chatSessions?.length > 0) {
-        setSessionId(chatSessions[0]._id);
-        setSelectedChatSession(chatSessions[0]);
-      }
+    if (chatSession) {
+      setSessionId(chatSession._id);
+      const transformedMessages = transformMessages(chatSession.messages || []);
+      setChatMessages(transformedMessages);
+    } else {
+      // Handle missing chatSession, possibly navigate back or show an error
+      navigate('/admin/workspaces'); // Adjust the path as needed
     }
-  }, [workspace]);
+  }, [chatSession, setSessionId, setChatMessages, navigate]);
 
-  // Second useEffect for selectedChatSession
-  useEffect(() => {
-    if (selectedChatSession) {
-      const transformMessages = messages => {
-        return messages.map(message => {
-          // Transformation logic
-          if (typeof message === 'string') {
-            return {
-              _id: message,
-              content: message,
-              role: 'user',
-              isUserMessage: true,
-            };
-          } else if (typeof message === 'object' && message !== null) {
-            return {
-              ...message,
-              isUserMessage: message.role === 'user',
-            };
-          } else {
-            return {
-              _id: uuidv4(),
-              content: '',
-              role: '',
-              isUserMessage: false,
-            };
-          }
-        });
-      };
-
-      const transformedMessages = transformMessages(
-        selectedChatSession.messages || []
-      );
-      // setChatMessages(transformedMessages);
-      const messagesHaveChanged = !areMessagesEqual(
-        selectedChatSession.messages,
-        transformedMessages
-      );
-
-      if (messagesHaveChanged) {
-        setSelectedChatSession({
-          ...selectedChatSession,
-          messages: transformedMessages,
-        });
-        setChatMessages(transformedMessages);
+  const transformMessages = messages => {
+    return messages.map(message => {
+      if (typeof message === 'string') {
+        return {
+          _id: message,
+          content: message,
+          role: 'user',
+          isUserMessage: true,
+        };
+      } else if (typeof message === 'object' && message !== null) {
+        return {
+          ...message,
+          isUserMessage: message.role === 'user',
+        };
+      } else {
+        return {
+          _id: uuidv4(),
+          content: '',
+          role: '',
+          isUserMessage: false,
+        };
       }
-    } else if (workspace) {
-      navigate(
-        `/admin/workspaces/${workspace._id}/chat/${sessionStorage.getItem('sessionId')}`
-      );
-    }
-  }, [
-    selectedChatSession,
-    workspace,
-    navigate,
-    setSelectedChatSession,
-    setChatMessages,
-  ]);
+    });
+  };
 
   const areMessagesEqual = (messages1, messages2) => {
     if (messages1?.length !== messages2?.length) return false;
@@ -158,9 +87,9 @@ export const MainChat = () => {
     });
   };
 
-  /* --- fn() to handle the focus of the chat input --- */
+  /* --- Function to handle the positioning of the prompts dialog --- */
   useLayoutEffect(() => {
-    if (promptsMenu.isOpen && sidebarItemRef.current) {
+    if (promptsMenu.isOpen && sidebarItemRef.current && dialogRef.current) {
       const sidebarItemRect = sidebarItemRef.current.getBoundingClientRect();
       const dialogRect = dialogRef.current.getBoundingClientRect();
 
@@ -174,9 +103,8 @@ export const MainChat = () => {
       dialogRef.current.style.top = `${topPosition}px`;
     }
   }, [promptsMenu.isOpen]);
-  /* -- */
 
-  /* --- fn() to handle the chat abort option --- */
+  /* --- Cleanup on component unmount --- */
   useEffect(() => {
     return () => {
       if (controllerRef.current) {
@@ -195,13 +123,13 @@ export const MainChat = () => {
         flex: 1,
         p: 4,
         height: '100%', // Take full viewport height
-        // overflowY: 'hidden',
         backgroundColor: '#1C1C1C',
         borderRadius: '14px',
       }}
     >
       {/* --- CHAT HEADER --- */}
       <ChatHeader />
+
       {/* --- CHAT MESSAGE SCROLL AREA --- */}
       <Box
         ref={chatContainerRef}
@@ -212,7 +140,9 @@ export const MainChat = () => {
           marginBottom: '20px',
         }}
       >
-        {selectedChatSession && selectedChatSession?.messages?.length > 0 ? (
+        {chatSession &&
+        chatSession.messages &&
+        chatSession.messages.length > 0 ? (
           <MessageBox
             handlePromptSelect={handlePromptSelect}
             codePromptOptions={CODE_PROMPT_OPTIONS}
@@ -233,7 +163,7 @@ export const MainChat = () => {
         )}
       </Box>
 
-      {/* Chat input */}
+      {/* --- CHAT INPUT --- */}
       <Box
         sx={{
           mt: 'auto', // Ensure it stays at the bottom

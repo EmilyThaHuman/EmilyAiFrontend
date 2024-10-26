@@ -2,8 +2,9 @@
 import { Box, CircularProgress } from '@mui/material';
 import { motion } from 'framer-motion';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { redirect, useNavigate } from 'react-router-dom';
 
+import { userApi } from 'api/user';
 import { authConfigs } from 'config/form-configs';
 import { useUserStore } from 'contexts/UserProvider';
 
@@ -27,6 +28,17 @@ export const Login = () => {
     }
   };
 
+  const handleResetPassword = async email => {
+    try {
+      await userApi.resetPassword({ email });
+      redirect('/login?message=Check your email to reset password');
+    } catch (error) {
+      setErrorMessage(
+        `Password reset failed: ${error.response?.data?.message || 'Unknown error'}`
+      );
+    }
+  };
+
   if (isAuthLoading) {
     return (
       <Box
@@ -41,14 +53,13 @@ export const Login = () => {
   }
 
   return (
-    <motion.div initial={{ x: -200 }} animate={{ x: 0 }}>
-      <AuthForm
-        isSignup={false}
-        onSubmit={handleSignIn}
-        errorMessage={errorMessage}
-        formFieldsConfigs={authConfigs}
-      />
-    </motion.div>
+    <AuthForm
+      isSignup={false}
+      errorMessage={errorMessage}
+      formFieldsConfigs={authConfigs}
+      onSubmit={handleSignIn}
+      handleResetPassword={handleResetPassword}
+    />
   );
 };
 

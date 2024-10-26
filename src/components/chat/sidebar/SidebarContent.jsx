@@ -28,8 +28,8 @@ export const SidebarContent = ({
   dataList,
 }) => {
   const findFolders = useCallback(
-    space => user.folders?.filter(folder => folder.space === space) || [],
-    [user.folders]
+    space => folders?.filter(folder => folder.space === space) || [],
+    [folders]
   );
   const renderContent = useCallback(() => {
     const selectedTab = dataList.find(item => item.id === tab);
@@ -137,20 +137,13 @@ export const SidebarContent = ({
 export const DefaultTab = () => <div style={{ color: 'white' }}></div>;
 
 SidebarContent.propTypes = {
-  // tab: PropTypes.number.isRequired, // Tab should be a number
-  user: PropTypes.shape({
-    folders: PropTypes.arrayOf(
-      PropTypes.shape({
-        space: PropTypes.string.isRequired, // space inside folders should be a string
-      })
-    ),
-  }).isRequired, // user is required and has a folders array
-  chatSessions: PropTypes.array.isRequired, // chatSessions is an array
-  workspaces: PropTypes.array.isRequired, // workspaces is an array
-  prompts: PropTypes.array.isRequired, // prompts is an array
-  files: PropTypes.array.isRequired, // files is an array
-  assistants: PropTypes.array.isRequired, // assistants is an array
-  folders: PropTypes.array.isRequired, // folders is an array
+  user: PropTypes.object.isRequired,
+  chatSessions: PropTypes.array.isRequired,
+  workspaces: PropTypes.array.isRequired,
+  prompts: PropTypes.array.isRequired,
+  files: PropTypes.array.isRequired,
+  assistants: PropTypes.array.isRequired,
+  folders: PropTypes.array.isRequired,
 };
 
 export default SidebarContent;

@@ -120,24 +120,39 @@ export const workspacesApi = {
     }
   },
   getItemsFolder: async props => {
-    const { workspaceId, space } = props;
+    // const { workspaceId, space } = props;
+    let workspaceId = sessionStorage.getItem('workspaceId');
+    if (!props.workspaceId) {
+      const userStore = JSON.parse(localStorage.getItem('userStore'));
+      sessionStorage.setItem('workspaceId', userStore.user.homeWorkspaceId);
+      workspaceId === userStore.user.homeWorkspaceId;
+    }
     try {
       const response = await apiUtils.get(
-        `/chat/workspaces/${encodeURIComponent(workspaceId)}/folders/space/${space}`
+        `/chat/workspaces/${encodeURIComponent(workspaceId)}/folders/space/${props.space}`
       );
       console.log('RES', response);
       console.log('FOLDER', response.folder);
       return response.folder;
     } catch (error) {
-      console.error(`Error fetching chat folders for space ${space}:`, error);
+      console.error(
+        `Error fetching chat folders for space ${props.space}:`,
+        error
+      );
       throw error;
     }
   },
   getWorkspaceFoldersBySpace: async props => {
-    const { workspaceId, space } = props;
+    // const { workspaceId, space } = props;
+    let workspaceId = sessionStorage.getItem('workspaceId');
+    if (!props.workspaceId) {
+      const userStore = JSON.parse(localStorage.getItem('userStore'));
+      sessionStorage.setItem('workspaceId', userStore.user.homeWorkspaceId);
+      workspaceId === userStore.user.homeWorkspaceId;
+    }
     try {
       const response = await apiUtils.get(
-        `/chat/workspaces/${encodeURIComponent(workspaceId)}/folders/space/${space}`
+        `/chat/workspaces/${encodeURIComponent(workspaceId)}/folders/space/${props.space}`
       );
       console.log('RES', response);
       console.log('FOLDERS_ARRAY', response.folders);
@@ -146,7 +161,10 @@ export const workspacesApi = {
       const folderItems = response.allItems;
       return { folder, folderItems };
     } catch (error) {
-      console.error(`Error fetching chat folders for space ${space}:`, error);
+      console.error(
+        `Error fetching chat folders for space ${props.space}:`,
+        error
+      );
       throw error;
     }
   },
