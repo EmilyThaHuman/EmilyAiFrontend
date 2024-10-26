@@ -18,7 +18,9 @@ export const workspacesApi = {
   },
   getUserWorkspaces: async () => {
     try {
-      const data = await apiUtils.get(`${baseUrl}/${encodeURIComponent(sessionStorage.getItem('userId'))}`);
+      const data = await apiUtils.get(
+        `${baseUrl}/${encodeURIComponent(sessionStorage.getItem('userId'))}`
+      );
       return data;
     } catch (error) {
       console.error('Error fetching workspaces:', error);
@@ -26,7 +28,12 @@ export const workspacesApi = {
     }
   },
   getWorkspace: async () => {
-    const workspaceId = sessionStorage.getItem('workspaceId');
+    let workspaceId = sessionStorage.getItem('workspaceId');
+    if (!workspaceId) {
+      const userStore = JSON.parse(localStorage.getItem('userStore'));
+      sessionStorage.setItem('workspaceId', userStore.user.homeWorkspaceId);
+      workspaceId === userStore.user.homeWorkspaceId;
+    }
     try {
       const data = await apiUtils.get(
         `/chat/workspaces/${encodeURIComponent(workspaceId)}`

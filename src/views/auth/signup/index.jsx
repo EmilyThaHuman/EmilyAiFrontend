@@ -43,7 +43,13 @@ export const Signup = props => {
         setIsAuthLoading(false);
       }
     },
-    [handleAuthSubmit, navigate, setIsAuthLoading, setIsSignedUp] // Added navigate to dependencies
+    [
+      handleAuthSubmit,
+      navigate,
+      setIsAuthLoading,
+      setIsSettingUp,
+      setIsSignedUp,
+    ] // Added navigate to dependencies
   );
 
   const handleResetPassword = async email => {

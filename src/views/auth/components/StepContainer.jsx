@@ -1,12 +1,5 @@
-import {
-  Card,
-  CardContent,
-  CardActions,
-  CardHeader,
-  Typography,
-  Button,
-  Box,
-} from '@mui/material';
+// components/StepContainer.js
+import { Card, CardContent, CardHeader, Typography, Box } from '@mui/material';
 import React, { useRef } from 'react';
 
 export const SETUP_STEP_COUNT = 3;
@@ -17,8 +10,6 @@ export const StepContainer = ({
   stepTitle,
   onShouldProceed,
   children,
-  showBackButton = false,
-  showNextButton = true,
 }) => {
   const buttonRef = useRef(null);
 

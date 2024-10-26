@@ -71,7 +71,7 @@ export const MainChat = () => {
       setPrompts(prompts);
       setTools(tools);
 
-      if (chatSessions.length > 0) {
+      if (chatSessions?.length > 0) {
         setSessionId(chatSessions[0]._id);
         setSelectedChatSession(chatSessions[0]);
       }

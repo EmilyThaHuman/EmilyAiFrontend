@@ -1,44 +1,24 @@
-// LAYOUTS: auth/index.js
+// layouts/auth/index.js
 import { Box, CircularProgress, CssBaseline } from '@mui/material';
+import { motion } from 'framer-motion';
 import { useEffect } from 'react';
-import { Navigate, Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 
 import { useUserStore } from 'contexts/UserProvider';
 
-// =========================================================
-// [AuthLayout] | This code provides the auth layout for the app
-// =========================================================
 export const AuthLayout = () => {
-  const blackestBG = '#000000';
   const navigate = useNavigate();
-
   const {
-    state: {
-      isSigningUp,
-      isSignedUp,
-      isSettingUp,
-      isSetup,
-      isAuthenticated,
-      isAuthLoading,
-      redirects,
-    },
+    state: { isAuthenticated, isAuthLoading },
   } = useUserStore();
 
   useEffect(() => {
-    // Redirect logic based on authentication and setup status
-    if (isSignedUp && isSettingUp && !isSetup) {
-      // User is authenticated but still setting up, redirect to /auth/setup
-      navigate('/auth/setup', { replace: true });
-    } else if (isSignedUp && isSetup) {
-      navigate('/admin/dashboard', { replace: true });
-    } else if (!isSettingUp && isAuthenticated) {
-      // User is authenticated, redirect to admin/dashboard
-      navigate('/admin/workspaces', { replace: true });
+    if (isAuthenticated) {
+      navigate(`/admin/dashboard`, { replace: true });
     }
-  }, [isSettingUp, isAuthenticated, redirects, navigate, isSignedUp, isSetup]);
+  }, [isAuthenticated, navigate]);
 
   if (isAuthLoading) {
-    // Show a loading indicator while checking authentication
     return (
       <Box
         display="flex"
@@ -50,27 +30,17 @@ export const AuthLayout = () => {
       </Box>
     );
   }
+
   return (
     <Box>
       <CssBaseline />
-      <Box
-        sx={{
-          backgroundColor: blackestBG,
-          float: 'right',
-          minHeight: '100vh',
-          height: '100%',
-          position: 'relative',
-          width: '100%',
-          transition: 'all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1)',
-          transitionDuration: '.2s, .2s, .35s',
-          transitionProperty: 'top, bottom, width',
-          transitionTimingFunction: 'linear, linear, ease',
-        }}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
       >
-        <Box mx="auto" minHeight="100vh">
-          <Outlet />
-        </Box>
-      </Box>
+        <Outlet />
+      </motion.div>
     </Box>
   );
 };

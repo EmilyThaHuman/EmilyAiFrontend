@@ -50,6 +50,17 @@ export const userApi = {
       throw error;
     }
   },
+  getHomeWorkspace: async () => {
+    try {
+      const data = await apiUtils.get(
+        `/user/${sessionStorage.getItem('userId')}/workspaces`
+      );
+      return data;
+    } catch (error) {
+      console.error('Error fetching workspaces:', error);
+      throw error;
+    }
+  },
   updateProfile: async (userId, profileData) => {
     try {
       const data = await apiUtils.put(`/user/${userId}/profile`, profileData);

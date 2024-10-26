@@ -1,3 +1,5 @@
+// components/NewChatRoute.jsx
+
 // src/views/admin/chat/NewChatDialog.jsx
 import { Settings, Send } from '@mui/icons-material';
 import {
@@ -22,8 +24,12 @@ import {
 import { useFormik } from 'formik';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
-import React, { useState, useCallback } from 'react';
+import React, { Suspense, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
+
+import { chatApi } from 'api/Ai/chat-sessions';
+import { LoadingIndicator } from 'components/index';
 
 // Define validation schema using Yup
 const validationSchema = yup.object().shape({
@@ -271,4 +277,26 @@ NewChatDialog.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
 
-export default React.memo(NewChatDialog);
+export const NewChatRoute = () => {
+  const navigate = useNavigate();
+
+  const handleNewChat = async chatData => {
+    try {
+      const response = await chatApi.createChatSession(chatData);
+      const { chatSessionId } = response.data;
+      navigate(`/admin/workspaces/home/chat/${chatSessionId}`);
+    } catch (error) {
+      console.error('Error creating new chat:', error);
+    }
+  };
+
+  return (
+    <Suspense fallback={<LoadingIndicator />}>
+      <NewChatDialog
+        open={true}
+        onClose={() => navigate(-1)}
+        onSubmit={handleNewChat}
+      />
+    </Suspense>
+  );
+};

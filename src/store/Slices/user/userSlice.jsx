@@ -77,6 +77,7 @@ export const handleAuthSubmit = createAsyncThunk(
           email: data.user.email,
           isAuthenticated: true,
           profile: data.user.profile,
+          homeWorkspaceId: data.user.homeWorkspaceId,
         };
         dispatch(setUser(updatedUserData));
         dispatch(setProfile(updatedUserData.profile));
@@ -94,19 +95,6 @@ export const handleAuthSubmit = createAsyncThunk(
           console.log('data.workspaceId:', data.workspaceId);
           dispatch(setIsSettingUp(true));
         }
-        // setLocalUserData({
-        //   ...initialState,
-        //   isAuthenticated: true,
-        //   user: updatedUserData,
-        // });
-        // if (isSignup) {
-        //   navigate('/auth/setup');
-        // } else {
-        //   navigate('/admin/dashboard');
-        // }
-        // if (isSignup && data.workspaceId) {
-        //   window.location.href = `setup`;
-        // }
         return {
           user: updatedUserData,
           isSettingUp: isSignup,

@@ -8,8 +8,6 @@ import {
   useRouteError,
 } from 'react-router-dom';
 
-import { chatApi } from 'api/Ai/chat-sessions';
-import { workspacesApi } from 'api/workspaces';
 import {
   AdminPanelSettingsRoundedIcon,
   AiIcon,
@@ -24,178 +22,19 @@ import {
 import { LoadingIndicator } from 'components/index';
 import { Loadable } from 'layouts/navigation/navbar/components';
 import { dispatch, setField } from 'store/index';
-import { NotFoundPage } from 'views/error';
 
-// =========================================================
-// Route Loaders
-// =========================================================
-/* *** Fetch Workspace Loader *** */
-export async function workspaceLoader({ params }) {
-  const { workspaceId } = params;
+import { createChatAction, logoutAction } from './actions';
+import {
+  chatSessionLoader,
+  homeWorkspaceLoader,
+  workspaceLoader,
+} from './loaders';
 
-  try {
-    const workspace = await workspacesApi.getWorkspace(workspaceId);
-    if (!workspace) {
-      throw new Response('Workspace Not Found', { status: 404 });
-    }
-    return { workspace };
-  } catch (error) {
-    throw new Response(error.message || 'Failed to load workspace', {
-      status: error.status || 500,
-    });
-  }
-}
-/* *** Fetch ChatSession Loader *** */
-// export async function chatSessionLoader({ params }) {
-
-// =========================================================
-// Route Actions
-// =========================================================
-
-/* *** Create Chat Action *** */
-export async function createNewChatAction({ request }) {
-  const formData = await request.formData();
-  const { topic, prompt, selectedComponent, temperature, useGPT4 } =
-    Object.fromEntries(formData);
-
-  // Basic validation (already handled by Formik/Yup, but adding server-side validation)
-  if (!prompt || prompt.trim() === '') {
-    return { errors: [{ message: 'Prompt is required.' }] };
-  }
-
-  try {
-    // Generate chat title
-    const title = await chatApi.generateChatTitle(prompt);
-
-    if (!title) {
-      return { errors: [{ message: 'Failed to generate chat title.' }] };
-    }
-
-    // Create chat session
-    const newChat = await chatApi.createChatSession({
-      title,
-      prompt,
-      selectedComponent,
-      temperature: parseFloat(temperature),
-      useGPT4: useGPT4 === 'true' || useGPT4 === true,
-      sessionId: sessionStorage.getItem('sessionId'),
-      workspaceId: sessionStorage.getItem('workspaceId'),
-      userId: sessionStorage.getItem('userId'),
-      clientApiKey: sessionStorage.getItem('apiKey'),
-      newSession: true,
-    });
-
-    // Redirect to the new chat session
-    return Navigate(
-      `/admin/workspaces/${newChat.workspaceId}/chat/${newChat._id}`
-    );
-  } catch (error) {
-    console.error('Error creating chat session:', error);
-    return { errors: [{ message: error.message || 'Failed to create chat.' }] };
-  }
-}
-
-/* *** Create Chat Action *** */
-export async function createChatAction({ request }) {
-  const formData = await request.formData();
-  const firstPrompt = formData.get('firstPrompt');
-
-  // Basic validation
-  if (!firstPrompt || firstPrompt.trim() === '') {
-    return { errors: [{ message: 'First prompt is required.' }] };
-  }
-
-  try {
-    // Generate chat title
-    const title = await chatApi.generateChatTitle(firstPrompt);
-
-    if (!title) {
-      return { errors: [{ message: 'Failed to generate chat title.' }] };
-    }
-
-    // Create chat session
-    const newChat = await chatApi.createChatSession({
-      title,
-      firstPrompt,
-      sessionId: sessionStorage.getItem('sessionId'),
-      workspaceId: sessionStorage.getItem('workspaceId'),
-      regenerate: false,
-      prompt: firstPrompt,
-      userId: sessionStorage.getItem('userId'),
-      clientApiKey: sessionStorage.getItem('apiKey'),
-      newSession: true,
-    });
-
-    // Redirect to the new chat session
-    return redirect(`/admin/workspaces/home/chat/${newChat.id}`);
-  } catch (error) {
-    return { errors: [{ message: error.message }] };
-  }
-}
-
-/* *** Logout Action *** */
-export async function logoutAction() {
-  try {
-    // clear session storage
-    sessionStorage.clear();
-    // clear local storage
-    localStorage.clear();
-    // refresh the page
-    window.location.reload();
-    // dispatch({ type: 'LOGOUT' }); // Dispatch the logout action
-    // navigate('/auth/sign-in'); // Navigate to the sign-in page
-    return redirect('/');
-  } catch (error) {
-    console.error('Logout failed:', error);
-    // Even if logout fails, clear local storage and redirect
-    sessionStorage.clear();
-    localStorage.clear();
-    dispatch({ type: 'LOGOUT' });
-    return redirect('/auth/sign-in');
-    // return { errors: [{ message: error.message }] };
-  }
-}
-
-/* *** Error Utils *** */
-const RootErrorBoundary = Loadable(
-  lazy(() => import('utils/app/RouterErrorBoundary.jsx'))
+/* *** Components *** */
+const ErrorElement = Loadable(
+  React.lazy(() => import('./components/RootErrorBoundary'))
 );
-export const ErrorBoundary = () => {
-  const error = useRouteError();
-  return (
-    <RootErrorBoundary>
-      <NotFoundPage error={error} />
-    </RootErrorBoundary>
-  );
-};
-
-// =========================================================
-// Route Components
-// =========================================================
-export const NewChatDialog = lazy(() => import('components/chat'));
-export const NewChatRoute = () => {
-  const navigate = useNavigate();
-
-  const handleNewChat = async chatData => {
-    try {
-      const response = await chatApi.createChatSession(chatData);
-      const { chatSessionId } = response.data;
-      navigate(`/admin/workspaces/home/chat/${chatSessionId}`);
-    } catch (error) {
-      console.error('Error creating new chat:', error);
-    }
-  };
-
-  return (
-    <Suspense fallback={<LoadingIndicator />}>
-      <NewChatDialog
-        open={true}
-        onClose={() => navigate(-1)}
-        onSubmit={handleNewChat}
-      />
-    </Suspense>
-  );
-};
+const NewChat = Loadable(lazy(() => import('./components/NewChatRoute')));
 export function LogoutRoute() {
   return <p>Logging out...</p>;
 }
@@ -246,7 +85,7 @@ const baseRoutes = [
         <BlankLayout />
       </Suspense>
     ),
-    errorElement: <RootErrorBoundary />,
+    errorElement: <ErrorElement />,
     icon: <HomeIcon />,
     collapse: true,
     invisible: false,
@@ -303,7 +142,7 @@ const adminRoutes = [
         <AdminLayout />
       </Suspense>
     ),
-    errorElement: <RootErrorBoundary />,
+    errorElement: <ErrorElement />,
     icon: <AdminPanelSettingsRoundedIcon />,
     collapse: true,
     children: [
@@ -346,7 +185,7 @@ const adminRoutes = [
         children: [
           {
             index: true,
-            element: <Navigate to="/admin/workspaces/:workspaceId" />, // Fallback to Workspace Home
+            element: <Navigate to="/admin/workspaces/home" />, // Fallback to Workspace Home
           },
           {
             name: 'Workspace Home',
@@ -360,7 +199,7 @@ const adminRoutes = [
             ),
             icon: <HomeIcon />,
             description: 'Workspace Home',
-            loader: workspaceLoader,
+            loader: homeWorkspaceLoader,
             collapse: false,
           },
           {
@@ -426,20 +265,7 @@ const adminRoutes = [
                     icon: <DocumentScannerRoundedIcon />,
                     description: 'Chat Sessions',
                     collapse: false,
-                    loader: async ({ params }) => {
-                      const { workspaceId, sessionId } = params;
-                      try {
-                        const chat = await chatApi.getChatSession(sessionId);
-                        if (!chat) {
-                          throw new Error('Chat session not found');
-                        }
-                        return {
-                          chatSession: chat,
-                        };
-                      } catch (error) {
-                        throw new Response(error.message, { status: 404 });
-                      }
-                    },
+                    loader: chatSessionLoader,
                     // errorElement: (
                     //   <Suspense fallback={<LoadingIndicator />}></Suspense>
                     // ),
@@ -449,7 +275,7 @@ const adminRoutes = [
                     title: 'NewChat',
                     path: 'new',
                     breadcrumb: 'New Chat',
-                    element: <NewChatRoute />,
+                    element: <NewChat />,
                     action: createChatAction,
                   },
                   {
@@ -535,7 +361,7 @@ const authRoutes = [
         <AuthLayout />
       </Suspense>
     ),
-    errorElement: <RootErrorBoundary />,
+    errorElement: <ErrorElement />,
     icon: <LockIcon />,
     collapse: true,
     children: [
@@ -619,7 +445,7 @@ const rootRoutes = [
     hide: true,
     path: '/',
     element: <RouterLayout />,
-    errorElement: <RootErrorBoundary />,
+    errorElement: <ErrorElement />,
     children: [
       {
         index: true,

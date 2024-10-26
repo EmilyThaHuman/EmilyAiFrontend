@@ -11,6 +11,7 @@ import {
   styled,
   Typography,
 } from '@mui/material';
+import { motion } from 'framer-motion';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { userApi } from 'api/user';
@@ -22,8 +23,6 @@ import { APIStep } from '../components/ApiStep';
 import { FinishStep } from '../components/FinishStep';
 import { ProfileStep } from '../components/ProfileStep';
 import { StepContainer } from '../components/StepContainer';
-import { Login } from '../login';
-import { Signup } from '../signup';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -68,19 +67,6 @@ export const AuthStepper = () => {
   });
   const [usernameAvailable, setUsernameAvailable] = useState(false);
 
-  /* Api Setup */
-  const steps = ['Profile', 'API Setup', 'Finish'];
-
-  const handleNext = useCallback(() => {
-    setActiveStep(prevStep =>
-      prevStep < steps.length - 1 ? prevStep + 1 : prevStep
-    );
-  }, [steps.length]);
-
-  const handleBack = useCallback(() => {
-    setActiveStep(prevStep => (prevStep > 0 ? prevStep - 1 : prevStep));
-  }, []);
-
   const handleSaveSetupSetting = useCallback(async () => {
     try {
       const userId = sessionStorage.getItem('userId');
@@ -103,32 +89,30 @@ export const AuthStepper = () => {
     setupWorkspaceAndNavigate,
   ]);
 
-  const handleShouldProceed = useCallback(
-    proceed => {
-      if (proceed) {
-        console.log(`Proceeding to step ${activeStep + 1}`);
-        if (activeStep === steps.length - 1) {
-          console.log('Saving setup settings');
-          handleSaveSetupSetting(); // Call the save settings function at the last step
-        } else {
-          handleNext();
-        }
-      } else {
-        handleBack();
-      }
-    },
-    [activeStep, steps.length, handleSaveSetupSetting, handleNext, handleBack]
-  );
+  const steps = ['Profile', 'API Setup', 'Finish'];
 
-  const renderStepContent = useMemo(() => {
+  const handleNext = async () => {
+    if (activeStep === steps.length - 1) {
+      // Save settings
+      await setProfile(profileData);
+      setIsSetup(true);
+      await setupWorkspaceAndNavigate();
+    } else {
+      setActiveStep(prev => prev + 1);
+    }
+  };
+
+  const handleBack = () => {
+    setActiveStep(prev => (prev > 0 ? prev - 1 : prev));
+  };
+
+  const renderStepContent = () => {
     switch (activeStep) {
       case 0:
         return (
           <ProfileStep
-            {...profileData}
+            profileData={profileData}
             setProfileData={setProfileData}
-            usernameAvailable={usernameAvailable}
-            setUsernameAvailable={setUsernameAvailable}
           />
         );
       case 1:
@@ -136,84 +120,60 @@ export const AuthStepper = () => {
           <APIStep profileData={profileData} setProfileData={setProfileData} />
         );
       case 2:
-        return (
-          <FinishStep
-            displayName={profileData.displayName}
-            username={profileData.username}
-          />
-        );
+        return <FinishStep profileData={profileData} />;
       default:
-        return <Typography variant="body1">Unknown step</Typography>;
+        return null;
     }
-  }, [activeStep, profileData, usernameAvailable]);
-
-  if (loading) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="100vh"
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
+  };
 
   return (
     <>
       <CssBaseline />
-      {window.location.pathname === '/auth/setup' ? (
-        <Container component="main" maxWidth="xs">
-          <Box
-            sx={{
-              marginTop: 8,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
+      <Container component="main" maxWidth="sm">
+        <Paper variant="outlined" sx={{ my: { xs: 3 }, p: { xs: 2 } }}>
+          <Typography component="h1" variant="h4" align="center">
+            Setup
+          </Typography>
+          <Stepper activeStep={activeStep} sx={{ pt: 3, pb: 5 }}>
+            {steps.map(label => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+          <motion.div
+            key={activeStep}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            style={{ width: '100%' }}
           >
-            <Typography component="h1" variant="h5">
-              Setup
-            </Typography>
             <StepContainer
-              stepNum={activeStep + 1} // Updated to be 1-based
+              stepDescription=""
+              stepNum={activeStep + 1}
               stepTitle={steps[activeStep]}
-              onShouldProceed={handleShouldProceed}
+              onShouldProceed={handleNext}
             >
-              <Stepper activeStep={activeStep} alternativeLabel>
-                {steps.map((label, index) => (
-                  <Step key={index}>
-                    <StepLabel>{label}</StepLabel>
-                  </Step>
-                ))}
-              </Stepper>
-              <Box mt={3}>{renderStepContent}</Box>
+              {renderStepContent()}
               <Box mt={2} display="flex" justifyContent="space-between">
-                <Button disabled={activeStep === 0} onClick={handleBack}>
-                  Back
-                </Button>
+                {activeStep !== 0 && (
+                  <Button variant="contained" onClick={handleBack}>
+                    Back
+                  </Button>
+                )}
                 <Button
                   variant="contained"
-                  color="primary"
-                  onClick={() => handleShouldProceed(true)}
+                  onClick={handleNext}
+                  sx={{ ml: 'auto' }}
                 >
-                  {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+                  {activeStep === steps.length - 1 ? 'Save & Finish' : 'Next'}
                 </Button>
               </Box>
             </StepContainer>
-          </Box>
-        </Container>
-      ) : isSignup ? (
-        <StyledPaper>
-          <Signup />
-        </StyledPaper>
-      ) : (
-        <StyledPaper>
-          <Login />
-        </StyledPaper>
-      )}
+          </motion.div>
+        </Paper>
+      </Container>
     </>
   );
 };
+
 export default AuthStepper;
