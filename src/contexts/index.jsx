@@ -5,9 +5,12 @@ export * from './Providers';
 export * from './SidebarProvider';
 export * from './UserProvider';
 export * from './ToastProvider';
+export * from './ErrorProvider';
 
 import { useAppStore } from './AppProvider';
 import { useChatStore } from './ChatProvider';
+import { useColorStore } from './ColorModeProvider';
+import { useErrorStore } from './ErrorProvider';
 import { useToastStore } from './ToastProvider';
 import { useUserStore } from './UserProvider';
 
@@ -16,4 +19,6 @@ export default {
   useUserStore,
   useAppStore,
   useToastStore,
+  useColorStore,
+  useErrorStore,
 };

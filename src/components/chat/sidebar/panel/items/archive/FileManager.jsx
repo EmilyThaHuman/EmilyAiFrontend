@@ -9,10 +9,10 @@ import { useFileProcesser } from 'hooks/chat';
 import { useFileStructure } from 'hooks/chat/useFileStructure';
 import { useDialog } from 'hooks/ui';
 
-import { NewFileDialog, NewFolderDialog } from './file-manager-components';
+import { NewFileDialog, NewFolderDialog } from '../sidebar-items/file-manager-components';
 import { FileTree } from './FileTree';
 import { SidebarActions } from './SidebarActions';
-import { useFileEditor } from './useFileEditor';
+import { useFileEditor } from '../sidebar-items/useFileEditor';
 import { useFileManagement } from './useFileManagement';
 
 export const FileManagementSidebar = props => {

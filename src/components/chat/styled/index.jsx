@@ -5,29 +5,27 @@ import {
   TabList as RadixUiTabList,
 } from '@headlessui/react';
 import {
-  Paper,
-  Typography,
+  Avatar,
   Box,
   Button,
-  TextareaAutosize,
-  TextField,
-  Avatar,
-  Tabs,
-  styled,
-  Slider,
+  Card,
   FormControlLabel,
   IconButton,
-  Select,
-  Switch,
-  Card,
   ListItem,
+  Select,
+  Slider,
+  styled,
+  Switch,
+  Tabs,
+  TextareaAutosize,
+  TextField,
 } from '@mui/material';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 
 import { RCTooltip } from 'components/themed';
 
-import { FileInfoTooltip } from '../sidebar/panel/items/sidebar-items/FileInfoTooltip';
+import { FileInfoTooltip } from '../files/FileInfoTooltip';
 /* --- CHAT - SIDEBAR --- */
 export const SidebarContainer = styled('div')({
   background: '#000',

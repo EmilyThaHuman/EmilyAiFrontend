@@ -110,6 +110,7 @@ export const CreateItemDialog = ({
       onClose={onClose}
       title={dialogTitle}
       actions={dialogActions}
+      variant="darkMode"
     >
       {!isDirectory && (
         <FormControlLabel
@@ -189,17 +190,20 @@ export const CreateItemDialog = ({
 };
 
 CreateItemDialog.propTypes = {
+  error: PropTypes.string,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   itemData: PropTypes.shape({
     name: PropTypes.string,
     type: PropTypes.string,
     content: PropTypes.string,
+    isDirectory: PropTypes.bool.isRequired,
+    metadata: PropTypes.shape({
+      space: PropTypes.string.isRequired,
+    }),
   }).isRequired,
   setItemData: PropTypes.func.isRequired,
   onCreateItem: PropTypes.func.isRequired,
-  error: PropTypes.string,
-  isDirectory: PropTypes.bool.isRequired,
   onUploadItem: PropTypes.func.isRequired,
   isUploading: PropTypes.bool.isRequired,
   uploadProgress: PropTypes.number.isRequired,

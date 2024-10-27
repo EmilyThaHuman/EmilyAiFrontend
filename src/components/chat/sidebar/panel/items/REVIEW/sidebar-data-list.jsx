@@ -13,7 +13,7 @@ import { ModelItem } from './items/models/model-item';
 import { PresetItem } from './items/presets/preset-item';
 import { PromptItem } from './items/prompts/prompt-item';
 import { ToolItem } from './items/tools/tool-item';
-import { useDragAndDrop } from './useDragAndDrop';
+import { useDragAndDrop } from '../archive/useDragAndDrop';
 
 import { ChatbotUIContext } from '@/context/context';
 import { updateAssistant } from '@/db/assistants';

@@ -33,16 +33,3 @@ export const useDynamicState = (space, initialData) => {
 };
 
 export default useDynamicState;
-
-// Example usage inside a React component:
-// function ExampleComponent({ space }) {
-//   const [state, setState] = useDynamicState(space);
-
-//   return (
-//     <div>
-//       <h3>Current space: {space}</h3>
-//       <pre>{JSON.stringify(state, null, 2)}</pre>
-//       <button onClick={() => setState([...state, 'NewItem'])}>Add Item</button>
-//     </div>
-//   );
-// }
