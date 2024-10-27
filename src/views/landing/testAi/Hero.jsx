@@ -5,6 +5,10 @@ import { useMode } from 'hooks/app';
 
 import ChatInput from './ChatInput';
 
+/**
+ * Renders a hero section with animated text and a chat input component.
+ * @returns {JSX.Element} A div containing a title, animated text, and a chat input component.
+ */
 export const Hero = () => {
   const { theme } = useMode();
   const [text] = useTypewriter({

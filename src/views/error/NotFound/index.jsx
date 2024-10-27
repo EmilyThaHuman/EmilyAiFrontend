@@ -30,6 +30,11 @@ const AnimationWrapper = styled(Box)({
   marginBottom: '20px',
 });
 
+/**
+ * Creates a styled Message component with customized appearance based on the current theme.
+ * @param {Object} theme - The theme object containing palette and mode information.
+ * @returns {React.ComponentType} A styled component for rendering messages with dynamic styling.
+ */
 const Message = styled(MotionBox)(({ theme }) => ({
   maxWidth: '600px',
   padding: '30px 40px',
@@ -46,6 +51,11 @@ const Message = styled(MotionBox)(({ theme }) => ({
   transition: 'background 0.5s ease, box-shadow 0.5s ease',
 }));
 
+/**
+ * Creates a styled button component with custom styling and hover effects.
+ * @param {Object} theme - The theme object containing palette and mode information.
+ * @returns {React.ComponentType} A styled button component with enhanced visual properties.
+ */
 const StyledButton = styled(MotionButton)(({ theme }) => ({
   padding: '12px 24px',
   fontSize: '1rem',
@@ -110,6 +120,14 @@ const DetailsBox = styled(Box)({
   maxWidth: '500px',
 });
 
+/**
+ * Renders a Not Found page component with error details and navigation options.
+ * @param {Object} props - The component props
+ * @param {Object} [props.error] - The error object containing status and message
+ * @param {number} [props.error.status] - The HTTP status code of the error
+ * @param {string} [props.error.message] - The error message
+ * @returns {JSX.Element} A React component displaying the Not Found page
+ */
 const NotFoundPage = ({ error }) => {
   const navigate = useNavigate();
   const [showDetails, setShowDetails] = useState(false);
@@ -165,15 +183,30 @@ const NotFoundPage = ({ error }) => {
 
 // export default NotFoundPage;
 
+/**
+ * Wraps the NotFoundPage component with ResponsiveStyles.
+ * @param {Object} props - The props to be passed to the NotFoundPage component.
+ * @returns {JSX.Element} A ResponsiveStyles component containing the NotFoundPage component with the given props.
+ */
 const WrappedNotFoundPage = props => (
   <ResponsiveStyles>
     <NotFoundPage {...props} />
   </ResponsiveStyles>
 );
 
+/**
+ * Renders a wrapped NotFoundPage component with the provided props.
+ * @param {Object} props - The properties to be passed to the WrappedNotFoundPage component.
+ * @returns {JSX.Element} A React component representing the wrapped NotFoundPage.
+ */
 export const ErrorFallBack = props => <WrappedNotFoundPage {...props} />;
 
 export default WrappedNotFoundPage;
+/**
+ * Creates a responsive styled component for handling mobile layout adjustments.
+ * @param {Object} theme - The theme object containing styling information.
+ * @returns {Object} An object with media query-based style adjustments for various child components.
+ */
 const ResponsiveStyles = styled('div')(({ theme }) => ({
   '@media (max-width: 768px)': {
     [`& ${Container}`]: {
