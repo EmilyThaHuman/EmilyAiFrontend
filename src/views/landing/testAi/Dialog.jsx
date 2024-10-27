@@ -36,12 +36,24 @@ export const Dialog = ({ open, onClose, children }) => {
       window.scrollTo(0, currentScroll);
     }
 
+    /**
+     * Returns a function that resets the body's position and top style properties.
+     * @returns {Function} A function that when called, removes the 'position' and 'top' styles from the document's body.
+     */
     return () => {
       document.body.style.position = '';
       document.body.style.top = '';
     };
   }, [open]);
 
+  /**
+   * Sets up an effect to handle the 'Escape' key press event for closing a component.
+   * This effect adds a keydown event listener to the document when the component mounts,
+   * and removes it when the component unmounts to prevent memory leaks.
+   * 
+   * @param {function} onClose - The function to be called when the 'Escape' key is pressed
+   * @returns {function} A cleanup function that removes the event listener
+   */
   useEffect(() => {
     const handleKeyDown = e => {
       if (e.key === 'Escape') {
