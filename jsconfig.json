@@ -26,5 +26,5 @@
     },
   },
   "exclude": ["node_modules", "build"],
-  "include": ["src", "CLEAN_UP"],
+  "include": ["src", "archive/CLEAN_UP"],
 }
