@@ -34,12 +34,27 @@ const INITIAL_FILE_STATE = {
   type: '.txt',
   content: '',
   isDirectory: false,
+  path: '',
+  folderId: null,
+  children: [],
+  metadata: {
+    space: '',
+    path: '',
+    parentId: null,
+  },
 };
 
 const INITIAL_FOLDER_STATE = {
   name: '',
   isDirectory: true,
   isOpen: false,
+  path: '',
+  children: [],
+  metadata: {
+    space: '',
+    path: '',
+    parentId: null,
+  },
 };
 
 const INITIAL_STATE = {
@@ -114,6 +129,87 @@ SearchField.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
+// Api functions
+const deleteItemFromServer = async item => {
+  try {
+    if (item.isDirectory) {
+      await workspacesApi.deleteFolder(item.id);
+    } else {
+      switch (item.metadata.space) {
+        case 'files':
+          await attachmentsApi.deleteFile(item.id);
+          break;
+        case 'prompts':
+          await settingsApi.deletePrompt(item.id);
+          break;
+        case 'chatSessions':
+          await chatApi.delete(item.id);
+          break;
+        case 'assistants':
+          await assistantsApi.deleteAssistant(item.id);
+          break;
+        default:
+          throw new Error(`Unknown space type: ${item.metadata.space}`);
+      }
+    }
+  } catch (error) {
+    throw new Error(`Failed to delete item: ${error.message}`);
+  }
+};
+
+const updateItemOnServer = async (item, updates) => {
+  try {
+    if (item.isDirectory) {
+      return await workspacesApi.updateFolder(item.id, updates);
+    }
+
+    switch (item.metadata.space) {
+      case 'files':
+        return await attachmentsApi.updateFile(item.id, updates);
+      case 'prompts':
+        return await settingsApi.updatePrompt(item.id, updates);
+      case 'chatSessions':
+        return await chatApi.update(item.id, updates);
+      case 'assistants':
+        return await assistantsApi.updateAssistant(item.id, updates);
+      default:
+        throw new Error(`Unknown space type: ${item.metadata.space}`);
+    }
+  } catch (error) {
+    throw new Error(`Failed to update item: ${error.message}`);
+  }
+};
+
+const moveItemOnServer = async (item, newParentId, newPath) => {
+  try {
+    const payload = {
+      itemId: item.id,
+      newParentId,
+      newPath,
+      space: item.metadata.space,
+    };
+
+    if (item.isDirectory) {
+      return await workspacesApi.moveFolder(payload);
+    }
+
+    switch (item.metadata.space) {
+      case 'files':
+        return await attachmentsApi.moveFile(payload);
+      case 'prompts':
+        return await settingsApi.movePrompt(payload);
+      case 'chatSessions':
+        return await chatApi.moveSession(payload);
+      case 'assistants':
+        return await assistantsApi.moveAssistant(payload);
+      default:
+        throw new Error(`Unknown space type: ${item.metadata.space}`);
+    }
+  } catch (error) {
+    throw new Error(`Failed to move item: ${error.message}`);
+  }
+};
+
 // Custom hook for managing file operations
 const useFileOperations = (space, initialItems, initialFolders, setState) => {
   const [loading, setLoading] = useState(false);
@@ -145,17 +241,20 @@ const useFileOperations = (space, initialItems, initialFolders, setState) => {
         initialItems
       );
 
-      const updatedItems = formatItems(folderItemData.folderItems, space);
+      const updatedItems = formatItems(
+        folderItemData.folderItems,
+        space,
+        folderItemData.folders
+      );
 
       setState(prevState => {
         const uniqueItemsMap = new Map();
 
-        // Merge previous items and updated items, using the `id` as the key to filter out duplicates
+        // Merge previous items and updated items
         [...prevState, ...updatedItems].forEach(item => {
           uniqueItemsMap.set(item.id, item);
         });
 
-        // Convert map values back into an array to get the unique items
         return Array.from(uniqueItemsMap.values());
       });
     } catch (error) {
@@ -170,19 +269,26 @@ const useFileOperations = (space, initialItems, initialFolders, setState) => {
 };
 
 // Helper functions
-const formatItems = (items, space) => {
-  return items?.map(item => ({
+const formatItems = (items, space, folders) => {
+  const formattedItems = items?.map(item => ({
     ...item,
     id: uniqueId(item.id || item._id || item.name),
     name: item.name || item.filename || generateTempFileName(item.metaData),
     type: item.contentType || item.type,
     isDirectory: space === 'files' ? false : Boolean(item.children),
     space: space,
+    path: item.path || '',
+    folderId: item.folderId || null,
+    children: [],
     metadata: {
       ...item.metaData,
       space: space,
+      path: item.path || '',
+      parentId: item.folderId || null,
     },
   }));
+
+  return organizeItemsIntoTree(formattedItems, folders);
 };
 
 const getFolderData = async (
@@ -193,7 +299,12 @@ const getFolderData = async (
 ) => {
   if (space === 'chatSessions') {
     return {
-      folders: initialFolders,
+      folders: initialFolders.map(folder => ({
+        ...folder,
+        children: [],
+        isDirectory: true,
+        isOpen: false,
+      })),
       folderItems: initialItems,
     };
   }
@@ -204,10 +315,28 @@ const getFolderData = async (
       space,
     });
 
+  const allFolders = [...initialFolders, folder].map(f => ({
+    ...f,
+    children: [],
+    isDirectory: true,
+    isOpen: false,
+  }));
+
   return {
-    folders: [...initialFolders, folder],
+    folders: allFolders,
     folderItems,
   };
+};
+
+const findItemById = (items, id) => {
+  for (const item of items) {
+    if (item.id === id) return item;
+    if (item.children?.length) {
+      const found = findItemById(item.children, id);
+      if (found) return found;
+    }
+  }
+  return null;
 };
 
 // Helper functions for file tree operations
@@ -248,6 +377,91 @@ const addItemToTree = (items, dropId, draggedItem) => {
     }
     return item;
   });
+};
+
+const updatePathsRecursively = (items, parentPath = '') => {
+  return items.map(item => {
+    const newPath = parentPath ? `${parentPath}/${item.name}` : `/${item.name}`;
+    const updatedItem = {
+      ...item,
+      path: newPath,
+      metadata: {
+        ...item.metadata,
+        path: newPath,
+      },
+    };
+
+    if (item.children?.length) {
+      updatedItem.children = updatePathsRecursively(item.children, newPath);
+    }
+
+    return updatedItem;
+  });
+};
+
+const organizeItemsIntoTree = (items, folders) => {
+  // Create a map of folders by ID for quick lookup
+  const folderMap = new Map(
+    folders.map(folder => [
+      folder.id,
+      {
+        ...folder,
+        children: [],
+        isDirectory: true,
+        isOpen: false,
+        path: `/${folder.name}`,
+      },
+    ])
+  );
+
+  // Create a map for all items (including files)
+  const itemMap = new Map();
+
+  // First pass: Setup all items with their basic properties
+  items.forEach(item => {
+    const formattedItem = {
+      ...item,
+      id: item.id || uniqueId(item._id || item.name),
+      path: item.folderId
+        ? `/${folderMap.get(item.folderId)?.name}/${item.name}`
+        : `/${item.name}`,
+      children: [],
+      isDirectory: Boolean(item.isDirectory),
+    };
+    itemMap.set(formattedItem.id, formattedItem);
+  });
+
+  // Second pass: Organize items into their proper folders
+  items.forEach(item => {
+    if (item.folderId && folderMap.has(item.folderId)) {
+      const folder = folderMap.get(item.folderId);
+      const formattedItem = itemMap.get(item.id);
+      folder.children.push(formattedItem);
+    }
+  });
+
+  // Create the final tree structure
+  const rootItems = [];
+
+  // Add folders to root
+  folderMap.forEach(folder => {
+    if (!folder.parentId) {
+      rootItems.push(folder);
+    } else if (folderMap.has(folder.parentId)) {
+      const parentFolder = folderMap.get(folder.parentId);
+      parentFolder.children.push(folder);
+    }
+  });
+
+  // Add items without folders to root
+  items.forEach(item => {
+    if (!item.folderId) {
+      const formattedItem = itemMap.get(item.id);
+      rootItems.push(formattedItem);
+    }
+  });
+
+  return rootItems;
 };
 
 // Utility for handling file uploads
@@ -492,6 +706,13 @@ export const FileDirectory = ({ space, initialItems, initialFolders }) => {
     initializeData();
   }, [space, initialItems, initialFolders, fetchItems, setState]);
 
+  useEffect(() => {
+    if (initialFolders?.length) {
+      const organizedItems = organizeItemsIntoTree(state, initialFolders);
+      setState(updatePathsRecursively(organizedItems));
+    }
+  }, [initialFolders]); // Only run when initialFolders changes
+
   const processUploadedFile = async file => {
     return {
       id: uniqueId(file.name),
@@ -530,7 +751,12 @@ export const FileDirectory = ({ space, initialItems, initialFolders }) => {
   const updateItemInTree = useCallback((items, itemId, updates) => {
     return items.map(item => {
       if (item.id === itemId) {
-        return { ...item, ...updates };
+        const updatedItem = { ...item, ...updates };
+        // If name is being updated, update paths
+        if (updates.name && item.name !== updates.name) {
+          return updatePathsRecursively([updatedItem])[0];
+        }
+        return updatedItem;
       }
       if (item.children?.length) {
         return {
@@ -540,18 +766,7 @@ export const FileDirectory = ({ space, initialItems, initialFolders }) => {
       }
       return item;
     });
-  });
-
-  const findItemById = (items, id) => {
-    for (const item of items) {
-      if (item.id === id) return item;
-      if (item.children?.length) {
-        const found = findItemById(item.children, id);
-        if (found) return found;
-      }
-    }
-    return null;
-  };
+  }, []);
 
   const onFileClick = useCallback(async item => {
     setUiState(prev => ({ ...prev, selectedItemId: item.id }));
@@ -608,24 +823,61 @@ export const FileDirectory = ({ space, initialItems, initialFolders }) => {
   const handleCreateItem = useCallback(
     async selectedFile => {
       try {
+        const parentFolder = selectedItemId
+          ? findItemById(state, selectedItemId)
+          : null;
+        const parentPath = parentFolder?.path || '';
+
         const newItem = await createNewItem(newItemData, selectedFile, space);
-        setState(prev => addItemToTree(prev, newItem, selectedItemId));
+        const itemWithPath = {
+          ...newItem,
+          path: `${parentPath}/${newItem.name}`,
+          metadata: {
+            ...newItem.metadata,
+            parentId: selectedItemId,
+            path: `${parentPath}/${newItem.name}`,
+          },
+        };
+
+        setState(prev => {
+          if (selectedItemId) {
+            return addItemToTree(prev, selectedItemId, itemWithPath);
+          }
+          return [...prev, itemWithPath];
+        });
+
         closeDialogs();
+        setAction(
+          `Created ${newItem.isDirectory ? 'folder' : 'file'}: ${newItem.name}`
+        );
       } catch (err) {
         setUiState(prev => ({ ...prev, error: err.message }));
       }
     },
-    [newItemData, space, setState, closeDialogs, selectedItemId]
+    [newItemData, space, setState, closeDialogs, selectedItemId, state]
   );
 
-  const handleItemMove = useCallback((dragId, dropId) => {
-    setState(prev => {
-      const { updatedFiles, draggedItem } = removeItemFromTree(prev, dragId);
-      return draggedItem
-        ? addItemToTree(updatedFiles, dropId, draggedItem)
-        : prev;
-    });
-  }, []);
+  const handleItemMove = useCallback(
+    (dragId, dropId, { newPath, newParentId }) => {
+      setState(prev => {
+        const { updatedFiles, draggedItem } = removeItemFromTree(prev, dragId);
+        if (!draggedItem) return prev;
+
+        const updatedDraggedItem = {
+          ...draggedItem,
+          path: newPath,
+          metadata: {
+            ...draggedItem.metadata,
+            parentId: newParentId,
+            path: newPath,
+          },
+        };
+
+        return addItemToTree(updatedFiles, dropId, updatedDraggedItem);
+      });
+    },
+    []
+  );
 
   const handleItemSelect = useCallback(
     item => {
@@ -643,33 +895,61 @@ export const FileDirectory = ({ space, initialItems, initialFolders }) => {
     setFileTree(prev => updateItemInTree(prev, id, updates));
   }, []);
 
-  const handleItemRemove = useCallback(id => {
-    setFileTree(prev => removeItemFromTree(prev, id).updatedFiles);
+  const handleItemRemove = useCallback(
+    async id => {
+      try {
+        const item = findItemById(state, id);
+        if (!item) return;
+
+        // If it's a folder with children, show confirmation
+        if (item.isDirectory && item.children?.length) {
+          const confirmed = window.confirm(
+            `Are you sure you want to delete "${item.name}" and all its contents?`
+          );
+          if (!confirmed) return;
+        }
+
+        setState(prev => removeItemFromTree(prev, id).updatedFiles);
+        setAction(
+          `Removed ${item.isDirectory ? 'folder' : 'file'}: ${item.name}`
+        );
+
+        // Handle API deletion if needed
+        // await deleteItemFromServer(id);
+      } catch (err) {
+        setUiState(prev => ({ ...prev, error: err.message }));
+      }
+    },
+    [state]
+  );
+
+  const handleDragError = useCallback(error => {
+    setUiState(prev => ({ ...prev, error: error.message }));
+    setAction('Drag and drop failed');
   }, []);
 
   // Render helpers
   const renderFileTree = useCallback(
-    (items, path = '') => (
+    (items, parentPath = '') => (
       <AnimatePresence>
         {items.map(item => {
-          let validItem;
-          if (!item.id || !item.id === '') {
-            validItem = {
-              ...item,
-              id: uniqueId(item.id),
-            };
-          } else {
-            validItem = item;
-          }
+          const itemPath = parentPath
+            ? `${parentPath}/${item.name}`
+            : `/${item.name}`;
+          const validItem = {
+            ...item,
+            id: item.id || uniqueId(item.name),
+            path: itemPath,
+          };
+
           return (
             <EnhancedFileTreeItem
-              key={uniqueId(validItem.id)}
+              key={validItem.id}
               item={validItem}
-              // path={`${path}/${item.name}`}
-              path={`${path}/${validItem.id}`}
+              path={itemPath}
               isSelected={selectedItemId === validItem.id}
-              onMove={handleItemMove} // Ensure this function is defined
-              onSelect={handleItemSelect} // Ensure this function is defined
+              onMove={handleItemMove}
+              onSelect={handleItemSelect}
               updateItem={updates =>
                 setState(prev => updateItemInTree(prev, validItem.id, updates))
               }
@@ -680,19 +960,13 @@ export const FileDirectory = ({ space, initialItems, initialFolders }) => {
               {validItem.isDirectory &&
                 validItem.isOpen &&
                 validItem.children?.length > 0 &&
-                renderFileTree(validItem.children, `${path}/${validItem.name}`)}
+                renderFileTree(validItem.children, itemPath)}
             </EnhancedFileTreeItem>
           );
         })}
       </AnimatePresence>
     ),
-    [
-      selectedItemId,
-      handleItemMove,
-      handleItemSelect,
-      setState,
-      updateItemInTree,
-    ]
+    [selectedItemId, handleItemMove, handleItemSelect, setState]
   );
 
   if (uiState.loading) return <LoadingIndicator />;
