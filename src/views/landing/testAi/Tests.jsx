@@ -6,11 +6,6 @@ import { Chat } from './content';
 import Dialog from './Dialog';
 import TestCard from './TestCard';
 
-/**
- * Renders a component that displays a grid of test cards and their corresponding dialogs.
- * Each test card represents a different test functionality and opens a dialog when clicked.
- * @returns {JSX.Element} A div containing a grid of TestCard components and Dialog components for each test.
- */
 export const Tests = () => {
   const chatTestDialog = useDialog();
   const secondTestDialog = useDialog();

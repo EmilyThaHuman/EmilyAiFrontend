@@ -13,12 +13,6 @@ import { useCopyToClipboard } from 'hooks/util';
 
 // ... (keep the programmingLanguages and generateRandomString functions as they are)
 
-/**
- * Defines a styled component named CodeBlockWrapper using the styled-components library.
- * This component wraps a code block with custom styling.
- * @param {Object} theme - The theme object provided by the styled-components theme provider.
- * @returns {React.ComponentType} A styled Box component with custom styling for code blocks.
- */
 const CodeBlockWrapper = styled(Box)(({ theme }) => ({
   position: 'relative',
   width: '100%',
@@ -26,11 +20,6 @@ const CodeBlockWrapper = styled(Box)(({ theme }) => ({
   fontFamily: theme.typography.fontFamily,
 }));
 
-/**
- * Creates a styled component for a code block header
- * @param {Object} theme - The theme object containing styling properties
- * @returns {React.ComponentType<BoxProps>} A styled Box component with custom styling for code block headers
- */
 const CodeBlockHeader = styled(Box)(({ theme }) => ({
   display: 'flex',
   width: '100%',
@@ -65,12 +54,6 @@ const programmingLanguages = {
   html: '.html',
   css: '.css',
 };
-/**
- * Generates a random string of specified length
- * @param {number} length - The length of the random string to generate
- * @param {boolean} [lowercase=false] - Whether to return the string in lowercase
- * @returns {string} A random string of the specified length
- */
 const generateRandomString = (length, lowercase = false) => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXY3456789'; // excluding similar looking characters like Z, 2, I, 1, O, 0
   let result = '';
@@ -81,11 +64,6 @@ const generateRandomString = (length, lowercase = false) => {
 };
 export const MessageCodeBlock = memo(({ language, value }) => {
   const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 });
-  /**
-   * Downloads the current content as a file.
-   * @returns {void} This method doesn't return a value.
-   * @throws {Error} If the window object is undefined (non-browser environment).
-   */
   const downloadAsFile = () => {
     if (typeof window === 'undefined') {
       return;
@@ -110,10 +88,6 @@ export const MessageCodeBlock = memo(({ language, value }) => {
     URL.revokeObjectURL(url);
   };
 
-  /**
-   * Copies a value to the clipboard if it hasn't been copied already.
-   * @returns {void} This method doesn't return a value.
-   */
   const onCopy = () => {
     if (isCopied) return;
     copyToClipboard(value);
