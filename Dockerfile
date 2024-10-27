@@ -1,5 +1,5 @@
 # Specify a base image
-FROM node:18-alpine
+FROM node:18
 
 # Set the working directory
 WORKDIR /app
@@ -8,7 +8,7 @@ WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 
 # Update npm to the latest version
-RUN npm install -g npm@10.7.0
+RUN npm install
 
 # Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
