@@ -4,11 +4,6 @@ import React, { memo } from 'react';
 
 import { useMode } from 'hooks';
 
-/**
- * Creates a styled InfoPanel component using Material-UI's styled API and Box component.
- * @param {Object} theme - The theme object provided by Material-UI's ThemeProvider.
- * @returns {Component} A styled Box component with custom styling for an info panel.
- */
 export const StyledInfoPanel = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1),
   backgroundColor: theme.palette.background.paper,
@@ -21,13 +16,6 @@ export const StyledInfoPanel = styled(Box)(({ theme }) => ({
   zIndex: 1500,
 }));
 
-/**
- * Renders a guest information panel component.
- * This component displays information for first-time visitors,
- * including guest account credentials for exploration.
- * @returns {JSX.Element} A styled panel with typography elements
- * containing guest information and credentials.
- */
 export const GuestInfoPanel = () => {
   const { theme } = useMode();
   return (

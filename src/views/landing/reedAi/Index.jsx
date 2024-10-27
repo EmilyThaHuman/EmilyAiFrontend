@@ -3,10 +3,6 @@ import { Header } from './Header';
 import { Hero } from './Hero';
 import '../../../../index.css';
 
-/**
- * Renders the main ReedAi component
- * @returns {JSX.Element} A JSX element representing the ReedAi page structure
- */
 export const ReedAi = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-900 to-indigo-900 text-white flex flex-col">
