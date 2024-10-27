@@ -16,17 +16,17 @@ import { SidebarContentHeader } from './SidebarContentHeader';
 export const SidebarContent = ({
   tab,
   user,
-  chatSessions,
   workspaces,
-  prompts,
-  files,
-  assistants,
   folders,
   onSave,
   onCancel,
   buttonRef,
   dataList,
+  dataMap,
 }) => {
+  console.log('dataList', dataList);
+  console.log('dataMap', dataMap);
+
   const findFolders = useCallback(
     space => folders?.filter(folder => folder.space === space) || [],
     [folders]
@@ -40,12 +40,7 @@ export const SidebarContent = ({
     switch (tab) {
       case 0:
         content = (
-          <Workspace
-            space="workspaces"
-            folders={folders}
-            files={files}
-            data={workspaces}
-          />
+          <Workspace space="workspaces" folders={folders} data={workspaces} />
         );
         break;
       case 1:
@@ -53,8 +48,7 @@ export const SidebarContent = ({
           <ChatSession
             space="chatSessions"
             folders={findFolders('chatSessions')}
-            files={files}
-            data={chatSessions}
+            data={dataMap['chatSessions']}
           />
         );
         break;
@@ -63,8 +57,7 @@ export const SidebarContent = ({
           <Assistants
             space="assistants"
             folders={findFolders('assistants')}
-            files={files}
-            data={assistants}
+            data={dataMap['assistants']}
           />
         );
         break;
@@ -73,8 +66,7 @@ export const SidebarContent = ({
           <Prompts
             space="prompts"
             folders={findFolders('prompts')}
-            files={files}
-            data={prompts}
+            data={dataMap['prompts']}
           />
         );
         break;
@@ -83,8 +75,7 @@ export const SidebarContent = ({
           <Files
             space="files"
             folders={findFolders('files')}
-            files={files}
-            data={files}
+            data={dataMap['files']}
           />
         );
         break;
@@ -96,18 +87,7 @@ export const SidebarContent = ({
     }
 
     return { space, icon, content };
-  }, [
-    tab,
-    dataList,
-    workspaces,
-    folders,
-    chatSessions,
-    findFolders,
-    files,
-    assistants,
-    prompts,
-    user,
-  ]);
+  }, [dataList, tab, folders, workspaces, findFolders, dataMap, user]);
 
   const { space, icon, content } = renderContent();
   return (
@@ -138,12 +118,13 @@ export const DefaultTab = () => <div style={{ color: 'white' }}></div>;
 
 SidebarContent.propTypes = {
   user: PropTypes.object.isRequired,
-  chatSessions: PropTypes.array.isRequired,
   workspaces: PropTypes.array.isRequired,
-  prompts: PropTypes.array.isRequired,
-  files: PropTypes.array.isRequired,
-  assistants: PropTypes.array.isRequired,
   folders: PropTypes.array.isRequired,
+  dataList: PropTypes.array.isRequired,
+  dataMap: PropTypes.object.isRequired,
+  onSave: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  buttonRef: PropTypes.object.isRequired,
 };
 
 export default SidebarContent;

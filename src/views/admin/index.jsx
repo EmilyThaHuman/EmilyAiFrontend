@@ -1,9 +1,17 @@
-import ChatMain from './chat';
+import DefaultChatChat from './chat';
+import ActiveChat from './chat/ChatInterface';
 import Dashboard from './default';
 import Editor from './editor';
 import Profile from './profile';
-import WorkspaceMain from './workspace';
+import ActiveWorkspace from './workspace';
 
 // ==============================|| ADMIN VIEWS ||============================== //
 
-export { Profile, Dashboard, ChatMain, Editor, WorkspaceMain };
+export {
+  Profile,
+  Dashboard,
+  ActiveChat,
+  Editor,
+  ActiveWorkspace,
+  DefaultChatChat,
+};

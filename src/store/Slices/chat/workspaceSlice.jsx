@@ -62,7 +62,7 @@ export const workspaceSlice = createSlice({
     },
     setSelectedWorkspace: (state, action) => {
       console.log('[SETTING_SELECTED_WORKSPACE]', action.payload);
-      setLocalWorkspaceData({ ...state, selectedWorkspace: action.payload });
+      // setLocalWorkspaceData({ ...state, selectedWorkspace: action.payload });
       state.selectedWorkspace = action.payload;
     },
     setHomeWorkSpace: (state, action) => {

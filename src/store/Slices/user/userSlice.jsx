@@ -5,6 +5,7 @@ import { authApi, userApi } from 'api/user';
 import avatar5 from 'assets/img/avatars/avatar5.png'; // Fallback avatar
 
 import {
+  setChatSessions,
   setHomeWorkSpace,
   setSelectedWorkspace,
   setSessionId,
@@ -90,7 +91,13 @@ export const handleAuthSubmit = createAsyncThunk(
           })
         );
         dispatch(setWorkspaceId(data.workspaceId));
+        // Assuming this is within a function where you're dispatching the workspaces
         dispatch(setSessionId(data.chatSessionId));
+        const workspacesWithoutFolders = data.user.workspaces.map(
+          ({ folders, ...workspace }) => workspace
+        );
+        dispatch(setWorkspaces(workspacesWithoutFolders));
+        dispatch(setChatSessions(data.user.chatSessions));
         if (isSignup) {
           console.log('data.workspaceId:', data.workspaceId);
           dispatch(setIsSettingUp(true));

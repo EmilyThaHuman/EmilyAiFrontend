@@ -1,13 +1,6 @@
-import {
-  Box,
-  CircularProgress,
-  Menu,
-  MenuItem,
-  Typography,
-} from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { FaSignOutAlt } from 'react-icons/fa';
 
 import { workspacesApi } from 'api/workspaces';
 import { ChatIcon } from 'assets/humanIcons';
@@ -18,10 +11,10 @@ import { useTabManager } from 'hooks/chat/useTabManager';
 
 import { ConversationTab, SessionSettings } from './items';
 import { FileDirectory } from './items/sidebar-items/components';
-import { FileManagementSidebar } from './items/sidebar-items/FileManager';
 
 export const ChatSession = props => {
-  const { folders = [], data = {}, space = '', files = [] } = props;
+  const { folders = [], data = [], space = 'chatSessions' } = props;
+
   const {
     state: { selectedWorkspace },
     actions: { setChatMessages },

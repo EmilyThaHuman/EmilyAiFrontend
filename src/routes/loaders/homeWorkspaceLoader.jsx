@@ -6,7 +6,18 @@ export async function homeWorkspaceLoader() {
   try {
     const workspace = await userApi.getHomeWorkspace();
     if (!workspace) {
-      throw new Response('Workspace Not Found', { status: 404 });
+      // Return a default workspace or redirect
+      return {
+        workspace: {
+          _id: 'default',
+          name: 'Default Workspace',
+          folders: [],
+          chatSessions: [],
+          assistants: [],
+          prompts: [],
+          tools: [],
+        },
+      };
     }
     return { workspace };
   } catch (error) {

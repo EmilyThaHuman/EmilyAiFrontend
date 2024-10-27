@@ -28,6 +28,9 @@ import SidebarActions from './sidebar-actions';
 import FileTreeItem from './sidebar-filetree-item';
 
 export const FileDirectory = ({ space, initialItems, initialFolders }) => {
+  console.log('space', space);
+  console.log('initialItems', initialItems);
+  console.log('initialFolders', initialFolders);
   const { handleSelectDeviceFile } = useFileProcesser();
   const newFileDialog = useDialog();
   const newFolderDialog = useDialog();
@@ -141,6 +144,8 @@ export const FileDirectory = ({ space, initialItems, initialFolders }) => {
             folders: [...initialFolders, folder],
             folderItems,
           };
+          console.log(`FOLDER_ITEMS: ${JSON.stringify(folderItems)}`);
+          console.log(`FOLDER: ${JSON.stringify(folder)}`);
         }
         // const fetchedItems = await fetchFunction();
         const updatedItems = folderItemData?.folderItems?.map(item => ({
@@ -168,7 +173,7 @@ export const FileDirectory = ({ space, initialItems, initialFolders }) => {
     };
 
     fetchItems();
-  }, [space, initialItems, setState]);
+  }, [space, initialItems, setState, initialFolders]);
 
   // Handle new file creation dialog
   const handleNewFile = useCallback(() => {

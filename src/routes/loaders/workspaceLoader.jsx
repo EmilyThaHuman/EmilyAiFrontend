@@ -7,7 +7,18 @@ export async function workspaceLoader({ params }) {
   try {
     const workspace = await workspacesApi.getWorkspace(workspaceId);
     if (!workspace) {
-      throw new Response('Workspace Not Found', { status: 404 });
+      // Return a default workspace or redirect
+      return {
+        workspace: {
+          _id: 'default',
+          name: 'Default Workspace',
+          folders: [],
+          chatSessions: [],
+          assistants: [],
+          prompts: [],
+          tools: [],
+        },
+      };
     }
     return { workspace };
   } catch (error) {

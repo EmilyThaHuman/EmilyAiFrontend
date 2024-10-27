@@ -18,6 +18,7 @@ import React, {
 } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 
+import { userApi } from 'api/user';
 import { SidebarContent, SidebarTabs } from 'components';
 import { SIDEBAR_CONFIG } from 'config/data-configs/sidebar'; // Move sidebar configuration to separate file
 import { useAppStore, useChatStore, useUserStore } from 'contexts/index'; // Consolidated imports
@@ -38,12 +39,14 @@ export const ChatLayout = () => {
       chatSessions,
       workspaces,
       prompts,
+      folders,
       files,
       assistants,
       selectedWorkspace,
     },
     actions: {
       setFolders,
+      setFiles,
       updateWorkspace,
       updateChatSession,
       updateAssistant,
@@ -57,11 +60,12 @@ export const ChatLayout = () => {
     actions: { setSidebarOpen },
   } = useAppStore();
   // -- --
-  let folders;
-  if (selectedWorkspace) {
-    folders = selectedWorkspace.folders;
-    setFolders(folders);
-  }
+  // Set folders based on the selected workspace
+  useEffect(() => {
+    if (selectedWorkspace) {
+      setFolders(selectedWorkspace.folders);
+    }
+  }, [selectedWorkspace, setFolders]);
   // -- --
   const sideBarWidthRef = useRef(null);
   const buttonRef = useRef(null);
@@ -124,26 +128,45 @@ export const ChatLayout = () => {
     setSidebarOpen(false);
     setActiveTab(null);
   }, [setSidebarOpen]);
-  const chatState = useMemo(
+  const sideBarState = useMemo(
     () => ({
-      apiKey,
-      chatSessions,
-      workspaces,
-      prompts,
-      files,
-      assistants,
-      selectedWorkspace,
+      apiKey: profile.defaultApiKey,
+      chatSessions: selectedWorkspace.chatSessions,
+      workspaces: workspaces,
+      prompts: selectedWorkspace.prompts,
+      files: selectedWorkspace.files,
+      assistants: selectedWorkspace.assistants,
+      selectedWorkspace: selectedWorkspace,
     }),
-    [
-      apiKey,
-      chatSessions,
-      workspaces,
-      prompts,
-      files,
-      assistants,
-      selectedWorkspace,
-    ]
+    [profile.defaultApiKey, selectedWorkspace, workspaces]
   );
+
+  // Generate sidebar tabs with dynamic data
+  const sidebarTabs = useMemo(
+    () =>
+      SIDEBAR_CONFIG.map(config => ({
+        ...config,
+        data: config.getDataFromState?.(sideBarState),
+        onClick: () =>
+          config.isNavigationTab
+            ? navigate(config.navigationPath)
+            : handleSidebarOpen(config.space),
+      })),
+    [sideBarState, navigate, handleSidebarOpen]
+  );
+
+  // Step 1: Create the Data Map Function
+  const getDataMapFromTabs = sidebarTabs => {
+    return sidebarTabs.reduce((acc, tab) => {
+      if (tab.space && tab.data !== undefined) {
+        acc[tab.space] = tab.data;
+      }
+      return acc;
+    }, {});
+  };
+
+  // Step 2: Use the Function to Create the Data Map
+  const dataMap = useMemo(() => getDataMapFromTabs(sidebarTabs), [sidebarTabs]);
   const chatActions = useMemo(
     () => ({
       updateWorkspace,
@@ -155,19 +178,7 @@ export const ChatLayout = () => {
     }),
     []
   );
-  // Generate sidebar tabs with dynamic data
-  const sidebarTabs = useMemo(
-    () =>
-      SIDEBAR_CONFIG.map(config => ({
-        ...config,
-        data: config.getDataFromState?.(chatState, user, profile),
-        onClick: () =>
-          config.isNavigationTab
-            ? navigate(config.navigationPath)
-            : handleSidebarOpen(config.id),
-      })),
-    [chatState, user, profile, navigate, handleSidebarOpen]
-  );
+
   // Enhanced save handler with error handling
   const handleSave = useCallback(() => {
     try {
@@ -262,20 +273,17 @@ export const ChatLayout = () => {
                 maxHeight: 'calc(100% - 16px)',
               }}
             >
-              {/* -- SIDEBAR DRAWER -- */}
+              {/* -- SIDEBAR DRAWER CONTENT -- */}
               <SidebarContent
                 tab={activeTab}
                 user={user}
                 workspaces={workspaces}
-                files={files}
-                chatSessions={chatSessions}
-                assistants={assistants}
-                prompts={prompts}
                 folders={folders}
                 onSave={handleSave}
                 onCancel={handleSidebarClose}
                 buttonRef={buttonRef}
                 dataList={sidebarTabs}
+                dataMap={dataMap}
               />
             </div>
           </Box>

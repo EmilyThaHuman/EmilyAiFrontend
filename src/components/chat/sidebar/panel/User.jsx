@@ -1,5 +1,4 @@
-import { UserIcon } from '@heroicons/react/24/outline';
-import { Box, IconButton, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import React, { useState } from 'react';
 
 import { StyledButton } from 'components/chat/styled';
@@ -14,6 +13,8 @@ import { useTabManager } from 'hooks/chat/useTabManager';
 import { ApiKeys } from './items/user-items';
 
 export const User = props => {
+  const { folders = [], data = {}, space = '' } = props;
+
   const {
     state: { profile },
   } = useUserStore();

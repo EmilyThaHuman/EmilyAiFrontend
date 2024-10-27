@@ -1,121 +1,118 @@
-// MainChat.js
 'use client';
-/* eslint-disable no-constant-condition */
-import { Box, CircularProgress } from '@mui/material';
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import { useLoaderData, useNavigate } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
+import { Box } from '@mui/material';
+import React, { useEffect } from 'react';
+import {
+  Outlet,
+  useLoaderData,
+  useNavigate,
+  useParams,
+} from 'react-router-dom';
 
-import { ChatHeader, MessageInput } from 'components/chat';
-import { MessageBox } from 'components/chat/messages';
-import { CODE_PROMPT_OPTIONS } from 'config/data-configs';
+import { ChatHeader } from 'components/chat/ChatHeader';
 import { useChatStore } from 'contexts/ChatProvider';
-import { useChatHandler, useMenu } from 'hooks';
-import 'styles/ChatStyles.css';
 
-export const MainChat = () => {
+export const ChatLayout = () => {
+  const { chatSession } = useLoaderData(); // Loaded via workspaceLoader
   const navigate = useNavigate();
-  const { chatSession } = useLoaderData(); // Loaded via chatSessionLoader
+
   const {
-    state: { userInput, isStreaming, chatLoading, chatDisabled },
-    actions: {
-      setSessionId,
-      setChatMessages,
-      /* --- add server-side file population here --- */
-    },
+    state: { selectedWorkspace, selectedChatSession },
+    actions: { setSessionId, setChatMessages },
   } = useChatStore();
 
-  const chatContainerRef = useRef(null);
-  const { controllerRef, handleSendMessage } = useChatHandler();
+  const sessionId = sessionStorage.getItem('sessionId');
 
-  // Initialize chat session data
   useEffect(() => {
-    if (chatSession) {
+    if (!chatSession) {
+      const defaultSession = {
+        _id: 'default',
+        messages: [],
+        title: 'New Chat',
+      };
+      setSessionId(defaultSession._id);
+      setChatMessages([]);
+    } else {
       setSessionId(chatSession._id);
       const transformedMessages = transformMessages(chatSession.messages || []);
       setChatMessages(transformedMessages);
-    } else {
-      // Handle missing chatSession, possibly navigate back or show an error
-      navigate('/admin/workspaces'); // Adjust the path as needed
     }
-  }, [chatSession, setSessionId, setChatMessages, navigate]);
+  }, [chatSession, setSessionId, setChatMessages]);
 
-  const transformMessages = messages => {
-    return messages.map(message => {
-      if (typeof message === 'string') {
-        return {
-          _id: message,
-          content: message,
-          role: 'user',
-          isUserMessage: true,
-        };
-      } else if (typeof message === 'object' && message !== null) {
-        return {
-          ...message,
-          isUserMessage: message.role === 'user',
-        };
-      } else {
-        return {
-          _id: uuidv4(),
-          content: '',
-          role: '',
-          isUserMessage: false,
-        };
-      }
-    });
-  };
+  const transformMessages = messages =>
+    messages.map(message =>
+      typeof message === 'string'
+        ? {
+            _id: message,
+            content: message,
+            role: 'user',
+            isUserMessage: true,
+          }
+        : { ...message, isUserMessage: message.role === 'user' }
+    );
 
-  const areMessagesEqual = (messages1, messages2) => {
-    if (messages1?.length !== messages2?.length) return false;
-
-    for (let i = 0; i < messages1.length; i++) {
-      if (messages1[i]?._id !== messages2[i]?._id) return false;
-    }
-
-    return true;
-  };
-
-  const promptsMenu = useMenu();
-  const dialogRef = useRef(null);
-  const sidebarItemRef = useRef(null);
-
-  const handlePromptSelect = prompt => {
-    console.log('Selected prompt:', prompt);
-    handleSendMessage({
-      content: prompt,
-      isNewSession: true,
-    });
-  };
-
-  /* --- Function to handle the positioning of the prompts dialog --- */
-  useLayoutEffect(() => {
-    if (promptsMenu.isOpen && sidebarItemRef.current && dialogRef.current) {
-      const sidebarItemRect = sidebarItemRef.current.getBoundingClientRect();
-      const dialogRect = dialogRef.current.getBoundingClientRect();
-
-      const leftPosition = sidebarItemRect.right + 32;
-      const topPosition =
-        sidebarItemRect.top -
-        dialogRect.height / 2 +
-        sidebarItemRect.height / 2;
-
-      dialogRef.current.style.left = `${leftPosition}px`;
-      dialogRef.current.style.top = `${topPosition}px`;
-    }
-  }, [promptsMenu.isOpen]);
-
-  /* --- Cleanup on component unmount --- */
   useEffect(() => {
-    return () => {
-      if (controllerRef.current) {
-        controllerRef.current.abort();
+    const isValidSessionId =
+      sessionId && typeof sessionId === 'string' && sessionId.trim() !== '';
+    const isValidSelectedWorkspace = selectedWorkspace && selectedWorkspace._id;
+    const isValidSelectedChatSession =
+      selectedChatSession && selectedChatSession._id;
+    const isChatPath = location.pathname.startsWith('/admin/chat'); // Adjust based on your routing
+
+    if (
+      isValidSessionId &&
+      isValidSelectedWorkspace &&
+      isValidSelectedChatSession &&
+      isChatPath
+    ) {
+      // All conditions are met, perform any necessary actions
+      // For example, navigate to a specific chat route if needed
+      navigate(`/admin/workspaces/${selectedWorkspace._id}/chat/${sessionId}`, {
+        replace: true,
+      });
+      // If no navigation is required, you can omit this part
+    } else {
+      // Logging each condition that is not satisfied
+      if (!isValidSessionId) {
+        console.warn(
+          `Invalid Session ID: ${
+            sessionId
+              ? `Session ID is invalid or empty. Session ID: "${sessionId}"`
+              : 'No session ID found.'
+          }`
+        );
       }
-    };
-  }, [controllerRef]);
+
+      if (!isValidSelectedWorkspace) {
+        console.warn(
+          `Invalid Selected Workspace: ${
+            selectedWorkspace
+              ? `Workspace ID is missing or invalid. Workspace: ${JSON.stringify(selectedWorkspace)}`
+              : 'No workspace selected.'
+          }`
+        );
+      }
+
+      if (!isValidSelectedChatSession) {
+        console.warn(
+          `Invalid Selected Chat Session: ${
+            selectedChatSession
+              ? `Chat Session ID is missing or invalid. Chat Session: ${JSON.stringify(selectedChatSession)}`
+              : 'No chat session selected.'
+          }`
+        );
+      }
+
+      if (!isChatPath) {
+        console.warn(
+          `Invalid Pathname: Expected a chat path starting with '/admin/chat' but found '${location.pathname}'.`
+        );
+      }
+    }
+  }, [sessionId, selectedWorkspace, selectedChatSession]);
 
   return (
     <Box
-      id="chat-view-container"
+      id="chat-layout-container"
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -127,57 +124,12 @@ export const MainChat = () => {
         borderRadius: '14px',
       }}
     >
-      {/* --- CHAT HEADER --- */}
+      {/* Chat Header */}
       <ChatHeader />
-
-      {/* --- CHAT MESSAGE SCROLL AREA --- */}
-      <Box
-        ref={chatContainerRef}
-        sx={{
-          flexGrow: 1,
-          overflowY: 'auto',
-          marginTop: '20px',
-          marginBottom: '20px',
-        }}
-      >
-        {chatSession &&
-        chatSession.messages &&
-        chatSession.messages.length > 0 ? (
-          <MessageBox
-            handlePromptSelect={handlePromptSelect}
-            codePromptOptions={CODE_PROMPT_OPTIONS}
-          />
-        ) : (
-          <Box sx={{ textAlign: 'center', marginTop: '50px' }}>
-            <h3>No messages yet, try one of these prompts:</h3>
-            <MessageBox
-              handlePromptSelect={handlePromptSelect}
-              codePromptOptions={CODE_PROMPT_OPTIONS}
-            />
-            {chatLoading && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                <CircularProgress />
-              </Box>
-            )}
-          </Box>
-        )}
-      </Box>
-
-      {/* --- CHAT INPUT --- */}
-      <Box
-        sx={{
-          mt: 'auto', // Ensure it stays at the bottom
-          width: '100%',
-          backgroundColor: '#26242C',
-          borderTop: '1px solid #444',
-        }}
-      >
-        <MessageInput
-          disabled={chatDisabled || chatLoading || isStreaming || false}
-        />
-      </Box>
+      {/* Outlet for Chat Interface */}
+      <Outlet />
     </Box>
   );
 };
 
-export default MainChat;
+export default ChatLayout;

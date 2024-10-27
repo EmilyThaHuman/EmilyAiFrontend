@@ -62,8 +62,9 @@ const SetUpMain = Loadable(lazy(() => import('views/auth/setup')));
 const MainDashboard = Loadable(lazy(() => import('views/admin/default')));
 const UserProfile = Loadable(lazy(() => import('views/admin/profile')));
 
-const WorkspaceMain = lazy(() => import('views/admin/workspace'));
-const ChatMain = lazy(() => import('views/admin/chat'));
+const WorkspaceActive = lazy(() => import('views/admin/workspace'));
+const ChatActive = lazy(() => import('views/admin/chat/ChatInterface'));
+const ChatDefault = lazy(() => import('views/admin/chat/index.jsx'));
 const CodeEditor = Loadable(lazy(() => import('views/admin/editor')));
 
 export const customHistory = createBrowserHistory();
@@ -195,7 +196,7 @@ const adminRoutes = [
             breadcrumb: 'Workspace Home',
             element: (
               <Suspense fallback={<LoadingIndicator />}>
-                <WorkspaceMain />
+                <WorkspaceActive />
               </Suspense>
             ),
             icon: <HomeIcon />,
@@ -210,7 +211,7 @@ const adminRoutes = [
             breadcrumb: 'Active Workspace',
             element: (
               <Suspense fallback={<LoadingIndicator />}>
-                <WorkspaceMain />
+                <WorkspaceActive />
               </Suspense>
             ),
             icon: <HomeIcon />,
@@ -218,10 +219,10 @@ const adminRoutes = [
             loader: workspaceLoader,
             collapse: true,
             children: [
-              {
-                index: true,
-                element: <Navigate to="/admin/workspaces/:workspaceId/chat" />,
-              },
+              // {
+              //   index: true,
+              //   element: <Navigate to="/admin/workspaces/:workspaceId/chat" />,
+              // },
               {
                 name: 'Chat',
                 title: 'Chat',
@@ -229,18 +230,18 @@ const adminRoutes = [
                 breadcrumb: 'Chat',
                 element: (
                   <Suspense fallback={<LoadingIndicator />}>
-                    <ChatMain />
+                    <ChatDefault />
                   </Suspense>
                 ),
                 icon: <AiIcon />,
                 collapse: true,
                 children: [
-                  {
-                    index: true,
-                    element: (
-                      <Navigate to="/admin/workspaces/:workspaceId/chat/:sessionId" />
-                    ),
-                  },
+                  // {
+                  //   index: true,
+                  //   element: (
+                  //     <Navigate to="/admin/workspaces/:workspaceId/chat/:sessionId" />
+                  //   ),
+                  // },
                   {
                     name: 'Chat',
                     title: 'Chat',
@@ -248,10 +249,13 @@ const adminRoutes = [
                     breadcrumb: 'Chat',
                     element: (
                       <Suspense fallback={<LoadingIndicator />}>
-                        <ChatMain />
+                        <ChatDefault />
                       </Suspense>
                     ),
                     icon: <AiIcon />,
+                    description: 'Chat Home',
+                    collapse: false,
+                    loader: chatSessionLoader,
                   },
                   {
                     name: 'Chat Session',
@@ -260,7 +264,7 @@ const adminRoutes = [
                     breadcrumb: 'Chat Session',
                     element: (
                       <Suspense fallback={<LoadingIndicator />}>
-                        <ChatMain />
+                        <ChatActive />
                       </Suspense>
                     ),
                     icon: <DocumentScannerRoundedIcon />,
@@ -290,7 +294,7 @@ const adminRoutes = [
                     breadcrumb: 'Chat Mode',
                     element: (
                       <Suspense fallback={<LoadingIndicator />}>
-                        <ChatMain />
+                        <ChatActive />
                       </Suspense>
                     ),
                     icon: <AiIcon />, // Replace with appropriate icon if needed
@@ -307,7 +311,7 @@ const adminRoutes = [
                     breadcrumb: 'Chat Test',
                     element: (
                       <Suspense fallback={<LoadingIndicator />}>
-                        <ChatMain />
+                        <ChatActive />
                       </Suspense>
                     ),
                     icon: <AiIcon />, // Replace with appropriate icon if needed

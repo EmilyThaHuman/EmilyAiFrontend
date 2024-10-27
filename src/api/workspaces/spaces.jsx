@@ -145,7 +145,7 @@ export const workspacesApi = {
   getWorkspaceFoldersBySpace: async props => {
     // const { workspaceId, space } = props;
     let workspaceId = sessionStorage.getItem('workspaceId');
-    if (!props.workspaceId) {
+    if (!workspaceId) {
       const userStore = JSON.parse(localStorage.getItem('userStore'));
       sessionStorage.setItem('workspaceId', userStore.user.homeWorkspaceId);
       workspaceId === userStore.user.homeWorkspaceId;
@@ -200,7 +200,12 @@ export const workspacesApi = {
   },
   // --- Sessions service ---
   getWorkspaceSessionsByWorkspaceId: async props => {
-    const { workspaceId, userId } = props;
+    let workspaceId = sessionStorage.getItem('workspaceId');
+    if (!workspaceId) {
+      const userStore = JSON.parse(localStorage.getItem('userStore'));
+      sessionStorage.setItem('workspaceId', userStore.user.homeWorkspaceId);
+      workspaceId === userStore.user.homeWorkspaceId;
+    }
     try {
       const response = await apiUtils.get(
         `/chat/workspaces/${encodeURIComponent(workspaceId)}/chatSessions`
