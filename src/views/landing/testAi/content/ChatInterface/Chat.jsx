@@ -32,6 +32,12 @@ const RESPONSE_TYPES = {
   RAG: 'RAG',
 };
 
+/**
+ * Renders a chat interface component with various response types and settings.
+ * @param {Object} props - The component props.
+ * @param {Function} props.onClose - Function to call when closing the chat interface.
+ * @returns {JSX.Element} A React component representing the chat interface.
+ */
 export const Chat = ({ onClose }) => {
   const {
     state: { user },

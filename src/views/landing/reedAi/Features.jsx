@@ -2,6 +2,10 @@ import { Code2, Palette, Zap } from 'lucide-react';
 
 import FeatureCard from './FeatureCard';
 
+/**
+ * Renders a grid of feature cards highlighting the main features of the application.
+ * @returns {JSX.Element} A div containing three FeatureCard components arranged in a responsive grid.
+ */
 export const Features = () => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
     <FeatureCard
