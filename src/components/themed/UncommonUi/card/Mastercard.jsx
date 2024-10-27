@@ -1,6 +1,7 @@
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material';
 import React from 'react';
 import { RiMastercardFill } from 'react-icons/ri';
+
 import bgMastercard from 'assets/img/dashboards/Debit.png';
 
 export const Mastercard = props => {

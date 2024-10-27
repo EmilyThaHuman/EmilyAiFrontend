@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import localforage from 'localforage';
 import { offline } from 'redux-offline';
 import offlineConfig from 'redux-offline/lib/defaults';
+
 import { api } from '../lib';
 import rootReducer from './Slices';
 

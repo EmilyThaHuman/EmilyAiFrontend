@@ -15,8 +15,8 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+
 import { InfoOutlinedIcon, SettingsIcon } from 'assets/humanIcons';
 import { IconButtonWithTooltip } from 'components/compositions';
 import {
@@ -30,8 +30,9 @@ import {
 import { DEFAULT_APP_DATA } from 'config/app-data-configs';
 import { useChatStore } from 'contexts/ChatProvider';
 import { useUserStore } from 'contexts/UserProvider';
-import { useChatHandler, useDialog, useMode } from 'hooks';
-import useChatSessionHandler from 'hooks/chat/useChatSessionHandler';
+import { useDialog } from 'hooks';
+import { useChatSessionHandler } from 'hooks/chat/useChatSessionHandler';
+
 import { PresetSelect } from '../preset-items';
 
 const marks = [
@@ -52,13 +53,10 @@ export const WorkspaceCreatorForm = () => {
   const chatStore = useChatStore();
   const userStore = useUserStore();
   const {
-    state: { selectedPreset, presets, modelNames, workspaces, chatMessages },
-    actions: { setChatMessages, setSelectedPreset },
+    state: { selectedPreset, presets, modelNames },
+    actions: { setSelectedPreset },
   } = chatStore;
-  const { handleCreateNewWorkspace } = useChatSessionHandler(
-    chatMessages,
-    setChatMessages
-  );
+  const { handleCreateNewWorkspace } = useChatSessionHandler();
   const userId = userStore.state.userId;
   const [name, setName] = useState('Default Workspace');
   const [instructions, setInstructions] = useState('Default instructions');
@@ -99,7 +97,7 @@ export const WorkspaceCreatorForm = () => {
 
   const workspaceData = {
     name,
-    userId: userId || sessionStorage.getItem('userId'),
+    userId: sessionStorage.getItem('userId'),
 
     customPreset: {
       name: selectedPreset?.name || '',
@@ -246,6 +244,7 @@ export const WorkspaceCreatorForm = () => {
         label="Temperature"
         valueLabelDisplay="auto"
         value={temperature}
+        marks={marks}
         onChange={setTemperature}
         min={0}
         max={1}
@@ -255,6 +254,20 @@ export const WorkspaceCreatorForm = () => {
         label="Maximum Tokens"
         valueLabelDisplay="auto"
         value={maxTokens}
+        marks={[
+          {
+            value: 1,
+            label: '1',
+          },
+          {
+            value: 10,
+            label: '10',
+          },
+          {
+            value: 100,
+            label: '100',
+          },
+        ]}
         onChange={setMaxTokens}
         min={1}
         max={512}
@@ -275,6 +288,20 @@ export const WorkspaceCreatorForm = () => {
         label="Top P"
         valueLabelDisplay="auto"
         value={topP}
+        marks={[
+          {
+            value: 0,
+            label: '0',
+          },
+          {
+            value: 0.5,
+            label: '0.5',
+          },
+          {
+            value: 1,
+            label: '1',
+          },
+        ]}
         onChange={setTopP}
         min={0}
         max={1}
@@ -284,6 +311,28 @@ export const WorkspaceCreatorForm = () => {
         label="Frequency penalty"
         valueLabelDisplay="auto"
         value={frequencyPenalty}
+        marks={[
+          {
+            value: 0,
+            label: '0',
+          },
+          {
+            value: 0.5,
+            label: '0.5',
+          },
+          {
+            value: 1,
+            label: '1',
+          },
+          {
+            value: 1.5,
+            label: '1.5',
+          },
+          {
+            value: 2,
+            label: '2',
+          },
+        ]}
         onChange={setFrequencyPenalty}
         min={0}
         max={2}

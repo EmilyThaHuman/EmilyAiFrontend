@@ -1,43 +1,54 @@
-// LAYOUTS: auth/index.js
-import { Box, CssBaseline } from '@mui/material';
-import { useState } from 'react';
-import { Outlet, useNavigation } from 'react-router-dom';
-import { SidebarContext } from 'contexts/SidebarProvider';
+// layouts/auth/index.js
+import { Box, CircularProgress, CssBaseline } from '@mui/material';
+import { motion } from 'framer-motion';
+import { useEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 
-// =========================================================
-// [AuthLayout] | This code provides the auth layout for the app
-// =========================================================
+import { useUserStore } from 'contexts/UserProvider';
+
 export const AuthLayout = () => {
-  const [toggleSidebar, setToggleSidebar] = useState(false);
-  const authBg = '#f5f5f5';
-  return (
-    <Box>
-      <SidebarContext.Provider
-        value={{
-          toggleSidebar,
-          setToggleSidebar,
-        }}
+  const navigate = useNavigate();
+  const {
+    state: { isAuthenticated, isAuthLoading },
+  } = useUserStore();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(`/admin/dashboard`, { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (isAuthLoading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
       >
-        <CssBaseline />
-        <Box
-          sx={{
-            backgroundColor: authBg,
-            float: 'right',
-            minHeight: '100vh',
-            height: '100%',
-            position: 'relative',
-            width: '100%',
-            transition: 'all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1)',
-            transitionDuration: '.2s, .2s, .35s',
-            transitionProperty: 'top, bottom, width',
-            transitionTimingFunction: 'linear, linear, ease',
-          }}
-        >
-          <Box mx="auto" minHeight="100vh">
-            <Outlet />
-          </Box>
-        </Box>
-      </SidebarContext.Provider>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  return (
+    <Box
+      sx={{
+        background: '#000',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <CssBaseline />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        <Outlet />
+      </motion.div>
     </Box>
   );
 };

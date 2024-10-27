@@ -1,4 +1,5 @@
 import { Box, Card, CardContent, Typography } from '@mui/material';
+
 import { useMode } from 'hooks';
 
 export default function MinistatisticsCard(props) {

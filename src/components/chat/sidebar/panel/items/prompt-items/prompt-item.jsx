@@ -1,7 +1,9 @@
 import { PencilIcon } from '@heroicons/react/24/outline';
 import IconButton from '@mui/material/IconButton';
 import { useState } from 'react';
+
 import { TextFieldSection } from 'components/themed';
+
 import SidebarItem from '../REVIEW/sidebar-display-item';
 
 const PromptItem = ({ prompt }) => {

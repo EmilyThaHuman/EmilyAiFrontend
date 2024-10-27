@@ -1,10 +1,11 @@
 import { debounce } from 'lodash';
-import { useContext, useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
+
 import { useChatStore } from 'contexts/ChatProvider';
 
 export const useChatScroll = () => {
   const {
-    state: { isGenerating, chatMessages },
+    state: { isStreaming, chatMessages },
   } = useChatStore();
   const chatContainerRef = useRef(null);
   const messagesStartRef = useRef(null);
@@ -19,16 +20,16 @@ export const useChatScroll = () => {
   useEffect(() => {
     setUserScrolled(false);
 
-    if (!isGenerating && userScrolled) {
+    if (!isStreaming && userScrolled) {
       setUserScrolled(false);
     }
-  }, [isGenerating, userScrolled]);
+  }, [isStreaming, userScrolled]);
 
   useEffect(() => {
-    if (isGenerating && !userScrolled) {
+    if (isStreaming && !userScrolled) {
       scrollToBottom();
     }
-  }, [chatMessages, isGenerating, userScrolled]);
+  }, [chatMessages, isStreaming, scrollToBottom, userScrolled]);
 
   const debouncedHandleScroll = useCallback(
     debounce(() => {

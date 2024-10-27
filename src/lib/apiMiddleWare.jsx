@@ -1,6 +1,6 @@
-import { logApiRequest } from "store/Slices";
+import { logApiRequest } from 'store/Slices';
 
-export const apiLoggerMiddleware = (store) => (next) => async (action) => {
+export const apiLoggerMiddleware = store => next => async action => {
   if (action.type.endsWith('/fulfilled') || action.type.endsWith('/rejected')) {
     const { payload, error, meta } = action;
     const logEntry = {

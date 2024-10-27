@@ -1,6 +1,7 @@
 import { Box, Grid } from '@mui/material';
 import React, { useRef } from 'react';
 import { Outlet } from 'react-router-dom';
+
 import { PageLayout, RCBox } from 'components/index';
 import { useMode } from 'hooks';
 

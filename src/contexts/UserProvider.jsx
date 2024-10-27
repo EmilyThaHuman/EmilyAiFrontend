@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+
 import {
   handleAuthSubmit,
   logout,
@@ -10,6 +11,12 @@ import {
   setSelectedProfileImage,
   setIsAuthenticated,
   fetchUserProfileImage,
+  setAuthSession,
+  setIsSettingUp,
+  setIsAuthLoading,
+  setIsSigningUp,
+  setIsSignedUp,
+  setIsSetup,
 } from 'store/Slices';
 
 const UserContext = createContext(null);
@@ -19,8 +26,17 @@ export const UserProvider = ({ children }) => {
   const dispatch = useDispatch();
 
   const actions = {
-    setProfile,
-    setSelectedProfileImage,
+    setIsAuthLoading: isAuthLoading =>
+      dispatch(setIsAuthLoading(isAuthLoading)),
+    setIsSettingUp: isSettingUp => dispatch(setIsSettingUp(isSettingUp)),
+    setIsSigningUp: isSigningUp => dispatch(setIsSigningUp(isSigningUp)),
+    setIsSignedUp: isSignedUp => dispatch(setIsSignedUp(isSignedUp)),
+    setIsSetup: isSetup => dispatch(setIsSetup(isSetup)),
+    setAuthSession: (token, refreshToken) =>
+      dispatch(setAuthSession(token, refreshToken)),
+    setProfile: profile => dispatch(setProfile(profile)),
+    setSelectedProfileImage: (profileImage, username) =>
+      dispatch(setSelectedProfileImage(profileImage, username)),
     getUserProfileImage: username => dispatch(fetchUserProfileImage(username)),
     setIsAuthenticated: isAuthenticated =>
       dispatch(setIsAuthenticated(isAuthenticated)),

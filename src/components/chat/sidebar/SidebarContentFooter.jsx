@@ -1,9 +1,10 @@
 import { Box, Button } from '@mui/material';
 import React from 'react';
+
 import { StyledButton } from '../styled';
 // import SidebarDeleteItem from './SidebarDeleteItem'; // Assuming you already have this component
 
-const SidebarContentFooter = ({
+export const SidebarContentFooter = ({
   item,
   contentType,
   onCancel,

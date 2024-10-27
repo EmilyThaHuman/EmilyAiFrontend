@@ -1,6 +1,6 @@
 import { Box, Typography, IconButton } from '@mui/material';
 
-const SidebarContentHeader = ({ space = '', onSave, icon }) => {
+export const SidebarContentHeader = ({ space = '', onSave, icon }) => {
   return (
     <Box
       display="flex"

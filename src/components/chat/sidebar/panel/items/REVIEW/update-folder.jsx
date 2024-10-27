@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import React, { useContext, useRef, useState } from 'react';
+
 import { useChatStore } from 'contexts/ChatProvider';
 
 export const UpdateFolder = ({ folder }) => {

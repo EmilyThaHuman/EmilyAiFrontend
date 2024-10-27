@@ -1,17 +1,18 @@
-import { Box, IconButton, Typography } from '@mui/material';
-import React from 'react';
+import { Box } from '@mui/material';
 import { ErrorBoundary } from 'react-error-boundary';
+
 import { AssistantIcon } from 'assets/humanIcons';
 import { RCTabs } from 'components/themed';
-import { useMode } from 'hooks';
 import { useTabManager } from 'hooks/chat/useTabManager';
+
 import { AssistantDisplay } from './items/assistant-items/AssistantDisplay';
 import { AssistantTemplates } from './items/assistant-items/AssistantTemplates';
 import { AssistantTools } from './items/assistant-items/AssistantTools';
-import FileManagementSidebar from './items/sidebar-items/FileManager';
+import { FileDirectory } from './items/sidebar-items/components';
 
 export const Assistants = props => {
-  const { folders = [], data = {}, space = '', files = [] } = props;
+  const { folders = [], data = [], space = 'assistants' } = props;
+
   const { activeTabs, selectedTab, selectTab } = useTabManager('assistants');
 
   const ErrorFallback = ({ error }) => (
@@ -26,10 +27,11 @@ export const Assistants = props => {
       case 0:
         return (
           <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <FileManagementSidebar
+            <FileDirectory
               initialFolders={folders}
-              initialFiles={files}
+              initialItems={data}
               space={space}
+              icon={<AssistantIcon />}
             />
           </ErrorBoundary>
         );

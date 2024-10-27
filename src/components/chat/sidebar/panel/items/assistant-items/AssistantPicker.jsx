@@ -1,5 +1,6 @@
 import { Avatar } from '@mui/material';
 import { useEffect, useRef } from 'react';
+
 import { ChatIcon } from 'assets/humanIcons';
 import { useChatStore } from 'contexts/ChatProvider';
 import { usePromptAndCommand } from 'hooks/chat';

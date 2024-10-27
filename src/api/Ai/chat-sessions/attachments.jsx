@@ -1,4 +1,5 @@
 import { toast } from 'sonner';
+
 import { apiUtils } from '@/lib/apiUtils';
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB size limit
 
@@ -111,7 +112,11 @@ export const attachmentsApi = {
   },
   getAllStoredFiles: async () => {
     try {
-      const response = await apiUtils.get('/chat/files');
+      const response = await apiUtils.get(
+        `/chat/files/${sessionStorage.getItem('userId')}`
+      );
+      console.log('RES', response);
+      console.log('FILES', response.files);
       return response.files;
     } catch (error) {
       console.error('Error fetching all stored files:', error);

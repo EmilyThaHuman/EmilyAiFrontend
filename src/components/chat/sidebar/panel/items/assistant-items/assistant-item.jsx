@@ -2,11 +2,14 @@ import TextField from '@mui/material/TextField';
 import { IconRobotFace } from '@tabler/icons-react';
 import Image from 'next/image';
 import React, { useContext, useEffect, useState } from 'react';
+
 import constants from 'config/constants';
 import { useChatStore } from 'contexts/ChatProvider';
-import { SidebarItem } from '../all/sidebar-display-item';
+
 import AssistantRetrievalSelect from './assistant-retrieval-select';
 import AssistantToolSelect from './assistant-tool-select';
+import { SidebarItem } from '../all/sidebar-display-item';
+
 import ChatSettingsForm from '@/components/ui/chat-settings-form';
 import ImagePicker from '@/components/ui/image-picker';
 const { ASSISTANT_DESCRIPTION_MAX, ASSISTANT_NAME_MAX } = constants;

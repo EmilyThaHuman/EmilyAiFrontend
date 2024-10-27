@@ -1,4 +1,5 @@
 import { Box, IconButton, Link, Typography } from '@mui/material';
+
 import { EditIcon } from 'assets/humanIcons';
 import { Card } from 'components/index';
 import { useMode } from 'hooks';

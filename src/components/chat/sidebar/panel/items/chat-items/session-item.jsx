@@ -4,7 +4,9 @@ import Image from 'mui-image';
 import React, { useRef, useState } from 'react';
 import { FaRobot } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
+
 import { useChatStore } from 'contexts/ChatProvider';
+
 import DeleteChat from './delete-session-item';
 import UpdateChat from './update-session-item';
 

@@ -1,9 +1,12 @@
 // App.jsx
+import CssBaseline from '@mui/material/CssBaseline';
 import React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { RouterProvider } from 'react-router-dom';
+
 import { Providers } from 'contexts/Providers';
 import { NotFoundPage } from 'views/error';
+
 import { Router } from '../routes';
 
 function ErrorFallback(props) {
@@ -26,28 +29,27 @@ const App = () => {
   }
 
   return (
-    <React.StrictMode>
-      <ErrorBoundary
-        FallbackComponent={ErrorFallback}
-        onReset={details => {
-          console.log(
-            'reloading the page...',
-            details.reason,
-            window.location.reload()
-          );
-        }}
-        resetKeys={[someKey]} // Reset error boundary when someKey changes
-        onError={(error, errorInfo) => {
-          console.log('Error caught!');
-          console.error(error);
-          console.error(errorInfo);
-        }}
-      >
-        <Providers>
-          <RouterProvider router={Router} />
-        </Providers>
-      </ErrorBoundary>
-    </React.StrictMode>
+    <ErrorBoundary
+      FallbackComponent={ErrorFallback}
+      onReset={details => {
+        console.log(
+          'reloading the page...',
+          details.reason,
+          window.location.reload()
+        );
+      }}
+      resetKeys={[someKey]} // Reset error boundary when someKey changes
+      onError={(error, errorInfo) => {
+        console.log('Error caught!');
+        console.error(error);
+        console.error(errorInfo);
+      }}
+    >
+      <Providers>
+        <CssBaseline />
+        <RouterProvider router={Router} />
+      </Providers>
+    </ErrorBoundary>
   );
 };
 

@@ -16,6 +16,6 @@ export async function highlight(code, theme, lang) {
   const html = renderToHtml(tokens, { bg: 'transparent' });
 
   return html;
-};
+}
 
 export default highlight;

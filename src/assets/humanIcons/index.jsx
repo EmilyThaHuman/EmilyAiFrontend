@@ -3,6 +3,7 @@
 // CUSTOM
 import {
   AiIcon,
+  // GitHubIcon as GithubIcon2,
   ActivityIcon,
   UpArrowIcon,
   DownArrowIcon,
@@ -122,15 +123,18 @@ import {
 
 // MATERIAL DESIGN
 import { MdAddTask, MdHome } from 'react-icons/md';
+import OpenAISVG from './openai-svg';
 
 // IBM CARBON ICONS
 // import AI from 'assets/humanIcons/ibm-carbon-icons/32/AI';
 export {
   // CUSTOM
   AiIcon,
+  // GitHubIcon2,
   ActivityIcon,
   UpArrowIcon,
   DownArrowIcon,
+  OpenAISVG,
   // GENERAL
   StopCircleIcon,
   CancelOutlinedIcon,
@@ -246,9 +250,11 @@ export {
 const reedThaHumansIconLibrary = {
   // CUSTOM
   AiIcon,
+  // GitHubIcon2,
   ActivityIcon,
   UpArrowIcon,
   DownArrowIcon,
+  OpenAISVG,
   //
   AccountCircleRoundedIcon,
   AccountCircleIcon,

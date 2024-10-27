@@ -1,6 +1,7 @@
 import FormControlLabel from '@mui/material/FormControlLabel';
 import PropTypes from 'prop-types';
 import React from 'react';
+
 import RCSwitchControlRoot from './RCSwitchControlRoot';
 
 /**

@@ -1,4 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { toast } from 'sonner';
+
 import { getLocalData, setLocalData } from '../helpers';
 
 const LOCAL_NAME = 'toolStore';
@@ -14,6 +16,18 @@ export const toolSlice = createSlice({
   name: REDUX_NAME,
   initialState,
   reducers: {
+    setToolId: (state, action) => {
+      let toolId;
+      if (action.payload && action.payload !== '') {
+        toolId = action.payload;
+      } else {
+        const warn = 'No tool ID provided. Using default tool ID.';
+        toast.warning(warn);
+      }
+      state.toolId = toolId;
+      sessionStorage.setItem('toolId', toolId);
+      setLocalToolData({ ...state, toolId: toolId });
+    },
     setTools: (state, action) => {
       console.log('action.payload', action.payload);
       state.tools = action.payload;
@@ -32,6 +46,7 @@ export const toolSlice = createSlice({
 
 export { initialState as toolInitialState };
 
-export const { setTools, setSelectedTools, setToolInUse } = toolSlice.actions;
+export const { setTools, setSelectedTools, setToolInUse, setToolId } =
+  toolSlice.actions;
 
 export default toolSlice.reducer;

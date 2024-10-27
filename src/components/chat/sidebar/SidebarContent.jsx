@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
+
 import {
   Workspace,
   ChatSession,
@@ -9,26 +10,26 @@ import {
   Files,
   User,
 } from './panel';
-import SidebarContentFooter from './SidebarContentFooter';
-import SidebarContentHeader from './SidebarContentHeader';
+import { SidebarContentFooter } from './SidebarContentFooter';
+import { SidebarContentHeader } from './SidebarContentHeader';
 
-const SidebarContent = ({
+export const SidebarContent = ({
   tab,
   user,
-  chatSessions,
   workspaces,
-  prompts,
-  files,
-  assistants,
   folders,
   onSave,
   onCancel,
   buttonRef,
   dataList,
+  dataMap,
 }) => {
+  console.log('dataList', dataList);
+  console.log('dataMap', dataMap);
+
   const findFolders = useCallback(
-    space => user.folders?.filter(folder => folder.space === space) || [],
-    [user.folders]
+    space => folders?.filter(folder => folder.space === space) || [],
+    [folders]
   );
   const renderContent = useCallback(() => {
     const selectedTab = dataList.find(item => item.id === tab);
@@ -39,12 +40,7 @@ const SidebarContent = ({
     switch (tab) {
       case 0:
         content = (
-          <Workspace
-            space="workspaces"
-            folders={folders}
-            files={files}
-            data={workspaces}
-          />
+          <Workspace space="workspaces" folders={folders} data={workspaces} />
         );
         break;
       case 1:
@@ -52,8 +48,7 @@ const SidebarContent = ({
           <ChatSession
             space="chatSessions"
             folders={findFolders('chatSessions')}
-            files={files}
-            data={chatSessions}
+            data={dataMap['chatSessions']}
           />
         );
         break;
@@ -62,8 +57,7 @@ const SidebarContent = ({
           <Assistants
             space="assistants"
             folders={findFolders('assistants')}
-            files={files}
-            data={assistants}
+            data={dataMap['assistants']}
           />
         );
         break;
@@ -72,8 +66,7 @@ const SidebarContent = ({
           <Prompts
             space="prompts"
             folders={findFolders('prompts')}
-            files={files}
-            data={prompts}
+            data={dataMap['prompts']}
           />
         );
         break;
@@ -82,8 +75,7 @@ const SidebarContent = ({
           <Files
             space="files"
             folders={findFolders('files')}
-            files={files}
-            data={files}
+            data={dataMap['files']}
           />
         );
         break;
@@ -95,18 +87,7 @@ const SidebarContent = ({
     }
 
     return { space, icon, content };
-  }, [
-    tab,
-    dataList,
-    workspaces,
-    folders,
-    chatSessions,
-    findFolders,
-    files,
-    assistants,
-    prompts,
-    user,
-  ]);
+  }, [dataList, tab, folders, workspaces, findFolders, dataMap, user]);
 
   const { space, icon, content } = renderContent();
   return (
@@ -136,20 +117,14 @@ const SidebarContent = ({
 export const DefaultTab = () => <div style={{ color: 'white' }}></div>;
 
 SidebarContent.propTypes = {
-  // tab: PropTypes.number.isRequired, // Tab should be a number
-  user: PropTypes.shape({
-    folders: PropTypes.arrayOf(
-      PropTypes.shape({
-        space: PropTypes.string.isRequired, // space inside folders should be a string
-      })
-    ),
-  }).isRequired, // user is required and has a folders array
-  chatSessions: PropTypes.array.isRequired, // chatSessions is an array
-  workspaces: PropTypes.array.isRequired, // workspaces is an array
-  prompts: PropTypes.array.isRequired, // prompts is an array
-  files: PropTypes.array.isRequired, // files is an array
-  assistants: PropTypes.array.isRequired, // assistants is an array
-  folders: PropTypes.array.isRequired, // folders is an array
+  user: PropTypes.object.isRequired,
+  workspaces: PropTypes.array.isRequired,
+  folders: PropTypes.array.isRequired,
+  dataList: PropTypes.array.isRequired,
+  dataMap: PropTypes.object.isRequired,
+  onSave: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  buttonRef: PropTypes.object.isRequired,
 };
 
 export default SidebarContent;

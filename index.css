@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 180 100% 98%; /* light teal background */
+    --foreground: 160 90% 20%; /* dark greenish-blue text */
+
+    --card: 180 100% 98%; /* light teal */
+    --card-foreground: 160 90% 20%; /* dark greenish-blue */
+
+    --popover: 180 100% 98%; /* light teal */
+    --popover-foreground: 160 90% 20%; /* dark greenish-blue */
+
+    --primary: 170 70% 30%; /* teal for primary */
+    --primary-foreground: 160 100% 98%; /* very light teal for text on primary */
+
+    --secondary: 160 50% 85%; /* light seafoam */
+    --secondary-foreground: 170 70% 30%; /* teal for text on secondary */
+
+    --muted: 160 50% 85%; /* light seafoam */
+    --muted-foreground: 170 30% 40%; /* muted teal for foreground */
+
+    --accent: 160 50% 85%; /* light seafoam */
+    --accent-foreground: 170 70% 30%; /* teal for text on accent */
+
+    --destructive: 0 84.2% 60.2%; /* keeping red for destructive */
+    --destructive-foreground: 160 100% 98%; /* very light teal */
+
+    --border: 170 40% 90%; /* light greenish-blue for border */
+    --input: 170 40% 90%; /* same as border for input */
+    --ring: 160 90% 20%; /* dark greenish-blue ring */
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 160 90% 20%; /* dark greenish-blue */
+    --foreground: 160 100% 98%; /* very light teal */
+
+    --card: 160 90% 20%; /* dark greenish-blue */
+    --card-foreground: 160 100% 98%; /* very light teal */
+
+    --popover: 160 90% 20%; /* dark greenish-blue */
+    --popover-foreground: 160 100% 98%; /* very light teal */
+
+    --primary: 160 100% 98%; /* very light teal */
+    --primary-foreground: 160 90% 20%; /* dark greenish-blue for primary text */
+
+    --secondary: 160 60% 30%; /* darker teal for secondary */
+    --secondary-foreground: 160 100% 98%; /* light teal for text on secondary */
+
+    --muted: 160 60% 30%; /* darker teal for muted */
+    --muted-foreground: 170 20% 65%; /* softer teal for muted foreground */
+
+    --accent: 160 60% 30%; /* darker teal for accent */
+    --accent-foreground: 160 100% 98%; /* light teal for text on accent */
+
+    --destructive: 0 62.8% 30.6%; /* keeping red for destructive */
+    --destructive-foreground: 160 100% 98%; /* very light teal */
+
+    --border: 160 60% 30%; /* darker teal for border */
+    --input: 160 60% 30%; /* same as border for input */
+    --ring: 160 40% 85%; /* lighter teal for ring */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

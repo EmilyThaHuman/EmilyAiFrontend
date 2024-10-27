@@ -1,5 +1,5 @@
-import pxToRem from '../functions/pxToRem';
 import colors from './colors';
+import pxToRem from '../functions/pxToRem';
 
 const { dark } = colors;
 

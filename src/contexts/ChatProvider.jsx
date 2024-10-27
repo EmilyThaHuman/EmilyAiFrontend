@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
+
 import * as chatActions from 'store/Slices/chat';
 import * as authActions from 'store/Slices/user/userSlice';
 
@@ -46,16 +47,16 @@ export const ChatProvider = ({ children }) => {
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const initializeUserData = async () => {
-      try {
-        await dispatch(actions.setAuthUserData());
-      } catch (error) {
-        console.error('Error fetching and setting user data:', error);
-      }
-    };
-    initializeUserData();
-  }, [dispatch]);
+  // useEffect(() => {
+  //   const initializeUserData = async () => {
+  //     try {
+  //       await dispatch(actions.setAuthUserData());
+  //     } catch (error) {
+  //       console.error('Error fetching and setting user data:', error);
+  //     }
+  //   };
+  //   initializeUserData();
+  // }, [dispatch]);
 
   const actionCreators = Object.keys(actions).reduce((acc, actionName) => {
     if (typeof actions[actionName] === 'function') {

@@ -24,7 +24,9 @@ import {
 } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import PropTypes from 'prop-types';
+
 import { RCTooltip } from 'components/themed';
+
 import { FileInfoTooltip } from '../sidebar/panel/items/sidebar-items/FileInfoTooltip';
 /* --- CHAT - SIDEBAR --- */
 export const SidebarContainer = styled('div')({
@@ -152,7 +154,7 @@ export const AnimatedListItem = styled(motion.li)({
 });
 export const SidebarManagerContainer = styled('div')(({ theme }) => ({
   backgroundColor: '#000000',
-  height: '100vh',
+  // height: '100vh',
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
@@ -370,7 +372,7 @@ export const StyledMuiTabs = styled(Tabs)({
     margin: '5px',
   },
 });
-export const AnimatedTab = styled(motion(RadixUiTab))(({ theme }) => ({
+export const AnimatedTab = styled(motion.create(RadixUiTab))(({ theme }) => ({
   position: 'relative',
   listStyle: 'none',
   cursor: 'pointer',

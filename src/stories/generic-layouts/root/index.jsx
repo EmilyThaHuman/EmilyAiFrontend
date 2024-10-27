@@ -1,6 +1,7 @@
 import { Box, CssBaseline, Grid } from '@mui/material';
 import React, { useState } from 'react';
 import { Outlet, useNavigation } from 'react-router-dom';
+
 import { LoadingIndicator } from 'components/index';
 
 const RootLayout = props => {

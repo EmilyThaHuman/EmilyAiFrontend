@@ -9,6 +9,7 @@ import { createLowlight, all } from 'lowlight';
 import babelParser from 'prettier/parser-babel';
 import Prettier from 'prettier/standalone';
 import React, { useState } from 'react';
+
 import 'highlight.js/styles/github-dark.css';
 import { CodeMirrorExtension } from './CodeMirrorExtension';
 

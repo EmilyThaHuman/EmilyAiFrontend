@@ -15,6 +15,7 @@ import React from 'react';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { IoMenuOutline } from 'react-icons/io5';
 import { NavLink, useParams } from 'react-router-dom';
+
 import {
   RCBox,
   RCFlex,
@@ -24,6 +25,7 @@ import {
 } from 'components';
 import { useDisclosure, useMode } from 'hooks';
 import { extractPaths } from 'utils';
+
 import { Brand } from './components';
 
 export const Sidebar = props => {

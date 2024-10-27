@@ -44,11 +44,13 @@ import {
 } from 'react-icons/fa';
 import SyntaxHighlighter from 'react-syntax-highlighter';
 import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+
 import { attachmentsApi } from 'api/Ai/chat-sessions';
 import { SidebarManagerContainer } from 'components/chat/styled';
 import { useFileProcesser } from 'hooks/chat';
 import { useDialog } from 'hooks/ui';
 import { detectLanguage } from 'utils/format';
+
 import SidebarActions from '../sidebar-items/components/sidebar-actions';
 
 const StyledTreeItemRoot = styled(Box)(({ theme, isDragging }) => ({

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+
 import { Dialog } from 'components/themed';
+
 import Mermaid from './main';
 
 export const CodeBlock = ({ children, className }) => {

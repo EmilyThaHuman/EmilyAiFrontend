@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
 import { AspectRatioBox, StyledPaper } from 'components/index';
 import { useMode } from 'hooks';
 

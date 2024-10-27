@@ -3,10 +3,12 @@ import { Box, useMediaQuery } from '@mui/material';
 import { useAnimation } from 'framer-motion';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
+
 import routes from '@/routes/index';
 import { useMode } from 'hooks';
-import { NavbarContainer } from './components/navbarcontainer'; // Import the new NavbarContainer
-import AdminNavbarLinks from './NavbarLinksAdmin';
+
+import { NavbarContainer } from './components';
+import { AdminHeaderLinks } from './links';
 
 export const AdminNavbar = props => {
   const [scrolled, setScrolled] = useState(false);
@@ -52,14 +54,6 @@ export const AdminNavbar = props => {
     gap: '0px',
     paddingStyles: {
       pb: '8px',
-      // px: {
-      //   xs: '15px',
-      //   md: '10px',
-      // },
-      // pl: {
-      //   xl: '12px',
-      // },
-      // pt: '8px',
     },
     marginStyles: {
       mx: 'auto',
@@ -81,7 +75,7 @@ export const AdminNavbar = props => {
       navbarProps={navbarProps}
     >
       <Box sx={{ marginLeft: 'auto', width: { xs: '100%', md: 'unset' } }}>
-        <AdminNavbarLinks
+        <AdminHeaderLinks
           onOpen={props.onOpen}
           logoText={props.logoText}
           secondary={props.secondary}

@@ -36,6 +36,7 @@ import {
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+
 import { AiIcon } from 'assets/humanIcons';
 import { StyledButton } from 'components/chat/styled';
 import { useMode } from 'hooks/app';

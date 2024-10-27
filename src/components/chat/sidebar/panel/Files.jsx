@@ -1,20 +1,23 @@
 import { Box } from '@mui/material';
+import { FileIcon } from 'lucide-react';
 import { ErrorBoundary } from 'react-error-boundary';
+
 import { SidebarPanelContainer } from 'components/chat/styled';
 import { RCTabs } from 'components/themed';
 import { useTabManager } from 'hooks/chat/useTabManager';
+
 import { EditFile, FileInfo, FileUpsert, useFileEditor } from './items';
 import { FileDirectory } from './items/sidebar-items/components/sidebar-file-directory';
-// import { FileManagementSidebar } from './items/sidebar-items/FileManager';
 
 export const Files = props => {
-  const { folders = [], data = {}, space = '', files = [] } = props;
+  const { folders = [], data = [], space = 'files' } = props;
+
   const { activeTabs, selectedTab, selectTab } = useTabManager('files');
   const {
     fileName,
     fileContent,
-    fileInfo,
     fileDescription,
+    fileInfo,
     editingFile, // Method to set the file for editing
     selectedItem,
     setEditingFile,
@@ -47,7 +50,6 @@ export const Files = props => {
 
   const handleSaveFile = async () => {
     console.log('Saving file:', { fileName, fileContent, fileDescription });
-    // After saving, you might want to refresh the file list or update the file in the list
     setEditingFile(null);
     selectTab(0); // Return to list view
   };
@@ -55,13 +57,18 @@ export const Files = props => {
   const renderContent = () => {
     switch (selectedTab) {
       case 0:
+        console.log('Rendering FileDirectory');
+        console.log('Folders:', folders);
+        console.log('data:', data);
+        console.log('space:', space);
+
         return (
           <ErrorBoundary FallbackComponent={ErrorFallback}>
             <FileDirectory
               initialFolders={folders}
-              initialFiles={files}
+              initialItems={data}
               space={space}
-              onEditFile={handleEditFile}
+              icon={<FileIcon />}
             />
           </ErrorBoundary>
         );
@@ -93,34 +100,6 @@ export const Files = props => {
 
   return (
     <>
-      {/* <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        p={2}
-      >
-        <Typography
-          sx={{
-            ml: 3,
-            flex: 1,
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            color: '#fff',
-          }}
-          variant="h4"
-          fontWeight="bold"
-          // variant="h6"
-          // sx={{
-          //   color: 'white',
-          //   mx: '12px',
-          // }}
-        >
-          Files
-        </Typography>
-        <IconButton onClick={handleSaveFile}>
-          <FaSave style={{ float: 'right', cursor: 'pointer' }} />
-        </IconButton>
-      </Box> */}
       <RCTabs
         value={selectedTab}
         onChange={(e, newValue) => selectTab(newValue)}

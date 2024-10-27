@@ -6,6 +6,7 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
+
 import { useMode } from 'hooks';
 
 export default function MemberCard(props) {

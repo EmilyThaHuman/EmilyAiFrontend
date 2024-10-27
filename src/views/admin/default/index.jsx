@@ -2,10 +2,12 @@ import { alpha, Box, Grid, Icon, Paper, styled } from '@mui/material';
 import { RichTreeView } from '@mui/x-tree-view';
 import { TreeItem, treeItemClasses } from '@mui/x-tree-view/TreeItem';
 import { MdAddChart, MdBarChart, MdFileCopy, MdMoney } from 'react-icons/md';
+
 import { MdAddTask } from 'assets/humanIcons';
 import IconBox from 'assets/humanIcons/utils/IconBox';
 import { MiniStatistics } from 'components/index';
 import { careerTrackerTable } from 'config/data';
+
 import { JobStatusTracker } from './components';
 import DailyTraffic from './components/DailyTraffic';
 import { CalendarComponent } from './components/DashboardCalendar';
@@ -68,6 +70,7 @@ export const MainDashboard = () => {
     { id: 'package.json', label: 'package.json' },
     { id: 'README.md', label: 'README.md' },
   ];
+
   return (
     <Box marginTop={{ xs: '260px', sm: '160px' }}>
       {/* <----- Mini Statistics Section -----> */}
@@ -215,6 +218,7 @@ export const MainDashboard = () => {
           </Box>
         </Grid>
       </Grid>
+      {/* <----- Site Traffic Data Section -----> */}
       <Grid container spacing={3} mb={3}>
         <Grid item xs={12}>
           <Grid container spacing={3}>

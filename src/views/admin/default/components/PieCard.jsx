@@ -10,6 +10,7 @@ import {
   useTheme,
 } from '@mui/material';
 import React from 'react';
+
 import PieChart from 'components/themed/CommonUi/charts/PieChart';
 import { pieChartData, pieChartOptions } from 'config/data-configs/charts';
 

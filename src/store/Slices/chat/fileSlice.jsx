@@ -1,6 +1,9 @@
 // src/redux/fileSlice.js
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { toast } from 'sonner';
+
 import { attachmentsApi } from 'api/Ai/chat-sessions';
+
 import { getLocalData, getNewPromptId, setLocalData } from '../helpers';
 import { setPrompts } from './promptSlice';
 
@@ -199,7 +202,9 @@ export const fileSlice = createSlice({
   initialState,
   reducers: {
     setFiles: (state, action) => {
-      console.log('Setting files:', action.payload);
+      const success = `Successfully files: ${action.payload}`;
+      console.log(success);
+      toast.success(success);
       state.files = action.payload;
       setLocalFileData({ ...state, files: action.payload });
     },
@@ -209,25 +214,31 @@ export const fileSlice = createSlice({
       setLocalFileData({ ...state, newMessageFiles: action.payload });
     },
     setNewMessageImages: (state, action) => {
-      console.log('Setting newMessageImages:', action.payload);
-      state.newMessageFiles = action.payload;
+      const success = `Successfully set images: ${action.payload}`;
+      console.log(success);
+      toast.success(success);
       setLocalFileData({ ...state, newMessageImages: action.payload });
-      // state.newMessageImages = state.newMessageImages.filter(
-      //   image => image.messageId !== action.payload
-      // );
+      state.newMessageImages = state.newMessageImages.filter(
+        image => image.messageId !== action.payload
+      );
     },
     setChatFiles: (state, action) => {
-      console.log('Setting chatFiles:', action.payload);
-      state.chatFiles = action.payload;
+      const success = `Successfully set chat files: ${action.payload}`;
+      console.log(success);
+      toast.success(success);
       setLocalFileData({ ...state, chatFiles: action.payload });
+      state.chatFiles = action.payload;
     },
     setChatImages: (state, action) => {
       state.chatImages = action.payload;
       setLocalFileData({ ...state, chatImages: action.payload });
     },
     addNewMessageFile: (state, action) => {
-      console.log('Adding newMessageFile:', action.payload);
-      state.newMessageFiles.push(action.payload);
+      const success = `Successfully added new message file: ${action.payload}`;
+      console.log(success);
+      toast.success(success);
+      setLocalFileData({ ...state, newMessageFiles: action.payload });
+      state.newMessageFiles = action.payload;
     },
     updateNewMessageFile: (state, action) => {
       const index = state.newMessageFiles.findIndex(
@@ -237,21 +248,13 @@ export const fileSlice = createSlice({
         state.newMessageFiles[index] = action.payload;
       }
     },
-    // setNewMessageFiles: (state, action) => {
-    //   state.newMessageFiles = action.payload;
-    // },
-    // setNewMessageImages: (state, action) => {
-    //   state.newMessageImages = action.payload;
-    // },
     setShowFilesDisplay: (state, action) => {
       state.showFilesDisplay = action.payload;
+      setLocalFileData({ ...state, showFilesDisplay: action.payload });
     },
   },
   extraReducers: builder => {
     builder
-      // .addCase(fetchFileData.pending, state => {
-      //   state.fileRequest.status = 'loading';
-      // })
       .addCase(fetchFileData.fulfilled, (state, action) => {
         state.byId = { ...state.byId, ...action.payload.byId };
         state.allIds = [...state.allIds, ...action.payload.allIds];
@@ -261,9 +264,6 @@ export const fileSlice = createSlice({
         state.fileRequest.status = 'failed';
         state.fileRequest.error = action.error.message;
       })
-      // .addCase(fetchAllImages.pending, state => {
-      //   state.status = 'loading';
-      // })
       .addCase(fetchAllImages.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.images = action.payload;
@@ -272,9 +272,6 @@ export const fileSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
-      // .addCase(fetchAllFiles.pending, state => {
-      //   state.status = 'loading';
-      // })
       .addCase(fetchAllFiles.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.files = action.payload;

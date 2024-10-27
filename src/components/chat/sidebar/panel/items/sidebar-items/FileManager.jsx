@@ -2,11 +2,13 @@ import _ from 'lodash';
 import React, { useState, useCallback, useMemo } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+
 import { SidebarManagerContainer } from 'components/chat/styled';
 import { useChatStore } from 'contexts/ChatProvider';
 import { useFileProcesser } from 'hooks/chat';
 import { useFileStructure } from 'hooks/chat/useFileStructure';
 import { useDialog } from 'hooks/ui';
+
 import { NewFileDialog, NewFolderDialog } from './file-manager-components';
 import { FileTree } from './FileTree';
 import { SidebarActions } from './SidebarActions';

@@ -1,10 +1,12 @@
 // components/CreateFile.js
 import { Button } from '@mui/material';
 import React, { useState } from 'react';
+
 import constants from 'config';
 import { useChatStore } from 'contexts/ChatProvider';
-import SidebarCreateItem from '../REVIEW/sidebar-create-item';
+
 import FileForm from './file-form';
+import SidebarCreateItem from '../REVIEW/sidebar-create-item';
 
 const { FILE_DESCRIPTION_MAX, FILE_NAME_MAX, ACCEPTED_FILE_TYPES } = constants;
 

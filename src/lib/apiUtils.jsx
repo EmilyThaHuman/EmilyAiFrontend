@@ -10,10 +10,12 @@ const saveErrorToLocalStorage = (error, method) => {
     message: error.message,
     stack: error.stack,
     config: error.config,
-    response: error.response ? {
-      status: error.response.status,
-      data: error.response.data
-    } : null
+    response: error.response
+      ? {
+          status: error.response.status,
+          data: error.response.data,
+        }
+      : null,
   });
   localStorage.setItem('apiErrors', JSON.stringify(errors.slice(-10))); // Keep only last 10 errors
 };

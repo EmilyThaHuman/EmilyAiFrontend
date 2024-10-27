@@ -36,19 +36,35 @@
     "react/prop-types": "off",
     "no-redeclare": "off",
     "no-use-before-define": "off",
+    "import/no-unresolved": [
+      "error",
+      {
+        "ignore": [
+          "monaco-editor/esm/vs/language/json/json.worker\\?worker",
+          "monaco-editor/esm/vs/language/css/css.worker\\?worker",
+          "monaco-editor/esm/vs/language/html/html.worker\\?worker",
+          "monaco-editor/esm/vs/language/typescript/ts.worker\\?worker",
+          "monaco-editor/esm/vs/editor/editor.worker\\?worker"
+        ]
+      }
+    ],
+    // "import/no-named-as-default-member": "off",
     "import/order": [
       "error",
       {
         "groups": [
-          "builtin",
-          "external",
-          "internal",
-          "parent",
-          "sibling",
-          "index"
+          "builtin", // Built-in imports (come from NodeJS native) go first
+          "external", // <- External imports
+          "internal", // <- Absolute imports
+          ["sibling", "parent"], // <- Relative imports, the sibling and parent types they can be mingled together
+          "index", // <- index imports
+          "unknown" // <- unknown
         ],
+        "newlines-between": "always",
         "alphabetize": {
+          /* sort in ascending order. Options: ["ignore", "asc", "desc"] */
           "order": "asc",
+          /* ignore case. Options: [true, false] */
           "caseInsensitive": true
         }
       }
@@ -66,18 +82,6 @@
       }
     ],
     "import/no-anonymous-default-export": "off",
-    "import/no-unresolved": [
-      "error",
-      {
-        "ignore": [
-          "monaco-editor/esm/vs/language/json/json.worker\\?worker",
-          "monaco-editor/esm/vs/language/css/css.worker\\?worker",
-          "monaco-editor/esm/vs/language/html/html.worker\\?worker",
-          "monaco-editor/esm/vs/language/typescript/ts.worker\\?worker",
-          "monaco-editor/esm/vs/editor/editor.worker\\?worker"
-        ]
-      }
-    ],
     "jsx-a11y/anchor-is-valid": [
       "error",
       {

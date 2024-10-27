@@ -1,5 +1,6 @@
 // src/hooks/useData.js
 import useSWR from 'swr';
+
 import { fetcher } from '@/lib/fetcher';
 
 export const useData = endpoint => {

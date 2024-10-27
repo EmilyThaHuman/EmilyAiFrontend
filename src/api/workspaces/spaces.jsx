@@ -7,6 +7,46 @@ const baseUrlSpaceFolder = () =>
   baseUrlSpaceWithParams(sessionStorage.getItem('workspaceId')) + '/folders';
 export const workspacesApi = {
   // --- Workspace service ---
+  getWorkspaces: async () => {
+    try {
+      const data = await apiUtils.get(baseUrl);
+      return data;
+    } catch (error) {
+      console.error('Error fetching workspaces:', error);
+      throw error;
+    }
+  },
+  getUserWorkspaces: async () => {
+    try {
+      const data = await apiUtils.get(
+        `${baseUrl}/${encodeURIComponent(sessionStorage.getItem('userId'))}`
+      );
+      return data;
+    } catch (error) {
+      console.error('Error fetching workspaces:', error);
+      throw error;
+    }
+  },
+  getWorkspace: async () => {
+    let workspaceId = sessionStorage.getItem('workspaceId');
+    if (!workspaceId) {
+      const userStore = JSON.parse(localStorage.getItem('userStore'));
+      sessionStorage.setItem('workspaceId', userStore.user.homeWorkspaceId);
+      workspaceId === userStore.user.homeWorkspaceId;
+    }
+    try {
+      const data = await apiUtils.get(
+        `/chat/workspaces/${encodeURIComponent(workspaceId)}`
+      );
+      return data;
+    } catch (error) {
+      console.error(
+        `Error fetching workspace with id ${encodeURIComponent(workspaceId)}:`,
+        error
+      );
+      throw error;
+    }
+  },
   create: async workspaceData => {
     try {
       const data = await apiUtils.post(
@@ -79,19 +119,52 @@ export const workspacesApi = {
       throw error;
     }
   },
-  getWorkspaceFoldersBySpace: async props => {
-    const { workspaceId, space } = props;
+  getItemsFolder: async props => {
+    // const { workspaceId, space } = props;
+    let workspaceId = sessionStorage.getItem('workspaceId');
+    if (!props.workspaceId) {
+      const userStore = JSON.parse(localStorage.getItem('userStore'));
+      sessionStorage.setItem('workspaceId', userStore.user.homeWorkspaceId);
+      workspaceId === userStore.user.homeWorkspaceId;
+    }
     try {
       const response = await apiUtils.get(
-        `/chat/workspaces/${encodeURIComponent(workspaceId)}/folders/space/${space}`
+        `/chat/workspaces/${encodeURIComponent(workspaceId)}/folders/space/${props.space}`
       );
       console.log('RES', response);
-      console.log('FOLDERS', response.folders);
-      console.log('WORKSPACE', response.workspace);
-      return response.folders;
-      // const data = await apiUtils.get(`/chat/spaces/${space}/folders`);
+      console.log('FOLDER', response.folder);
+      return response.folder;
     } catch (error) {
-      console.error(`Error fetching chat folders for space ${space}:`, error);
+      console.error(
+        `Error fetching chat folders for space ${props.space}:`,
+        error
+      );
+      throw error;
+    }
+  },
+  getWorkspaceFoldersBySpace: async props => {
+    // const { workspaceId, space } = props;
+    let workspaceId = sessionStorage.getItem('workspaceId');
+    if (!workspaceId) {
+      const userStore = JSON.parse(localStorage.getItem('userStore'));
+      sessionStorage.setItem('workspaceId', userStore.user.homeWorkspaceId);
+      workspaceId === userStore.user.homeWorkspaceId;
+    }
+    try {
+      const response = await apiUtils.get(
+        `/chat/workspaces/${encodeURIComponent(workspaceId)}/folders/space/${props.space}`
+      );
+      console.log('RES', response);
+      console.log('FOLDERS_ARRAY', response.folders);
+      console.log('ITEMS_ARRAY', response.allItems);
+      const folder = response?.folders[0];
+      const folderItems = response.allItems;
+      return { folder, folderItems };
+    } catch (error) {
+      console.error(
+        `Error fetching chat folders for space ${props.space}:`,
+        error
+      );
       throw error;
     }
   },
@@ -127,7 +200,12 @@ export const workspacesApi = {
   },
   // --- Sessions service ---
   getWorkspaceSessionsByWorkspaceId: async props => {
-    const { workspaceId, userId } = props;
+    let workspaceId = sessionStorage.getItem('workspaceId');
+    if (!workspaceId) {
+      const userStore = JSON.parse(localStorage.getItem('userStore'));
+      sessionStorage.setItem('workspaceId', userStore.user.homeWorkspaceId);
+      workspaceId === userStore.user.homeWorkspaceId;
+    }
     try {
       const response = await apiUtils.get(
         `/chat/workspaces/${encodeURIComponent(workspaceId)}/chatSessions`

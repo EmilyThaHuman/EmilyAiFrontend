@@ -1,6 +1,7 @@
 // RCTooltip.js
 import PropTypes from 'prop-types';
 import React from 'react';
+
 import RCTooltipRoot from './RCTooltipRoot';
 
 /**

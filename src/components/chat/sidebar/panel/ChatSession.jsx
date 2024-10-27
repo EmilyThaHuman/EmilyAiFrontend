@@ -1,23 +1,20 @@
-import {
-  Box,
-  CircularProgress,
-  Menu,
-  MenuItem,
-  Typography,
-} from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { FaSignOutAlt } from 'react-icons/fa';
+
 import { workspacesApi } from 'api/workspaces';
+import { ChatIcon } from 'assets/humanIcons';
 import { ChatBotIcon } from 'assets/humanIcons/custom';
 import { RCTabs } from 'components/themed';
 import { useChatStore } from 'contexts/ChatProvider';
 import { useTabManager } from 'hooks/chat/useTabManager';
+
 import { ConversationTab, SessionSettings } from './items';
-import { FileManagementSidebar } from './items/sidebar-items/FileManager';
+import { FileDirectory } from './items/sidebar-items/components';
 
 export const ChatSession = props => {
-  const { folders = [], data = {}, space = '', files = [] } = props;
+  const { folders = [], data = [], space = 'chatSessions' } = props;
+
   const {
     state: { selectedWorkspace },
     actions: { setChatMessages },
@@ -103,10 +100,12 @@ export const ChatSession = props => {
       case 0:
         return (
           <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <FileManagementSidebar
+            <FileDirectory
               initialFolders={folders}
-              initialFiles={files}
+              initialItems={data}
               space={space}
+              icon={<ChatIcon />}
+              // icon={<FileIcon type={selectedFile?.type || 0} />}
             />
           </ErrorBoundary>
         );

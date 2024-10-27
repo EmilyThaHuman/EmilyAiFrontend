@@ -14,12 +14,20 @@ import userReducer, {
   setEnvKeyMap,
   setSelectedProfileImage,
   addEnvToUser,
+  setAuthSession,
+  setIsAuthLoading,
+  setIsSettingUp,
+  setIsSigningUp,
+  setIsSignedUp,
+  setIsSetup,
 } from './userSlice';
 
 // Exporting all actions and thunks
 export {
   // User actions and thunks
+  setIsSettingUp,
   addEnvToUser,
+  setIsAuthLoading,
   setProfile,
   setEnvKeyMap,
   setSelectedProfileImage,
@@ -33,6 +41,10 @@ export {
   setIsAuthenticated,
   setUserOpenAiSettings,
   setAuthUserData,
+  setAuthSession,
+  setIsSigningUp,
+  setIsSignedUp,
+  setIsSetup,
 };
 
 // Exporting reducers

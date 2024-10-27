@@ -1,3 +1,2 @@
-export * from './breadcrumbs';
-export * from './loadable';
-export * from './navbarcontainer';
+export * from './BreadCrumbsComponent';
+export * from './NavbarContainer';

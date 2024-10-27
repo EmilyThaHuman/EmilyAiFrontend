@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { Toaster } from 'sonner';
+import { Toaster, toast } from 'sonner';
+
+import Toast from './Toast'; // Import the updated Toast component
 
 export const ToastContext = React.createContext({
   toasts: null,
@@ -10,20 +12,31 @@ export const ToastContext = React.createContext({
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
-  const addToast = useCallback(toast => {
-    const toastId = toast.__id ?? new Date();
-    setToasts(prevToasts => [...prevToasts, { ...toast, __id: toastId }]);
+  const addToast = useCallback(toastData => {
+    const toastId = toastData.__id ?? new Date().getTime();
+    const newToast = { ...toastData, __id: toastId };
+    setToasts(prevToasts => [...prevToasts, newToast]);
+
+    toast.custom(
+      t => (
+        <Toast
+          message={newToast.message}
+          severity={newToast.severity}
+          onClose={() => toast.dismiss(t)}
+        />
+      ),
+      {
+        id: toastId,
+        duration: toastData.timeout || 3000,
+      }
+    );
+
     return toastId;
   }, []);
 
   const removeToast = useCallback(toast => {
-    setToasts(prevToasts => {
-      const index = prevToasts.findIndex(t => t.__id === toast.__id);
-      if (index === -1) return prevToasts;
-      const newToasts = [...prevToasts];
-      newToasts.splice(index, 1);
-      return newToasts;
-    });
+    setToasts(prevToasts => prevToasts.filter(t => t.__id !== toast.__id));
+    toast.dismiss(toast.__id);
   }, []);
 
   const contextValue = useMemo(
@@ -37,7 +50,16 @@ export const ToastProvider = ({ children }) => {
 
   return (
     <ToastContext.Provider value={contextValue}>
-      <Toaster richColors position="top-center" duration={3000} />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            background: 'transparent',
+            boxShadow: 'none',
+            padding: 0,
+          },
+        }}
+      />
       {children}
     </ToastContext.Provider>
   );
@@ -51,9 +73,9 @@ export const useToastStore = timeout => {
   } = React.useContext(ToastContext);
 
   const addToast = useCallback(
-    toast => {
-      const id = originalAddToast(toast);
-      const appliedTimeout = toast.timeout ?? timeout;
+    toastData => {
+      const id = originalAddToast(toastData);
+      const appliedTimeout = toastData.timeout ?? timeout;
       if (appliedTimeout > 0) {
         setTimeout(() => removeToast({ __id: id }), appliedTimeout);
       }

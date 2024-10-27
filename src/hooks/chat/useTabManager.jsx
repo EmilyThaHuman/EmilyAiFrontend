@@ -16,6 +16,7 @@ const tabConfigurations = {
     { label: 'Add Prompt', value: 1 },
     { label: 'Edit Prompt', value: 2 },
     { label: 'Prompt Suggest', value: 3 },
+    { label: 'Prompt Lab', value: 4 },
   ],
   files: [
     { label: 'List', value: 0 },

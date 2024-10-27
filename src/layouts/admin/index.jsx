@@ -1,23 +1,18 @@
-// Chakra imports
-import { Box, Portal } from '@mui/material';
+import { Box, CircularProgress, Portal } from '@mui/material';
 import React, { useState } from 'react';
 import {
+  Navigate,
   Outlet,
   useLocation,
   useNavigation,
   useParams,
 } from 'react-router-dom';
+
 import routes from '@/routes/index';
-import { SidebarContext } from 'contexts';
+import { SidebarContext, useUserStore } from 'contexts';
 import { useDisclosure } from 'hooks/ui';
 import { FooterAdmin, AdminNavbar } from 'layouts';
-import {
-  getActiveNavbar,
-  getActiveNavbarText,
-  getActiveRoute,
-  getLayoutRoute,
-  getMenuItems,
-} from 'utils';
+import { getActiveNavbar, getActiveNavbarText, getActiveRoute } from 'utils';
 
 // =========================================================
 // [AdminLayout] | This code provides the admin layout for the app
@@ -38,6 +33,22 @@ const DashboardContainer = ({ children }) => {
   );
 };
 
+const ChatDashboardContainer = ({ children }) => {
+  return (
+    <Box
+      sx={{
+        mx: 'auto',
+        // p: { xs: '20px', md: '30px' },
+        // pe: '20px',
+        minHeight: '100vh',
+        // pt: '50px',
+      }}
+    >
+      {children}
+    </Box>
+  );
+};
+
 export const AdminLayout = props => {
   const { ...rest } = props;
   const [fixed] = useState(false);
@@ -45,17 +56,29 @@ export const AdminLayout = props => {
   const { onOpen } = useDisclosure();
   const location = useLocation();
   const params = useParams();
-  const chatBotRoute =
-    location.pathname.includes(`/admin/workspaces`) ||
-    location.pathname.includes(`/admin/codeEditor`) ||
-    location.pathname.includes(`/admin/workspaces/${params.workspaceId}`) ||
-    location.pathname.includes(
-      `/admin/workspaces/${params.workspaceId}/chat`
-    ) ||
-    location.pathname.includes(
-      `/admin/workspaces/${params.workspaceId}/chat/${params.sessionId}`
+  const isChatBotRoute = location.pathname.includes('/admin/workspaces');
+  const {
+    state: { user, isAuthLoading },
+  } = useUserStore();
+
+  if (isAuthLoading) {
+    // Show a loading indicator while checking authentication
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
+        <CircularProgress />
+      </Box>
     );
-  const isChatBotRoute = Boolean(chatBotRoute);
+  }
+
+  if (!user.isAuthenticated) {
+    // User is not authenticated, redirect to landing page
+    return <Navigate to="/land/reedai" replace />;
+  }
 
   return (
     <Box>
@@ -84,7 +107,7 @@ export const AdminLayout = props => {
           >
             <Portal>
               <Box>
-                {!isChatBotRoute ? (
+                {!isChatBotRoute && (
                   <AdminNavbar
                     onOpen={onOpen}
                     logoText="Human Websites"
@@ -94,42 +117,20 @@ export const AdminLayout = props => {
                     fixed={fixed}
                     isChatRoute={isChatBotRoute}
                   />
-                ) : (
-                  <>
-                    {/* <ChatSidebar /> */}
-                    {/* <ChatNavbar
-                      onOpen={onOpen}
-                      logoText="Human Websites"
-                      brandText={getActiveRoute(routes)}
-                      secondary={getActiveNavbar(routes)}
-                      message={getActiveNavbarText(routes)}
-                      fixed={fixed}
-                      isChatRoute={isChatBotRoute}
-                    /> */}
-                  </>
                 )}
               </Box>
             </Portal>
-            {getLayoutRoute('admin') ? (
-              isChatBotRoute ? (
-                <>
-                  <Outlet />
-                </>
-              ) : (
-                <>
-                  <DashboardContainer>
-                    <Outlet
-                      context={{
-                        menuItemData: getMenuItems(routes),
-                      }}
-                    />
-                  </DashboardContainer>
-                  <Box>
-                    <FooterAdmin />
-                  </Box>
-                </>
-              )
-            ) : null}
+            {!isChatBotRoute && (
+              <DashboardContainer>
+                <Outlet />
+              </DashboardContainer>
+            )}
+            {isChatBotRoute && (
+              <ChatDashboardContainer>
+                <Outlet />
+              </ChatDashboardContainer>
+            )}
+            {!isChatBotRoute && <FooterAdmin />}
           </Box>
         </SidebarContext.Provider>
       </Box>

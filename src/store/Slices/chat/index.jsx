@@ -1,5 +1,7 @@
 /* eslint-disable import/order */
 import assistantReducer, {
+  setAssistantId,
+  setAssistantFiles,
   createAssistant,
   createMessage,
   createRun,
@@ -31,7 +33,6 @@ import baseChatReducer, {
   setFocusTool,
   setHashtagCommand,
   setIsAssistantPickerOpen,
-  setIsDisabled,
   setIsFilePickerOpen,
   setIsMessagesUpdated,
   setIsPromptPickerOpen,
@@ -43,27 +44,48 @@ import baseChatReducer, {
   setSourceCount,
   setToolCommand,
   setUseRetrieval,
-  setIsStreaming,
 } from './baseChatSlice';
 import chatSessionReducer, {
-  clearChatSessions,
+  // --- thunks --- //
   createChatSession,
-  setChatSessions,
-  setSelectedChatSession,
-  setSessionHeader,
-  setSessionId,
-  setChatMessages,
-  setChatSettings,
-  setChatFileItems,
-  setApiKey,
-  debouncedSetChatMessages,
-  updateLastMessage,
-  updateChatMessage,
-  addChatMessage,
-  setSyncStatus,
-  setUserInput,
   syncChatMessages,
   getChatMessages,
+  debouncedSetChatMessages,
+  fetchSessions,
+  updateSessions,
+  fetchLatestMessages,
+  updateChatMessages,
+  saveChatMessagesToLocal,
+  // --- actions --- //
+  // session //
+  setSessionId,
+  setChatSessions,
+  setSelectedChatSession,
+  // input //
+  setApiKey,
+  setUserInput,
+  // messages //
+  setChatMessages,
+  addChatMessage,
+  appendToChatMessage,
+  completeChatMessage,
+  markChatMessageError,
+  markChatMessageComplete,
+  updateChatMessage,
+  // status //
+  setChatLoading,
+  setChatDisabled,
+  setChatStreaming,
+  setIsSubmitting,
+  setChatError,
+  setStreamingMessageId,
+  setSyncStatus,
+  // settings //
+  setChatSettings,
+  setChatFileItems,
+  // clear //
+  clearChatSessions,
+  clearChatMessages,
 } from './chatSessionSlice';
 import collectionReducer, { setCollections } from './collectionSlice';
 import fileReducer, {
@@ -105,23 +127,28 @@ import toolReducer, {
   setTools,
 } from './toolSlice';
 import workspaceReducer, {
-  setHomeWorkSpace,
-  setSelectedWorkspace,
   setWorkspaceId,
-  setWorkspaceImages,
   setWorkspaces,
+  setSelectedWorkspace,
+  setHomeWorkSpace,
+  setWorkspaceImages,
   syncWorkspaceFolders,
 } from './workspaceSlice';
 
 export {
   // addEnvToUser,
+  setChatError,
+  setAssistantId,
+  setAssistantFiles,
+  appendToChatMessage,
+  completeChatMessage,
+  markChatMessageError,
+  setStreamingMessageId,
   debouncedSetChatMessages,
   syncWorkspaceFolders,
-  updateLastMessage,
   updateChatMessage,
   addChatMessage,
   setSyncStatus,
-  setIsStreaming,
   setStreamingMessageIndex,
   addNewMessageFile,
   updateNewMessageFile,
@@ -170,7 +197,6 @@ export {
   setHashtagCommand,
   setHomeWorkSpace,
   setIsAssistantPickerOpen,
-  setIsDisabled,
   setIsFilePickerOpen,
   setIsMessagesUpdated,
   setIsPromptPickerOpen,
@@ -191,7 +217,6 @@ export {
   setSelectedPrompt,
   setSelectedTools,
   setSelectedWorkspace,
-  setSessionHeader,
   setSessionId,
   setShowFilesDisplay,
   setSlashCommand,
@@ -205,6 +230,7 @@ export {
   setWorkspaceImages,
   setWorkspaces,
   updateAssistant,
+  setIsSubmitting,
   updateFolder,
   uploadAssistantFile,
   uploadFile,
@@ -213,6 +239,11 @@ export {
   getStoredFilesBySpace,
   getStoredFileByName,
   getStoredFileById,
+  markChatMessageComplete,
+  setChatLoading,
+  setChatDisabled,
+  setChatStreaming,
+  clearChatMessages,
 };
 
 export {

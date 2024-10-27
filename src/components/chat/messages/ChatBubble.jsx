@@ -1,12 +1,24 @@
 import { Box } from '@mui/material';
+import { motion } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
 import { FaUser } from 'react-icons/fa';
+
 import { AiIcon } from 'assets/humanIcons';
 import { useMode } from 'hooks';
 import { convertToMarkdown } from 'utils/format';
+
 import { ChatBubbleAvatarWrapper } from '../styled';
-import MessageOptions from './MessageOptions';
-import RenderContent from './RenderContent';
+import { MessageOptions } from './MessageOptions';
+import { RenderContent } from './RenderContent';
+
+// animationVariants.js
+export const messageVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+};
+
+const MotionBox = motion(Box);
 
 export const ChatBubble = ({ message, sender }) => {
   const { theme } = useMode();
@@ -17,7 +29,7 @@ export const ChatBubble = ({ message, sender }) => {
     if (bubbleRef.current) {
       setMaxWidth(`${bubbleRef.current.clientWidth}px`);
     }
-  }, [bubbleRef.current]);
+  }, []);
 
   const avatarStyle = {
     width: 40,
@@ -33,7 +45,7 @@ export const ChatBubble = ({ message, sender }) => {
   const icon = sender === 'user' ? <FaUser /> : <AiIcon />;
 
   return (
-    <Box
+    <MotionBox
       ref={bubbleRef}
       sender={sender}
       theme={theme}
@@ -48,7 +60,15 @@ export const ChatBubble = ({ message, sender }) => {
       <ChatBubbleAvatarWrapper sx={avatarStyle} theme={theme} sender={sender}>
         {icon}
       </ChatBubbleAvatarWrapper>
-      <div className={`chat-message-${sender}`}>
+      <motion.div
+        variants={messageVariants}
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        transition={{ duration: 0.3 }}
+        // className="chat-message"
+        className={`chat-message-${sender}`}
+      >
         <div className={`message-content-${sender}`}>
           <RenderContent
             content={message.content}
@@ -67,8 +87,8 @@ export const ChatBubble = ({ message, sender }) => {
             }}
           />
         )}
-      </div>
-    </Box>
+      </motion.div>
+    </MotionBox>
   );
 };
 

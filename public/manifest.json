@@ -1,11 +1,11 @@
 {
   "name": "ReedAi",
+  "short_name": "RAI",
   "start_url": ".",
-  "short_name": "R-AI",
-  "description": "ReedAi is a web app that helps you to manage your daily tasks and keep track of your progress.",
+  "description": "Your AI React Component Assistant: ReedAi is a frontend development tool that helps you create React components using AI. It's a great tool for frontend developers who want to speed up their development process.",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff",
+  "theme_color": "#18b984",
+  "background_color": "#000000",
   "icons": [
     {
       "src": "favicon.ico",

@@ -1,9 +1,7 @@
 import axios from 'axios';
-import constants from '@/config';
-import axiosInstance from '@/lib/api';
-// import { apiUtils } from '@/lib/apiUtils';
 
 const BASE_URL = 'http://localhost:3001/api';
+
 export const authApi = {
   signup: async (username, email, password) => {
     const response = await axios.post(`${BASE_URL}/user/signup`, {
@@ -15,6 +13,8 @@ export const authApi = {
     sessionStorage.setItem('refreshToken', response.data.refreshToken);
     sessionStorage.setItem('expiresIn', response.data.expiresIn);
     sessionStorage.setItem('userId', response.data.userId);
+    sessionStorage.setItem('workspaceId', response.data.workspaceId);
+    sessionStorage.setItem('sessionId', response.data.chatSessionId);
     return response.data;
   },
 
@@ -27,22 +27,15 @@ export const authApi = {
     sessionStorage.setItem('refreshToken', response.data.refreshToken);
     sessionStorage.setItem('expiresIn', response.data.expiresIn);
     sessionStorage.setItem('userId', response.data.userId);
+    sessionStorage.setItem('workspaceId', response.data.workspaceId);
+    sessionStorage.setItem('sessionId', response.data.chatSessionId);
     console.log(response);
     return response.data;
   },
-  // login: async (usernameOrEmail, password) => {
-  //   const data = await axios.post(`/user/login`, {
-  //     usernameOrEmail,
-  //     password,
-  //   });
-  //   return data;
-  // },
-
   logout: async token => {
     const response = await axios.post(`/user/logout`, { token });
     return response;
   },
-
   validateToken: async token => {
     const data = await axios.get(`/user/validate-token`, {
       headers: { Authorization: `Bearer ${token}` },

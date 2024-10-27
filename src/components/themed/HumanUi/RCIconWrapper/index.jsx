@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+
 import RCBox from '../RCBox';
 import RCWrappedIconRoot from './RCIconWrapperRoot';
 // ==============================|| ICON WRAPPER ||============================== //

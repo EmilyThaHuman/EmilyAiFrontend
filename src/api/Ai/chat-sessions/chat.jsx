@@ -1,5 +1,7 @@
 /* eslint-disable no-constant-condition */
 import { createParser } from 'eventsource-parser';
+import { toast } from 'sonner';
+
 import { apiUtils } from '@/lib/apiUtils';
 
 export const chatApi = {
@@ -128,6 +130,44 @@ export const chatApi = {
       },
     });
   },
+  // **New Method for Streaming Assistant Responses**
+  sendMessageStream: async (sessionId, userMessage, onMessageChunk, signal) => {
+    const response = await fetch(
+      `/api/chat/sessions/${sessionId}/message-stream`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Include any necessary authorization headers
+        },
+        body: JSON.stringify({ message: userMessage }),
+        signal, // Attach the abort signal
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to send message');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let done = false;
+    let accumulatedMessage = '';
+
+    while (!done) {
+      const { value, done: streamDone } = await reader.read();
+      done = streamDone;
+      if (value) {
+        const chunk = decoder.decode(value, { stream: true });
+        accumulatedMessage += chunk;
+        if (onMessageChunk) {
+          onMessageChunk(chunk);
+        }
+      }
+    }
+
+    return accumulatedMessage;
+  },
   getChatSessionMessages: async () => {
     const sessionId = sessionStorage.getItem('sessionId');
     try {
@@ -161,6 +201,79 @@ export const chatApi = {
       return data;
     } catch (error) {
       console.error('Error fetching chat sessions:', error);
+      throw error;
+    }
+  },
+  generateChatTitle: prompt => {
+    try {
+      const data = apiUtils.post(
+        '/chat/sessions/generate-title',
+        JSON.stringify({
+          prompt,
+        })
+      );
+      return data;
+    } catch (error) {
+      console.error('Error generating chat title:', error);
+      throw error;
+    }
+  },
+  createChatSession: async ({
+    title,
+    prompt,
+    selectedComponent,
+    temperature,
+    useGPT4,
+    sessionId,
+    workspaceId,
+    regenerate,
+    userId,
+    clientApiKey,
+    newSession,
+  }) => {
+    try {
+      console.log('Creating chat session with data:', {
+        title,
+        prompt,
+        selectedComponent,
+        temperature,
+        useGPT4,
+        sessionId,
+        workspaceId,
+        regenerate,
+        userId,
+        clientApiKey,
+        newSession,
+      });
+      const data = await apiUtils.post(
+        '/chat/sessions/create-session',
+        JSON.stringify({
+          title,
+          prompt,
+          selectedComponent,
+          temperature,
+          useGPT4,
+          sessionId,
+          workspaceId,
+          regenerate,
+          userId,
+          clientApiKey,
+          newSession,
+        })
+      );
+      return data;
+    } catch (error) {
+      toast.error('Error creating chat session:', error);
+      console.error(`Error fetching chat session with id ${sessionId}:`, error);
+      throw error;
+    }
+  },
+  getChatSession: async sessionId => {
+    try {
+      const data = await apiUtils.get(`/chat/sessions/${sessionId}`);
+      return data;
+    } catch (error) {
+      console.error(`Error fetching chat session with id ${sessionId}:`, error);
       throw error;
     }
   },

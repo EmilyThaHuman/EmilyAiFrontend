@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+
 import { setSidebarOpen, setTheme } from 'store/Slices';
 
 export const AppContext = createContext(null);

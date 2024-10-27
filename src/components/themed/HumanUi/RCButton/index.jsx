@@ -1,7 +1,9 @@
 import { Box } from '@mui/material';
 import PropTypes from 'prop-types';
 import React from 'react';
+
 import { useMode } from 'hooks';
+
 import RCButtonRoot from './RCButtonRoot';
 
 // Wrapper component for when you need a container around the button
@@ -48,11 +50,11 @@ export const RCButton = React.forwardRef(
       iconOnly = false,
       children,
       withContainer = false,
+      darkMode = false,
       ...rest
     },
     ref
   ) => {
-    const darkMode = false; // TODO: Add darkMode support using the hook below.
     const { theme } = useMode();
     const ButtonContent = (
       <RCButtonRoot
@@ -113,6 +115,7 @@ RCButton.propTypes = {
     'light',
     'dark',
   ]),
+  darkMode: PropTypes.bool,
   circular: PropTypes.bool,
   iconOnly: PropTypes.bool,
   withContainer: PropTypes.bool,

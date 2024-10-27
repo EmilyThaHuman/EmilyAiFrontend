@@ -1,4 +1,5 @@
 import { createTheme } from '@mui/material/styles';
+
 import { borders, boxShadows, breakpoints, colors, typography } from './themes';
 import components from './themes/components';
 import {
@@ -65,7 +66,7 @@ const baseThemeData = {
 
 const getPalette = mode => ({
   mode,
-  transparent: colors.transparent,
+  // transparent: colors.transparent,
   white: colors.white,
   brand: colors.brand[mode],
   brandScheme: colors.brandScheme[mode],

@@ -1,36 +1,57 @@
-import { Avatar, Box, IconButton, Tooltip } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { AiIcon, FingerprintIcon, KeyIcon } from 'assets/humanIcons';
-import ValidationIcon from 'components/themed/ValidationIcon';
+import { Avatar, Box, IconButton, Tooltip, useTheme } from '@mui/material';
+import { motion } from 'framer-motion';
 
-const SidebarTabs = ({
+import { AiIcon } from 'assets/humanIcons';
+
+const MotionBox = motion(Box);
+
+export const SidebarTabs = ({
   tab,
-  handleSidebarOpen,
-  isXs,
   isSidebarOpen,
-  isValidApiKey,
-  isAuthenticated,
   isMobile,
   sideBarWidthRef,
-  theme,
   dataList,
 }) => {
+  const theme = useTheme();
   const mainTabs = dataList.slice(0, 5);
   const bottomTabs = dataList.slice(5);
+  const sidebarVariants = {
+    visible: {
+      x: 0,
+      opacity: 1,
+      transition: { type: 'tween', duration: 0.3 },
+    },
+    hidden: {
+      x: '-100%',
+      opacity: 0,
+      transition: { type: 'tween', duration: 0.3 },
+    },
+  };
   return (
-    <Box
+    <MotionBox
       ref={sideBarWidthRef}
+      variants={sidebarVariants}
+      initial={isMobile ? 'hidden' : 'visible'}
+      animate={isMobile && !isSidebarOpen ? 'hidden' : 'visible'}
+      style={{ width: 'fit-content' }}
+      aria-hidden={isMobile && !isSidebarOpen}
       sx={{
-        transform: isMobile && !isSidebarOpen ? 'translateX(-100%)' : 'none',
-        transition: 'transform 0.3s ease-in-out',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '0.5rem',
+        padding: isMobile && !isSidebarOpen ? '0' : '0.5rem',
+        m: isMobile && !isSidebarOpen ? 0 : theme.spacing(1),
+        height:
+          isMobile && !isSidebarOpen
+            ? '100vh'
+            : 'calc(100vh - 2 * theme.spacing(1))', // Adjust height based on margin
         backgroundColor: '#1C1C1C',
         color: 'white',
-        borderRadius: '14px',
-        height: 'calc(100vh - 8px)',
+        borderRadius: isMobile && !isSidebarOpen ? 0 : '14px',
+        overflowY: 'auto',
+        boxSizing: 'border-box',
+        transform: isMobile && !isSidebarOpen ? 'translateX(-100%)' : 'none',
+        transition: 'transform 0.3s ease-in-out',
       }}
     >
       <Avatar
@@ -47,6 +68,8 @@ const SidebarTabs = ({
         <Tooltip key={item.id} title={item.space} placement="right">
           <IconButton
             onClick={item.onClick} // Use each item's onClick handler
+            onMouseOver={e => (e.currentTarget.style.color = 'white')}
+            onMouseOut={e => (e.currentTarget.style.color = '#94a3b8')}
             sx={{
               mb: 1,
               backgroundColor:
@@ -59,43 +82,12 @@ const SidebarTabs = ({
             }}
           >
             {item.icon}
-
-            {/* <item.icon style={sidebarIconStyle} /> */}
           </IconButton>
         </Tooltip>
       ))}
 
-      {/* Validation icon */}
-      {!isXs && (
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: '100%',
-            backgroundColor: '#1C1C1C',
-            alignSelf: 'flex-end',
-            pt: '100%',
-            mt: 'auto',
-          }}
-        >
-          <ValidationIcon
-            isValid={isValidApiKey}
-            type="apiKey"
-            IconComponent={KeyIcon}
-          />
-          <ValidationIcon
-            isValid={isAuthenticated}
-            type="authentication"
-            IconComponent={FingerprintIcon}
-          />
-        </Box>
-      )}
-
-      {/* Spacer */}
       <Box sx={{ flexGrow: 1 }} />
 
-      {/* Bottom tabs (User and Home) */}
       <Box
         sx={{
           display: 'flex',
@@ -104,14 +96,13 @@ const SidebarTabs = ({
           width: '100%',
           backgroundColor: '#1C1C1C',
           alignSelf: 'flex-end',
-          pt: '100%',
           mt: 'auto',
         }}
       >
         {bottomTabs.map(item => (
           <Tooltip key={item.id} title={item.title} placement="right">
             <IconButton
-              onClick={item.onClick} // Use each item's onClick handler
+              onClick={item.onClick}
               sx={{
                 mb: 1,
                 backgroundColor:
@@ -128,7 +119,7 @@ const SidebarTabs = ({
           </Tooltip>
         ))}
       </Box>
-    </Box>
+    </MotionBox>
   );
 };
 

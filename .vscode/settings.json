@@ -28,7 +28,6 @@
     "toolz",
     "Zshape"
   ],
-  "liveServer.settings.root": "/public",
   "editor.formatOnSave": true, // Prettier auto format on save
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",

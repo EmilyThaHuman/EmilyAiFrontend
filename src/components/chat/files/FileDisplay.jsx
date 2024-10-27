@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
+
 import File from './File';
 
 export const FileDisplay = props => {

@@ -1,7 +1,28 @@
 /* eslint-disable no-case-declarations */
 import path from 'path';
+
 import { Typography } from '@mui/material';
+
 import { getFileExtension } from '@/lib/fileUtils';
+
+export function generateTempFileName(metadata) {
+  const { fileSize, fileType, lastModified } = metadata;
+
+  // Convert file size to KB or MB for better readability
+  const sizeInKB = (fileSize / 1024).toFixed(2);
+  const sizeFormatted =
+    sizeInKB > 1024 ? `${(sizeInKB / 1024).toFixed(2)} MB` : `${sizeInKB} KB`;
+
+  // Format the date to a more readable format (e.g., YYYY-MM-DD)
+  const date = new Date(lastModified);
+  const formattedDate = date.toISOString().split('T')[0];
+
+  // Create the temporary file name using type, size, and date
+  const tempName = `UnnamedFile_${formattedDate}_${sizeFormatted}.${fileType}`;
+
+  return tempName;
+}
+
 export function detectLanguage(fileName) {
   const extension = getFileExtension(fileName.toLowerCase());
   const languageMap = {

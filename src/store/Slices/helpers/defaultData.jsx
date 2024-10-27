@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 const REQUEST_STATE = {
   status: 'idle' | 'loading' | 'success' | 'error',
   message: '',
@@ -10,8 +9,8 @@ const REQUEST_STATE = {
 export function defaultPromptList() {
   return [
     {
-      userId: new mongoose.Types.ObjectId().toString(),
-      folderId: new mongoose.Types.ObjectId().toString(),
+      userId: null,
+      folderId: null,
       name: 'React Counter Component',
       content: 'Write the code for a React component with a stateful counter',
       key: 'React Counter Component',
@@ -32,8 +31,8 @@ export function defaultPromptList() {
       },
     },
     {
-      userId: new mongoose.Types.ObjectId().toString(),
-      folderId: new mongoose.Types.ObjectId().toString(),
+      userId: null,
+      folderId: null,
       name: 'Express MongoDB API',
       content: 'Write the code for a RESTful API with Express and MongoDB',
       key: 'Express MongoDB API',
@@ -60,8 +59,8 @@ export function defaultPromptList() {
       },
     },
     {
-      userId: new mongoose.Types.ObjectId().toString(),
-      folderId: new mongoose.Types.ObjectId().toString(),
+      userId: null,
+      folderId: null,
       name: 'Redux Authentication Store',
       content:
         'Generate code for a Redux store with slices for managing user authentication',
@@ -96,352 +95,355 @@ export function defaultUserSessionData() {
       username: '',
       email: '',
       firstName: '',
-      lastName: '',
-      dateJoined: new Date().toISOString(),
-      isActive: false,
-      auth: {
-        password: '', // Ideally, hashed if used
-        management: {},
-        chatModelPrivileges: [],
-        lastLogin: new Date().toISOString(),
-        isSuperuser: false,
-      },
-      authSession: {
-        token: '',
-        tokenType: '',
-        accessToken: '',
-        refreshToken: '',
-        expiresIn: null,
-        expiresAt: null,
-        createdAt: null,
-      },
-      profile: {
-        img: 'path/to/default/image',
-        imagePath: 'path/to/default/image',
-        profileImages: [],
-        selectedProfileImage: 'path/to/default/image',
-        filename: 'avatar1.png',
-        bio: '',
-        displayName: '',
-        hasOnboarded: false,
-        envKeyMap: {
-          openaiApiKey: '',
-          openaiOrgId: '',
-          anthropicApiKey: '',
-          googleGeminiApiKey: '',
-          mistralApiKey: '',
-          groqAPIKey: '',
-          perplexityApiKey: '',
-        },
-        stats: {
-          totalMessages: 0,
-          totalTokenCount: 0,
-          totalMessages3Days: 0,
-          totalTokenCount3Days: 0,
-        },
-        location: {
-          city: '',
-          state: '',
-          country: '',
-        },
-        social: {
-          facebook: '',
-          twitter: '',
-          instagram: '',
-          linkedin: '',
-          github: '',
-          website: '',
-        },
-        dashboard: {
-          projects: {},
-        },
-        settings: {
-          user: {
-            theme: 'light',
-            fontSize: 16,
-            language: 'en',
-            timezone: 'Seattle',
-          },
-          chat: {
-            presets: {
-              contextLength: 0,
-              description: '',
-              embeddingsProvider: '',
-              folderId: '',
-              includeProfileContext: false,
-              includeWorkspaceInstructions: false,
-              model: '',
-              name: '',
-              prompt: '',
-              sharing: '',
-              temperature: 0,
-              userId: '',
-            },
-          },
-        },
-        identity: {
-          identityData: {
-            email: '',
-            emailVerified: false,
-            phoneVerified: false,
-            sub: '',
-          },
-          identityId: '',
-          userId: '',
-          provider: '',
-          lastSignInAt: null,
-        },
-        openai: {
-          apiKey: '',
-          organizationId: '',
-          apiVersion: '',
-          projects: [],
-        },
-      },
-      openai: {
-        apiKey: '',
-        organizationId: '',
-        apiVersion: '',
-        projects: [],
-      },
-      appMetadata: {
-        provider: '',
-        providers: [],
-      },
-      workspaces: [
-        {
-          chatSessions: [],
-          folders: [],
-          name: 'Default Workspace',
-          description: 'Default workspace for the user',
-          imagePath: '',
-          active: false,
-        },
-      ],
-      assistants: [
-        {
-          name: 'ChatBot Assistant',
-          instructions: 'Provide helpful responses to user queries.',
-          description: 'An assistant designed to help with general questions.',
-          model: 'gpt-3.5-turbo',
-          tools: [
-            {
-              type: 'text-generator',
-            },
-          ],
-          tool_resources: {
-            code_interpreter: {
-              file_ids: [],
-            },
-          },
-        },
-      ],
-      prompts: [
-        {
-          name: 'React Counter Component',
-          content:
-            'Write the code for a React component with a stateful counter',
-          key: 'React Counter Component',
-          value: 'Write the code for a React component with a stateful counter',
-          sharing: 'private',
-          metadata: {
-            label: 'Component Name',
-            text: 'CounterComponent',
-            createdBy: 'John Doe',
-            description: 'A component with a stateful counter',
-            type: 'React',
-            style: 'functional',
-            tags: ['sample', 'default'], // Tags for categorization
-            props: {
-              initialCount: 0,
-            },
-          },
-        },
-      ],
-      chatSessions: [
-        {
-          stats: {
-            tokenUsage: 0,
-            messageCount: 0,
-          },
-          name: 'First Chat',
-          topic: 'Getting Started',
-          model: 'gpt-4-turbo-preview',
-          prompt: "Let's start our first conversation.",
-          active: true,
-          activeSessionId: null,
-          summary: null,
-          apiKey: '',
-          settings: {
-            maxTokens: 500,
-            temperature: 0.7,
-            model: 'gpt-4-turbo-preview',
-            topP: 1,
-            n: 1,
-            debug: false,
-            summarizeMode: false,
-          },
-          langChainSettings: {
-            maxTokens: 2000, // max length of the completion
-            temperature: 0.7,
-            modelName: '',
-            // streamUsage: true,
-            streaming: true,
-            openAIApiKey: '',
-            organization: 'reed_tha_human',
-            tools: [
-              {
-                type: 'function',
-                function: {
-                  name: 'summarize_messages',
-                  description:
-                    'Summarize a list of chat messages with an overall summary and individual message summaries including their IDs',
-                  parameters: {
-                    type: 'object',
-                    properties: {
-                      overallSummary: {
-                        type: 'string',
-                        description: 'An overall summary of the chat messages',
-                      },
-                      individualSummaries: {
-                        type: 'array',
-                        items: {
-                          type: 'object',
-                          properties: {
-                            id: {
-                              type: 'string',
-                              description: 'The ID of the chat message',
-                            },
-                            summary: {
-                              type: 'string',
-                              description:
-                                'A summary of the individual chat message',
-                            },
-                          },
-                          required: ['id', 'summary'],
-                        },
-                      },
-                    },
-                    required: ['overallSummary', 'individualSummaries'],
-                  },
-                },
-              },
-              {
-                type: 'function',
-                function: {
-                  name: 'fetchSearchResults',
-                  description:
-                    'Fetch search results for a given query using SERP API used to aid in being  PRIVATE INVESTIGATOR',
-                  parameters: {
-                    type: 'object',
-                    properties: {
-                      query: {
-                        type: 'string',
-                        description: 'Query string to search for',
-                      },
-                    },
-                    required: ['query'],
-                  },
-                },
-              },
-            ],
-            code_interpreter: 'auto',
-            function_call: 'auto',
-          },
-          messages: [],
-          tuning: {
-            debug: false,
-            summary: '',
-            summarizeMode: false,
-          },
-        },
-      ],
-      folders: [],
-      files: [
-        {
-          metadata: {
-            fileSize: 0,
-            fileType: '',
-            lastModified: new Date().toISOString(),
-          },
-          name: 'Deep Learning Research.pdf',
-          description: 'A comprehensive paper on deep learning.',
-          filePath: '/public/files/default.pdf',
-          data: null,
-          size: 2048,
-          tokens: 3500,
-          type: 'pdf',
-          sharing: 'private',
-          mimeType: 'application/pdf',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          __v: 0,
-        },
-      ],
-      collections: [
-        {
-          name: 'Default Collection',
-          description: 'This is the default collection',
-          sharing: 'private',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          __v: 0,
-        },
-      ],
-      models: [
-        {
-          apiKey: '',
-          baseUrl: 'https://api.openai.com/v1',
-          modelId: 'gpt-4-turbo-preview',
-          contextLength: 4000,
-          name: 'Default Model',
-          description: 'This is the default model',
-          isDefault: false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          __v: 0,
-        },
-      ],
-      tools: [
-        {
-          name: 'Default Tool',
-          description: 'This is the default tool',
-          url: 'http://example.com',
-          sharing: 'private',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          __v: 0,
-        },
-      ],
-      presets: [
-        {
-          name: 'Default Preset',
-          description: 'Default preset for new users',
-          contextLength: 4000,
-          embeddingsProvider: 'openai',
-          includeProfileContext: true,
-          includeWorkspaceInstructions: true,
-          model: 'gpt-4-turbo-preview',
-          prompt: 'Default prompt',
-          sharing: 'private',
-          temperature: 0.7,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          __v: 0,
-        },
-      ],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      __v: 1,
+      profile: {},
+      workspaces: [],
+      //   lastName: '',
+      //   dateJoined: new Date().toISOString(),
+      //   isActive: false,
+      //   auth: {
+      //     password: '', // Ideally, hashed if used
+      //     management: {},
+      //     chatModelPrivileges: [],
+      //     lastLogin: new Date().toISOString(),
+      //     isSuperuser: false,
+      //   },
+      //   authSession: {
+      //     token: '',
+      //     tokenType: '',
+      //     accessToken: '',
+      //     refreshToken: '',
+      //     expiresIn: null,
+      //     expiresAt: null,
+      //     createdAt: null,
+      //   },
+      //   profile: {
+      //     img: 'path/to/default/image',
+      //     imagePath: 'path/to/default/image',
+      //     profileImages: [],
+      //     selectedProfileImage: 'path/to/default/image',
+      //     filename: 'avatar1.png',
+      //     bio: '',
+      //     displayName: '',
+      //     hasOnboarded: false,
+      //     envKeyMap: {
+      //       openaiApiKey: '',
+      //       openaiOrgId: '',
+      //       anthropicApiKey: '',
+      //       googleGeminiApiKey: '',
+      //       mistralApiKey: '',
+      //       groqAPIKey: '',
+      //       perplexityApiKey: '',
+      //     },
+      //     stats: {
+      //       totalMessages: 0,
+      //       totalTokenCount: 0,
+      //       totalMessages3Days: 0,
+      //       totalTokenCount3Days: 0,
+      //     },
+      //     location: {
+      //       city: '',
+      //       state: '',
+      //       country: '',
+      //     },
+      //     social: {
+      //       facebook: '',
+      //       twitter: '',
+      //       instagram: '',
+      //       linkedin: '',
+      //       github: '',
+      //       website: '',
+      //     },
+      //     dashboard: {
+      //       projects: {},
+      //     },
+      //     settings: {
+      //       user: {
+      //         theme: 'light',
+      //         fontSize: 16,
+      //         language: 'en',
+      //         timezone: 'Seattle',
+      //       },
+      //       chat: {
+      //         presets: {
+      //           contextLength: 0,
+      //           description: '',
+      //           embeddingsProvider: '',
+      //           folderId: '',
+      //           includeProfileContext: false,
+      //           includeWorkspaceInstructions: false,
+      //           model: '',
+      //           name: '',
+      //           prompt: '',
+      //           sharing: '',
+      //           temperature: 0,
+      //           userId: '',
+      //         },
+      //       },
+      //     },
+      //     identity: {
+      //       identityData: {
+      //         email: '',
+      //         emailVerified: false,
+      //         phoneVerified: false,
+      //         sub: '',
+      //       },
+      //       identityId: '',
+      //       userId: '',
+      //       provider: '',
+      //       lastSignInAt: null,
+      //     },
+      //     openai: {
+      //       apiKey: '',
+      //       organizationId: '',
+      //       apiVersion: '',
+      //       projects: [],
+      //     },
+      //   },
+      //   openai: {
+      //     apiKey: '',
+      //     organizationId: '',
+      //     apiVersion: '',
+      //     projects: [],
+      //   },
+      //   appMetadata: {
+      //     provider: '',
+      //     providers: [],
+      //   },
+      //   workspaces: [
+      //     {
+      //       chatSessions: [],
+      //       folders: [],
+      //       name: 'Default Workspace',
+      //       description: 'Default workspace for the user',
+      //       imagePath: '',
+      //       active: false,
+      //     },
+      //   ],
+      //   assistants: [
+      //     {
+      //       name: 'ChatBot Assistant',
+      //       instructions: 'Provide helpful responses to user queries.',
+      //       description: 'An assistant designed to help with general questions.',
+      //       model: 'gpt-3.5-turbo',
+      //       tools: [
+      //         {
+      //           type: 'text-generator',
+      //         },
+      //       ],
+      //       tool_resources: {
+      //         code_interpreter: {
+      //           file_ids: [],
+      //         },
+      //       },
+      //     },
+      //   ],
+      //   prompts: [
+      //     {
+      //       name: 'React Counter Component',
+      //       content:
+      //         'Write the code for a React component with a stateful counter',
+      //       key: 'React Counter Component',
+      //       value: 'Write the code for a React component with a stateful counter',
+      //       sharing: 'private',
+      //       metadata: {
+      //         label: 'Component Name',
+      //         text: 'CounterComponent',
+      //         createdBy: 'John Doe',
+      //         description: 'A component with a stateful counter',
+      //         type: 'React',
+      //         style: 'functional',
+      //         tags: ['sample', 'default'], // Tags for categorization
+      //         props: {
+      //           initialCount: 0,
+      //         },
+      //       },
+      //     },
+      //   ],
+      //   chatSessions: [
+      //     {
+      //       stats: {
+      //         tokenUsage: 0,
+      //         messageCount: 0,
+      //       },
+      //       name: 'First Chat',
+      //       topic: 'Getting Started',
+      //       model: 'gpt-4-turbo-preview',
+      //       prompt: "Let's start our first conversation.",
+      //       active: true,
+      //       activeSessionId: null,
+      //       summary: null,
+      //       apiKey: '',
+      //       settings: {
+      //         maxTokens: 500,
+      //         temperature: 0.7,
+      //         model: 'gpt-4-turbo-preview',
+      //         topP: 1,
+      //         n: 1,
+      //         debug: false,
+      //         summarizeMode: false,
+      //       },
+      //       langChainSettings: {
+      //         maxTokens: 2000, // max length of the completion
+      //         temperature: 0.7,
+      //         modelName: '',
+      //         // streamUsage: true,
+      //         streaming: true,
+      //         openAIApiKey: '',
+      //         organization: 'reed_tha_human',
+      //         tools: [
+      //           {
+      //             type: 'function',
+      //             function: {
+      //               name: 'summarize_messages',
+      //               description:
+      //                 'Summarize a list of chat messages with an overall summary and individual message summaries including their IDs',
+      //               parameters: {
+      //                 type: 'object',
+      //                 properties: {
+      //                   overallSummary: {
+      //                     type: 'string',
+      //                     description: 'An overall summary of the chat messages',
+      //                   },
+      //                   individualSummaries: {
+      //                     type: 'array',
+      //                     items: {
+      //                       type: 'object',
+      //                       properties: {
+      //                         id: {
+      //                           type: 'string',
+      //                           description: 'The ID of the chat message',
+      //                         },
+      //                         summary: {
+      //                           type: 'string',
+      //                           description:
+      //                             'A summary of the individual chat message',
+      //                         },
+      //                       },
+      //                       required: ['id', 'summary'],
+      //                     },
+      //                   },
+      //                 },
+      //                 required: ['overallSummary', 'individualSummaries'],
+      //               },
+      //             },
+      //           },
+      //           {
+      //             type: 'function',
+      //             function: {
+      //               name: 'fetchSearchResults',
+      //               description:
+      //                 'Fetch search results for a given query using SERP API used to aid in being  PRIVATE INVESTIGATOR',
+      //               parameters: {
+      //                 type: 'object',
+      //                 properties: {
+      //                   query: {
+      //                     type: 'string',
+      //                     description: 'Query string to search for',
+      //                   },
+      //                 },
+      //                 required: ['query'],
+      //               },
+      //             },
+      //           },
+      //         ],
+      //         code_interpreter: 'auto',
+      //         function_call: 'auto',
+      //       },
+      //       messages: [],
+      //       tuning: {
+      //         debug: false,
+      //         summary: '',
+      //         summarizeMode: false,
+      //       },
+      //     },
+      //   ],
+      //   folders: [],
+      //   files: [
+      //     {
+      //       metadata: {
+      //         fileSize: 0,
+      //         fileType: '',
+      //         lastModified: new Date().toISOString(),
+      //       },
+      //       name: 'Deep Learning Research.pdf',
+      //       description: 'A comprehensive paper on deep learning.',
+      //       filePath: '/public/files/default.pdf',
+      //       data: null,
+      //       size: 2048,
+      //       tokens: 3500,
+      //       type: 'pdf',
+      //       sharing: 'private',
+      //       mimeType: 'application/pdf',
+      //       createdAt: new Date().toISOString(),
+      //       updatedAt: new Date().toISOString(),
+      //       __v: 0,
+      //     },
+      //   ],
+      //   collections: [
+      //     {
+      //       name: 'Default Collection',
+      //       description: 'This is the default collection',
+      //       sharing: 'private',
+      //       createdAt: new Date().toISOString(),
+      //       updatedAt: new Date().toISOString(),
+      //       __v: 0,
+      //     },
+      //   ],
+      //   models: [
+      //     {
+      //       apiKey: '',
+      //       baseUrl: 'https://api.openai.com/v1',
+      //       modelId: 'gpt-4-turbo-preview',
+      //       contextLength: 4000,
+      //       name: 'Default Model',
+      //       description: 'This is the default model',
+      //       isDefault: false,
+      //       createdAt: new Date().toISOString(),
+      //       updatedAt: new Date().toISOString(),
+      //       __v: 0,
+      //     },
+      //   ],
+      //   tools: [
+      //     {
+      //       name: 'Default Tool',
+      //       description: 'This is the default tool',
+      //       url: 'http://example.com',
+      //       sharing: 'private',
+      //       createdAt: new Date().toISOString(),
+      //       updatedAt: new Date().toISOString(),
+      //       __v: 0,
+      //     },
+      //   ],
+      //   presets: [
+      //     {
+      //       name: 'Default Preset',
+      //       description: 'Default preset for new users',
+      //       contextLength: 4000,
+      //       embeddingsProvider: 'openai',
+      //       includeProfileContext: true,
+      //       includeWorkspaceInstructions: true,
+      //       model: 'gpt-4-turbo-preview',
+      //       prompt: 'Default prompt',
+      //       sharing: 'private',
+      //       temperature: 0.7,
+      //       createdAt: new Date().toISOString(),
+      //       updatedAt: new Date().toISOString(),
+      //       __v: 0,
+      //     },
+      //   ],
+      //   createdAt: new Date().toISOString(),
+      //   updatedAt: new Date().toISOString(),
+      //   __v: 1,
+      // },
+      // profile: {},
+      // envKeyMap: {},
+      // authSession: {},
+      // // expiresIn: null,
+      // isAuthenticated: false,
+      // isRedirectToSignin: false,
+      // isImageRetrieved: false,
+      // profileImage: 'http://localhost:3001/static/files/avatar1.png',
     },
-    profile: {},
-    envKeyMap: {},
-    authSession: {},
-    // expiresIn: null,
-    isAuthenticated: false,
-    isRedirectToSignin: false,
-    isImageRetrieved: false,
-    // profileImage: 'http://localhost:3001/static/files/avatar1.png',
   };
 }
 export function defaultWorkspaceStoreData() {
@@ -675,30 +677,11 @@ export function defaultPromptStoreData() {
 }
 export function defaultBaseChatStoreData() {
   return {
-    mode: 'chat', // chat or assistant
-    apiKey: '',
     isApiKeySet: false,
-    isGenerating: false,
     firstTokenReceived: false,
-    isMessagesUpdated: false,
     isDisabled: false,
-    isFirstMessageReceived: false,
     abortController: null,
     active: null,
-    userInput: '',
-    chatMessages: [],
-    chatSettings: {
-      model: 'gpt-4-turbo-preview',
-      prompt: 'You are a helpful AI assistant.',
-      temperature: 0.5,
-      contextLength: 4000,
-      includeProfileContext: true,
-      includeWorkspaceInstructions: true,
-      embeddingsProvider: 'openai',
-    },
-    selectedChat: null,
-    chatFileItems: [],
-    payload: {},
     isPromptPickerOpen: false,
     slashCommand: '',
     isFilePickerOpen: false,
@@ -713,12 +696,6 @@ export function defaultBaseChatStoreData() {
     isAssistantPickerOpen: false,
     useRetrieval: true,
     sourceCount: 0,
-    baseChatRequest: {
-      status: 'idle',
-      error: null,
-      success: null,
-      message: '',
-    },
   };
 }
 function defaultAppStoreData() {

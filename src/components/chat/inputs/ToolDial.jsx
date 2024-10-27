@@ -7,6 +7,7 @@ import React, {
   useLayoutEffect,
   useMemo,
 } from 'react';
+
 import {
   CodeIcon,
   EmojiEmotionsIcon,
@@ -15,7 +16,9 @@ import {
 } from 'assets/humanIcons';
 import { RCSpeedDial } from 'components/themed';
 import { useChatStore } from 'contexts/ChatProvider';
+import { useUserStore } from 'contexts/UserProvider';
 import { useMenu, useMode, useTipTapEditor } from 'hooks';
+
 import { ApiModal } from './ApiModal';
 
 const MemoizedRCSpeedDial = React.memo(RCSpeedDial);
@@ -23,13 +26,19 @@ const MemoizedApiModal = React.memo(ApiModal);
 const MemoizedEmojiPicker = React.memo(EmojiPicker);
 
 export const ToolDial = ({ containerRef }) => {
-  // const { theme } = useMode();
-  const chatStore = useChatStore();
+  const {
+    actions: { setApiKey },
+  } = useChatStore();
+  const {
+    state: {
+      user: { profile },
+    },
+  } = useUserStore();
   const { insertForm, insertCodeBlock, insertContentAndSync, editor } =
     useTipTapEditor();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [speedDialOpen, setSpeedDialOpen] = useState(false);
-  const [inputCode, setInputCode] = useState('');
+  const [inputCode, setInputCode] = useState(profile?.openai?.apiKey);
   const [apiModalOpen, setApiModalOpen] = useState(false);
 
   const toggleSpeedDial = useCallback(() => {
@@ -54,9 +63,9 @@ export const ToolDial = ({ containerRef }) => {
   }, []);
 
   const handleSubmit = useCallback(() => {
-    chatStore.actions.setApiKey(inputCode);
+    setApiKey(inputCode);
     setApiModalOpen(false);
-  }, [chatStore.actions, inputCode]);
+  }, [inputCode]);
 
   const handleApiModalToggle = useCallback(() => {
     setApiModalOpen(prev => !prev);

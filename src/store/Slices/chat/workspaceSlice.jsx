@@ -1,5 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { toast } from 'sonner';
+
 import { workspacesApi } from 'api/workspaces';
+
 import { getLocalData, setLocalData } from '../helpers';
 
 const LOCAL_NAME = 'workspaceStore';
@@ -38,9 +41,19 @@ export const workspaceSlice = createSlice({
   initialState,
   reducers: {
     setWorkspaceId: (state, action) => {
-      state.workspaceId = action.payload;
-      sessionStorage.setItem('workspaceId', action.payload);
-      setLocalWorkspaceData({ ...state, workspaceId: action.payload });
+      let workspaceId;
+      if (action.payload && action.payload !== '') {
+        workspaceId = action.payload;
+      } else {
+        const warn = 'No workspace ID provided. Using default workspace ID.';
+        toast.warning(warn);
+        const userStore = JSON.parse(localStorage.getItem('userStore'));
+        sessionStorage.setItem('workspaceId', userStore.user.homeWorkspaceId);
+        workspaceId === userStore.user.homeWorkspaceId;
+      }
+      state.workspaceId = workspaceId;
+      sessionStorage.setItem('workspaceId', workspaceId);
+      setLocalWorkspaceData({ ...state, workspaceId: workspaceId });
     },
     setWorkspaces: (state, action) => {
       console.log('SETTING: WORKSPACES', action.payload);
@@ -48,8 +61,8 @@ export const workspaceSlice = createSlice({
       state.workspaces = action.payload;
     },
     setSelectedWorkspace: (state, action) => {
-      console.log('SETTING: SELECTED_WORKSPACE', action.payload);
-      setLocalWorkspaceData({ ...state, selectedWorkspace: action.payload });
+      console.log('[SETTING_SELECTED_WORKSPACE]', action.payload);
+      // setLocalWorkspaceData({ ...state, selectedWorkspace: action.payload });
       state.selectedWorkspace = action.payload;
     },
     setHomeWorkSpace: (state, action) => {

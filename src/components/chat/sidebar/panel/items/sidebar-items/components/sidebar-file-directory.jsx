@@ -13,23 +13,32 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { FaSearch } from 'react-icons/fa';
 
-import { attachmentsApi } from 'api/Ai/chat-sessions';
+import { settingsApi } from 'api/Ai/chat-items';
+import { assistantsApi, attachmentsApi, chatApi } from 'api/Ai/chat-sessions';
+import { workspacesApi } from 'api/workspaces';
 import { SidebarManagerContainer } from 'components/chat/styled';
 import { useFileProcesser } from 'hooks/chat';
+import useDynamicState from 'hooks/chat/useDynamicState';
 import { useDialog } from 'hooks/ui';
+import { generateTempFileName } from 'utils/format';
 
 import CreateItemDialog from './create-item-dialog';
 import FileViewerDialog from './fileviewer-dialog';
 import SidebarActions from './sidebar-actions';
 import FileTreeItem from './sidebar-filetree-item';
 
-export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
+export const FileDirectory = ({ space, initialItems, initialFolders }) => {
+  console.log('space', space);
+  console.log('initialItems', initialItems);
+  console.log('initialFolders', initialFolders);
   const { handleSelectDeviceFile } = useFileProcesser();
   const newFileDialog = useDialog();
   const newFolderDialog = useDialog();
 
+  const [state, setState] = useDynamicState(space, initialItems);
+
   const [searchTerm, setSearchTerm] = useState('');
-  const [files, setFiles] = useState([...initialFiles]);
+  const [items, setItems] = useState([...initialItems]);
   const [hoveredItemId, setHoveredItemId] = useState(null);
   const [focusedItemId, setFocusedItemId] = useState(null);
   const [selectedItemId, setSelectedItemId] = useState(null);
@@ -51,7 +60,7 @@ export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [language, setLanguage] = useState('javascript'); // Default language
 
-  // Recursive function to find an item by id
+  // --- Recursively finds an item by ID --- //
   const findItemById = useCallback((items, id) => {
     for (const item of items) {
       if (item.id === id) {
@@ -67,17 +76,22 @@ export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
     return null;
   }, []);
 
-  // Load initial data
+  // --- Function to universally format data into a tree structure --- //
   useEffect(() => {
     const loadInitialData = () => {
-      const updatedFiles = initialFiles.map(file => ({
-        ...file,
-        id: file.id || file._id || file.name,
-        name: file.filename || file.name,
-        type: file.contentType || file.type,
+      const conditionalReqs = {
+        files: ['type'],
+        folders: ['children'],
+      };
+      const updatedItems = initialItems.map(itm => ({
+        ...itm,
+        id: itm.id || itm._id || itm.name,
+        name: itm.name || itm.fileName,
+        space: itm.space || space,
         isDirectory: false,
+        // type: itm.contentType || file.type,
       }));
-      console.log(`INIT_FILES: ${JSON.stringify(updatedFiles)}`);
+      console.log(`INIT_ITEMS: ${JSON.stringify(updatedItems)}`);
 
       const updatedFolders = initialFolders.map(folder => ({
         ...folder,
@@ -91,40 +105,75 @@ export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
       console.log(`INIT_FOLDERS: ${JSON.stringify(updatedFolders)}`);
 
       // Merge folders and files into a single tree structure
-      const mergedData = [...updatedFolders, ...updatedFiles];
-      setFiles(mergedData);
+      const mergedData = [...updatedFolders, ...updatedItems];
+      setItems(mergedData);
     };
 
     loadInitialData();
-  }, [initialFiles, initialFolders, space]);
+  }, [initialItems, initialFolders, space]);
 
   useEffect(() => {
-    const fetchFiles = async () => {
+    const actionsMap = {
+      files: async () => await attachmentsApi.getAllStoredFiles(),
+      prompts: async () => await settingsApi.getPromptFiles(),
+      chatSessions: async () => await chatApi.getAll(),
+      assistants: async () => await assistantsApi.getExistingAssistants(),
+    };
+    const fetchItems = async () => {
       setLoading(true);
       try {
-        const fetchedFiles = await attachmentsApi.getAllStoredFiles();
-        const updatedFiles = fetchedFiles.map(file => ({
-          ...file,
-          id: file.id || file._id || file.name,
-          name: file.filename,
-          type: file.contentType,
-          isDirectory: false,
+        const fetchFunction = actionsMap[space];
+        if (!fetchFunction) {
+          console.error(`No fetch function defined for space: ${space}`);
+          return;
+        }
+        const workspaceId = sessionStorage.getItem('workspaceId');
+        let folderItemData;
+        if (space === 'chatSessions') {
+          folderItemData = {
+            folders: initialFolders,
+            folderItems: initialItems,
+          };
+        } else {
+          const { folder, folderItems } =
+            await workspacesApi.getWorkspaceFoldersBySpace({
+              workspaceId,
+              space,
+            });
+          folderItemData = {
+            folders: [...initialFolders, folder],
+            folderItems,
+          };
+          console.log(`FOLDER_ITEMS: ${JSON.stringify(folderItems)}`);
+          console.log(`FOLDER: ${JSON.stringify(folder)}`);
+        }
+        // const fetchedItems = await fetchFunction();
+        const updatedItems = folderItemData?.folderItems?.map(item => ({
+          ...item,
+          id: item.id || item._id || item.name,
+          name:
+            item.name || item.filename || generateTempFileName(item.metaData),
+          type: item.contentType || item.type,
+          isDirectory: space === 'files' ? false : Boolean(item.children),
+          space: space,
         }));
 
-        setFiles(prevFiles => {
-          const mergedFiles = [...prevFiles, ...updatedFiles];
-          return mergedFiles;
+        setState(prevState => {
+          const mergedItems = [...prevState, ...updatedItems];
+          return mergedItems.filter(
+            (item, index, self) =>
+              index === self.findIndex(t => t.id === item.id)
+          );
         });
       } catch (error) {
-        console.error('Error fetching files:', error);
+        console.error(`Error fetching ${space}:`, error);
       } finally {
         setLoading(false);
       }
     };
 
-    // Fetch files if necessary (only if initialFiles are empty)
-    fetchFiles();
-  }, [initialFiles]);
+    fetchItems();
+  }, [space, initialItems, setState, initialFolders]);
 
   // Handle new file creation dialog
   const handleNewFile = useCallback(() => {
@@ -138,122 +187,21 @@ export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
     setNewItemData({ name: '', isDirectory: true, isOpen: false });
   }, [newFolderDialog]);
 
-  const handleFileClick = useCallback(async file => {
-    setSingleFileLoading(true);
-    try {
-      console.log('handleFileClick:', file);
-      if (file.content) {
-        // If the file already has content, use it
-        setFileContent(file.content);
-      } else if (file.id) {
-        // If the file has an id, fetch the content using it
-        const response = await attachmentsApi.getFileFromStorage(file.filePath);
-        const contentDisposition = response.headers['content-disposition'];
-        let filename = 'file';
-        if (contentDisposition && contentDisposition.includes('filename=')) {
-          filename = contentDisposition
-            .split('filename=')[1]
-            .split(';')[0]
-            .replace(/"/g, '');
-        }
-
-        // Set the language for Monaco Editor
-        const fileExtension = filename.split('.').pop();
-        setLanguage(mapExtensionToLanguage(fileExtension));
-
-        // Read the file content as text
-        const reader = new FileReader();
-        reader.onload = () => {
-          setFileContent(reader.result);
-        };
-        reader.readAsText(response.data);
-      } else if (file.filePath) {
-        // If the file has a filePath, fetch the content using it
-        const response = await attachmentsApi.getStoredFileByPath(
-          file.filePath
-        );
-        setFileContent(response.data);
-      } else {
-        // Fetch the file content from the API using the file name
-        const response = await attachmentsApi.getStoredFileByName(file.name);
-        setFileContent(response.data);
-      }
-    } catch (error) {
-      console.error('Error fetching file:', error);
-      setFileContent('Error loading file content.');
-    } finally {
-      setSingleFileLoading(false);
-    }
-  }, []);
-  const mapExtensionToLanguage = ext => {
-    switch (ext) {
-      case 'js':
-      case 'jsx':
-        return 'javascript';
-      case 'ts':
-      case 'tsx':
-        return 'typescript';
-      case 'py':
-        return 'python';
-      case 'java':
-        return 'java';
-      // Add more mappings as needed
-      default:
-        return 'plaintext';
-    }
-  };
-  // In FileDirectory component
-  const handleItemSelection = useCallback(
-    item => {
-      setSelectedItemId(item.id);
-      setAction(`Selected Item: ${item.name}`);
-
-      if (!item.isDirectory) {
-        handleFileClick(item);
-      }
-    },
-    [setSelectedItemId, setAction, handleFileClick]
-  );
-
-  // Handle item hover
-  const handleItemHover = useCallback(itemId => {
-    setHoveredItemId(itemId);
-  }, []);
-
-  // Handle item focus
-  const handleItemFocus = useCallback(itemId => {
-    setFocusedItemId(itemId);
-  }, []);
-
-  const toggleFolder = useCallback(folderId => {
-    const toggleFolderRecursive = items =>
-      items.map(item => {
-        if (item.id === folderId) {
-          return { ...item, isOpen: !item.isOpen };
-        }
-        if (item.children) {
-          return { ...item, children: toggleFolderRecursive(item.children) };
-        }
-        return item;
-      });
-
-    setFiles(prevFiles => toggleFolderRecursive(prevFiles));
-  }, []);
-
   const handleUploadItem = useCallback(
     async event => {
       const file = event.target.files?.[0];
-      if (file && !files.find(f => f.name === file.name)) {
+      if (file && !state.find(i => i.name === file.name)) {
         setNewItemData({
           name: file.name,
           content: await file.text(),
           type: '.' + file.name.split('.').pop(),
+          itemType: 'item',
           isDirectory: false,
         });
         await handleSelectDeviceFile(file, false);
       }
     },
-    [files, handleSelectDeviceFile]
+    [state, handleSelectDeviceFile]
   );
 
   const handleCreateItem = async selectedFile => {
@@ -280,9 +228,8 @@ export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
 
     if (isDirectory) {
       // Handle folder creation
-      setFiles(prevFiles => addItemRecursive(prevFiles, newItem));
+      setState(prevFiles => addItemRecursive(prevFiles, newItem));
       newFolderDialog.handleClose();
-      resetForm();
     } else {
       if (selectedFile) {
         // Handle file upload
@@ -309,13 +256,13 @@ export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
             }
           );
           const createdFile = await attachmentsApi.createFile(storageFile);
-          const updatedFile = {
+          const updatedItem = {
             ...createdFile,
             id: createdFile._id,
             isDirectory: false,
           };
           // Add the new item to the file tree
-          setFiles(prevFiles => addItemRecursive(prevFiles, updatedFile));
+          setState(prev => addItemRecursive(prev, updatedItem));
         } catch (error) {
           console.error('Error uploading file:', error);
           setError('Error uploading file.');
@@ -323,13 +270,11 @@ export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
           setIsUploading(false);
           setUploadProgress(0);
           newFileDialog.handleClose();
-          resetForm();
         }
       } else {
         // Handle manual file creation
-        setFiles(prevFiles => addItemRecursive(prevFiles, newItem));
+        setState(prev => addItemRecursive(prev, newItem));
         newFileDialog.handleClose();
-        resetForm();
       }
     }
   };
@@ -362,37 +307,6 @@ export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
     }
   };
 
-  const resetForm = () => {
-    setNewItemData({ name: '', type: '.txt', content: '', isDirectory: false });
-    setError('');
-  };
-
-  const handleDeleteItem = useCallback(
-    itemId => {
-      const deleteItemRecursive = items =>
-        items
-          .map(item => {
-            if (item.id === itemId) {
-              return null;
-            }
-            if (item.children) {
-              return {
-                ...item,
-                children: deleteItemRecursive(item.children).filter(Boolean),
-              };
-            }
-            return item;
-          })
-          .filter(Boolean);
-
-      setFiles(prevFiles => deleteItemRecursive(prevFiles));
-      if (selectedItemId === itemId) {
-        setSelectedItemId(null);
-      }
-    },
-    [selectedItemId]
-  );
-  // Move item via drag-and-drop
   const moveItem = useCallback((dragId, dropId) => {
     let draggedItem;
     const removeItemRecursive = items =>
@@ -423,50 +337,14 @@ export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
         return item;
       });
 
-    setFiles(prevFiles => {
+    setState(prevFiles => {
       const filesWithoutDraggedItem = removeItemRecursive(prevFiles);
       return addItemRecursive(filesWithoutDraggedItem);
     });
   }, []);
-  // const moveItem = useCallback(
-  //   (dragPath, dropPath) => {
-  //     const updatedFiles = [...files];
-  //     const dragPathParts = dragPath.split('/').filter(Boolean);
-  //     const dropPathParts = dropPath.split('/').filter(Boolean);
-  //     const dragItemName = dragPathParts.pop();
-  //     let dragParentLevel = updatedFiles;
-  //     let dropLevel = updatedFiles;
 
-  //     dragPathParts.forEach(part => {
-  //       const existingDir = dragParentLevel.find(
-  //         item => item.name === part && item.isDirectory
-  //       );
-  //       if (existingDir) {
-  //         dragParentLevel = existingDir.children;
-  //       }
-  //     });
-
-  //     dropPathParts.forEach(part => {
-  //       const existingDir = dropLevel.find(
-  //         item => item.name === part && item.isDirectory
-  //       );
-  //       if (existingDir) {
-  //         dropLevel = existingDir.children;
-  //       }
-  //     });
-
-  //     const dragItemIndex = dragParentLevel.findIndex(
-  //       item => item.name === dragItemName
-  //     );
-  //     if (dragItemIndex !== -1) {
-  //       const [draggedItem] = dragParentLevel.splice(dragItemIndex, 1);
-  //       dropLevel.push(draggedItem);
-  //       setFiles(updatedFiles);
-  //       localStorage.setItem('files', JSON.stringify(updatedFiles));
-  //     }
-  //   },
-  //   [files, setFiles]
-  // );
+  const dataWithFolders = state.filter(item => item.folder_id);
+  const dataWithoutFolders = state.filter(item => item.folder_id === null);
 
   const renderFileTree = useCallback(
     (items, path = '') => (
@@ -481,20 +359,43 @@ export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
                 item={item}
                 path={itemPath}
                 isSelected={isSelected}
-                isHovered={hoveredItemId === item.id}
-                isFocused={focusedItemId === item.id}
-                isLoading={singleFileLoading}
-                onDelete={() => handleDeleteItem(item.id)}
-                onSelect={event =>
-                  handleItemSelection({
-                    ...item,
-                    event,
-                  })
-                }
-                onHover={() => handleItemHover(item.id)}
-                onFocus={() => handleItemFocus(item.id)}
-                onToggle={() => toggleFolder(item.id)}
                 onMove={moveItem}
+                updateItem={(id, updates) => {
+                  setState(prevState => {
+                    const updateItemRecursive = items =>
+                      items.map(item => {
+                        if (item.id === id) {
+                          return { ...item, ...updates };
+                        }
+                        if (item.children) {
+                          return {
+                            ...item,
+                            children: updateItemRecursive(item.children),
+                          };
+                        }
+                        return item;
+                      });
+                    return updateItemRecursive(prevState);
+                  });
+                }}
+                removeItem={id => {
+                  setState(prevState => {
+                    const removeItemRecursive = items =>
+                      items.filter(item => {
+                        if (item.id === id) {
+                          return false;
+                        }
+                        if (item.children) {
+                          item.children = removeItemRecursive(item.children);
+                        }
+                        return true;
+                      });
+                    return removeItemRecursive(prevState);
+                  });
+                  if (selectedItemId === id) {
+                    setSelectedItemId(null);
+                  }
+                }}
               >
                 {item.isDirectory && item.isOpen && item.children
                   ? renderFileTree(item.children, itemPath)
@@ -505,36 +406,25 @@ export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
         </AnimatePresence>
       </List>
     ),
-    [
-      selectedItemId,
-      hoveredItemId,
-      focusedItemId,
-      singleFileLoading,
-      handleDeleteItem,
-      handleItemSelection,
-      handleItemHover,
-      handleItemFocus,
-      toggleFolder,
-      moveItem,
-    ]
+    [selectedItemId, moveItem, setState]
   );
 
   const filteredFiles = useMemo(() => {
-    const filterFiles = items =>
+    const filterItems = items =>
       items
         .filter(item => {
           if (item.name.toLowerCase().includes(searchTerm.toLowerCase())) {
             return true;
           }
           if (item.children) {
-            item.children = filterFiles(item.children);
+            item.children = filterItems(item.children);
             return item.children.length > 0;
           }
           return false;
         })
         .map(item => ({ ...item }));
-    return filterFiles([...files]);
-  }, [files, searchTerm]);
+    return filterItems([...state]);
+  }, [state, searchTerm]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -542,10 +432,7 @@ export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
   return (
     <DndProvider backend={HTML5Backend}>
       <SidebarManagerContainer>
-        <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-          <Typography variant="h4" gutterBottom>
-            File Directory
-          </Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <Typography>
             {action == null
               ? 'No item action recorded'
@@ -581,7 +468,7 @@ export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
           <FileViewerDialog
             open={Boolean(selectedItemId)}
             onClose={() => setSelectedItemId(null)}
-            selectedItem={findItemById(files, selectedItemId)}
+            selectedItem={findItemById(state, selectedItemId)}
             fileContent={fileContent}
             loading={singleFileLoading}
             language={language}
@@ -591,7 +478,6 @@ export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
             onClose={() => {
               newFileDialog.handleClose();
               newFolderDialog.handleClose();
-              resetForm();
             }}
             isDirectory={newItemData.isDirectory}
             itemData={newItemData}
@@ -610,8 +496,74 @@ export const FileDirectory = ({ space, initialFiles, initialFolders }) => {
 
 FileDirectory.propTypes = {
   space: PropTypes.string.isRequired,
-  initialFiles: PropTypes.array.isRequired,
+  initialItems: PropTypes.array.isRequired,
   initialFolders: PropTypes.array.isRequired,
 };
 
 export default FileDirectory;
+
+// const handleFileClick = useCallback(async file => {
+//   setSingleFileLoading(true);
+//   try {
+//     console.log('handleFileClick:', file);
+//     if (file.content) {
+//       // If the file already has content, use it
+//       setFileContent(file.content);
+//     } else if (file.id) {
+//       // If the file has an id, fetch the content using it
+//       const response = await attachmentsApi.getFileFromStorage(file.filePath);
+//       const contentDisposition = response.headers['content-disposition'];
+//       let filename = 'file';
+//       if (contentDisposition && contentDisposition.includes('filename=')) {
+//         filename = contentDisposition
+//           .split('filename=')[1]
+//           .split(';')[0]
+//           .replace(/"/g, '');
+//       }
+
+//       // Set the language for Monaco Editor
+//       const fileExtension = filename.split('.').pop();
+//       setLanguage(mapExtensionToLanguage(fileExtension));
+
+//       // Read the file content as text
+//       const reader = new FileReader();
+//       reader.onload = () => {
+//         setFileContent(reader.result);
+//       };
+//       reader.readAsText(response.data);
+//     } else if (file.filePath) {
+//       // If the file has a filePath, fetch the content using it
+//       const response = await attachmentsApi.getStoredFileByPath(
+//         file.filePath
+//       );
+//       setFileContent(response.data);
+//     } else {
+//       // Fetch the file content from the API using the file name
+//       const response = await attachmentsApi.getStoredFileByName(file.name);
+//       setFileContent(response.data);
+//     }
+//   } catch (error) {
+//     console.error('Error fetching file:', error);
+//     setFileContent('Error loading file content.');
+//   } finally {
+//     setSingleFileLoading(false);
+//   }
+// }, []);
+
+// const mapExtensionToLanguage = ext => {
+//   switch (ext) {
+//     case 'js':
+//     case 'jsx':
+//       return 'javascript';
+//     case 'ts':
+//     case 'tsx':
+//       return 'typescript';
+//     case 'py':
+//       return 'python';
+//     case 'java':
+//       return 'java';
+//     // Add more mappings as needed
+//     default:
+//       return 'plaintext';
+//   }
+// };

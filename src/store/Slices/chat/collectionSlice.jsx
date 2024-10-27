@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+
 import { getLocalData } from '../helpers';
 
 const LOCAL_NAME = 'collectionStore';

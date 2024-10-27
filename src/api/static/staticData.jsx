@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import { apiUtils } from '@/lib/apiUtils';
 
 export const staticDataApi = {
