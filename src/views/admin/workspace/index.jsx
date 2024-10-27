@@ -88,8 +88,15 @@ export const MainWorkspace = () => {
     const isValidChatSession =
       workspace[0].chatSessions[0] && workspace[0].chatSessions[0]._id;
     const isHomePath = location.pathname === '/admin/workspaces/home';
-
-    if (isValidWorkspace && isValidChatSession && isHomePath) {
+    const isActiveWorkspacePath = location.pathname.startsWith(
+      `/admin/workspaces/${workspace[0]._id}`
+    );
+    if (
+      !isActiveWorkspacePath &&
+      isValidWorkspace &&
+      isValidChatSession &&
+      isHomePath
+    ) {
       navigate(
         `/admin/workspaces/${workspace[0]._id}/chat/${workspace[0].chatSessions[0]._id}`,
         { replace: true }

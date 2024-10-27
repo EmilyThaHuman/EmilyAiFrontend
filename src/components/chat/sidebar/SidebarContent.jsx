@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import {
   Workspace,
@@ -31,19 +31,26 @@ export const SidebarContent = ({
     space => folders?.filter(folder => folder.space === space) || [],
     [folders]
   );
-  const renderContent = useCallback(() => {
-    const selectedTab = dataList.find(item => item.id === tab);
+
+  const renderContent = useMemo(() => {
+    const selectedTab = dataList.find(item => item.space === tab);
     const space = selectedTab ? selectedTab.space : '';
     const icon = selectedTab ? selectedTab.icon : null;
 
     let content;
+    console.log('selectedTab', selectedTab);
+    console.log('space', space);
+    console.log('icon', icon);
+    console.log('content', content);
+
+    // Update switch cases to use string identifiers
     switch (tab) {
-      case 0:
+      case 'workspaces':
         content = (
           <Workspace space="workspaces" folders={folders} data={workspaces} />
         );
         break;
-      case 1:
+      case 'chatSessions':
         content = (
           <ChatSession
             space="chatSessions"
@@ -52,7 +59,7 @@ export const SidebarContent = ({
           />
         );
         break;
-      case 2:
+      case 'assistants':
         content = (
           <Assistants
             space="assistants"
@@ -61,7 +68,7 @@ export const SidebarContent = ({
           />
         );
         break;
-      case 3:
+      case 'prompts':
         content = (
           <Prompts
             space="prompts"
@@ -70,7 +77,7 @@ export const SidebarContent = ({
           />
         );
         break;
-      case 4:
+      case 'files':
         content = (
           <Files
             space="files"
@@ -79,7 +86,7 @@ export const SidebarContent = ({
           />
         );
         break;
-      case 5:
+      case 'user':
         content = <User data={user} />;
         break;
       default:
@@ -89,7 +96,8 @@ export const SidebarContent = ({
     return { space, icon, content };
   }, [dataList, tab, folders, workspaces, findFolders, dataMap, user]);
 
-  const { space, icon, content } = renderContent();
+  const { space, icon, content } = renderContent;
+
   return (
     <Box
       display="flex"
@@ -114,7 +122,7 @@ export const SidebarContent = ({
   );
 };
 
-export const DefaultTab = () => <div style={{ color: 'white' }}></div>;
+const DefaultTab = () => <div style={{ color: 'white' }}></div>;
 
 SidebarContent.propTypes = {
   user: PropTypes.object.isRequired,
@@ -127,4 +135,4 @@ SidebarContent.propTypes = {
   buttonRef: PropTypes.object.isRequired,
 };
 
-export default SidebarContent;
+export default React.memo(SidebarContent);

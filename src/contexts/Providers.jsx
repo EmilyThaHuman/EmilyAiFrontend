@@ -5,6 +5,7 @@ import * as providers from './index';
 const ProviderWrapper = ({ children }) => {
   const providerList = [
     providers.ColorModeProvider,
+    providers.ErrorProvider,
     providers.ToastProvider,
     providers.AppProvider,
     providers.UserProvider,

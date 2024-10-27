@@ -1,5 +1,11 @@
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
-import React, { createContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { ThemeProvider as StyledThemeProvider } from 'styled-components';
 
 import { getTheme } from 'assets/theme';
@@ -36,5 +42,11 @@ export const ColorModeProvider = ({ children }) => {
     </ColorModeContext.Provider>
   );
 };
+
+/*
+ * Custom hook to access the color context
+ * @returns {Object} The color context
+ */
+export const useColorStore = () => useContext(ColorModeContext);
 
 export default ColorModeProvider;

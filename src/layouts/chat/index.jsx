@@ -24,6 +24,7 @@ import { SIDEBAR_CONFIG } from 'config/data-configs/sidebar'; // Move sidebar co
 import { useAppStore, useChatStore, useUserStore } from 'contexts/index'; // Consolidated imports
 import { useMode } from 'hooks/app';
 
+const MotionDrawer = motion(Drawer);
 export const ChatLayout = () => {
   const { workspaceId, sessionId } = useParams();
   const navigate = useNavigate();
@@ -34,19 +35,9 @@ export const ChatLayout = () => {
     state: { user, profile },
   } = useUserStore();
   const {
-    state: {
-      apiKey,
-      chatSessions,
-      workspaces,
-      prompts,
-      folders,
-      files,
-      assistants,
-      selectedWorkspace,
-    },
+    state: { workspaces, folders, selectedWorkspace },
     actions: {
       setFolders,
-      setFiles,
       updateWorkspace,
       updateChatSession,
       updateAssistant,
@@ -59,16 +50,11 @@ export const ChatLayout = () => {
     state: { isSidebarOpen },
     actions: { setSidebarOpen },
   } = useAppStore();
-  // -- --
-  // Set folders based on the selected workspace
-  useEffect(() => {
-    if (selectedWorkspace) {
-      setFolders(selectedWorkspace.folders);
-    }
-  }, [selectedWorkspace, setFolders]);
+  const validWorkspace = !selectedWorkspace ? workspaces[0] : selectedWorkspace;
   // -- --
   const sideBarWidthRef = useRef(null);
   const buttonRef = useRef(null);
+  // -- --
   const sidebarVariants = {
     open: {
       x: 0,
@@ -110,6 +96,7 @@ export const ChatLayout = () => {
       },
     },
   };
+
   useEffect(() => {
     if (isMobile) {
       setSidebarOpen(false);
@@ -117,31 +104,37 @@ export const ChatLayout = () => {
       setSidebarOpen(true);
     }
   }, [isMobile, setSidebarOpen]);
+
   const handleSidebarOpen = useCallback(
-    index => {
-      setActiveTab(index);
+    tab => {
+      const index = SIDEBAR_CONFIG.findIndex(item => item.id === tab);
+      setActiveTab(tab);
+      console.log('open', activeTab);
+      console.log('open index', index);
       setSidebarOpen(true);
     },
-    [setSidebarOpen]
+    [activeTab, setSidebarOpen]
   );
+
   const handleSidebarClose = useCallback(() => {
+    console.log('close', activeTab);
     setSidebarOpen(false);
     setActiveTab(null);
-  }, [setSidebarOpen]);
+  }, [activeTab, setSidebarOpen]);
+
   const sideBarState = useMemo(
     () => ({
       apiKey: profile.defaultApiKey,
-      chatSessions: selectedWorkspace.chatSessions,
-      workspaces: workspaces,
-      prompts: selectedWorkspace.prompts,
-      files: selectedWorkspace.files,
-      assistants: selectedWorkspace.assistants,
-      selectedWorkspace: selectedWorkspace,
+      chatSessions: validWorkspace?.chatSessions,
+      workspaces: validWorkspace,
+      prompts: validWorkspace?.prompts,
+      files: validWorkspace?.files,
+      assistants: validWorkspace?.assistants,
+      selectedWorkspace: validWorkspace,
     }),
-    [profile.defaultApiKey, selectedWorkspace, workspaces]
+    [profile.defaultApiKey, validWorkspace]
   );
 
-  // Generate sidebar tabs with dynamic data
   const sidebarTabs = useMemo(
     () =>
       SIDEBAR_CONFIG.map(config => ({
@@ -155,7 +148,6 @@ export const ChatLayout = () => {
     [sideBarState, navigate, handleSidebarOpen]
   );
 
-  // Step 1: Create the Data Map Function
   const getDataMapFromTabs = sidebarTabs => {
     return sidebarTabs.reduce((acc, tab) => {
       if (tab.space && tab.data !== undefined) {
@@ -165,7 +157,6 @@ export const ChatLayout = () => {
     }, {});
   };
 
-  // Step 2: Use the Function to Create the Data Map
   const dataMap = useMemo(() => getDataMapFromTabs(sidebarTabs), [sidebarTabs]);
   const chatActions = useMemo(
     () => ({
@@ -179,7 +170,6 @@ export const ChatLayout = () => {
     []
   );
 
-  // Enhanced save handler with error handling
   const handleSave = useCallback(() => {
     try {
       const selectedTab = sidebarTabs.find(tab => tab.space === activeTab);
@@ -209,86 +199,81 @@ export const ChatLayout = () => {
         sideBarWidthRef={sideBarWidthRef}
         dataList={sidebarTabs}
       />
-      <motion.div
+      <MotionDrawer
         initial="closed"
         animate={isSidebarOpen && activeTab !== null ? 'open' : 'closed'}
         variants={sidebarVariants}
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          height: '100vh',
-          width: drawerWidth,
-          background: '#000',
-          color: '#fff',
-          zIndex: 1200,
-          overflow: 'hidden', // Disable any scrolling
+        anchor="left"
+        open={isSidebarOpen && activeTab !== null}
+        onClose={handleSidebarClose}
+        ModalProps={{ keepMounted: true }}
+        PaperProps={{
+          sx: {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            height: '100vh',
+            width: drawerWidth,
+            background: '#000',
+            color: '#fff',
+            zIndex: 1200,
+            overflow: 'hidden', // Disable any scrolling
+            // padding: '10px',
+            // width: drawerWidth,
+            // height: '100vh', // Fix the drawer height
+            // maxWidth: '450px',
+            // maxHeight: '100vh',
+            // background: '#000',
+            // borderRight: '1px solid #333',
+            // overflow: 'hidden', // Disable any scrolling
+          },
+        }}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            maxHeight: '100vh',
+          },
         }}
       >
-        <Drawer
-          anchor="left"
-          open={isSidebarOpen && activeTab !== null}
-          onClose={handleSidebarClose}
-          ModalProps={{ keepMounted: true }}
-          PaperProps={{
-            sx: {
-              padding: '10px',
-              width: drawerWidth,
-              height: '100vh', // Fix the drawer height
-              maxWidth: '450px',
-              maxHeight: '100vh',
-              background: '#000',
-              borderRight: '1px solid #333',
-              overflow: 'hidden', // Disable any scrolling
-            },
-          }}
+        <Box
           sx={{
-            '& .MuiDrawer-paper': {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-              maxHeight: '100vh',
-            },
+            flexGrow: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            overflow: 'hidden',
+            height: '100%',
+            maxHeight: '100vh',
           }}
         >
-          <Box
-            sx={{
-              flexGrow: 1,
+          <div
+            style={{
+              transform:
+                isMobile && !isSidebarOpen ? 'translateX(-100%)' : 'none',
+              transition: 'transform 0.3s ease-in-out',
+              color: '#fff',
               display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              overflow: 'hidden',
-              height: '100%',
-              maxHeight: '100vh',
+              fontFamily: 'Inter, Arial, sans-serif',
+              borderRadius: '14px',
+              maxHeight: 'calc(100% - 16px)',
             }}
           >
-            <div
-              style={{
-                transform:
-                  isMobile && !isSidebarOpen ? 'translateX(-100%)' : 'none',
-                transition: 'transform 0.3s ease-in-out',
-                color: '#fff',
-                display: 'flex',
-                fontFamily: 'Inter, Arial, sans-serif',
-                borderRadius: '14px',
-                maxHeight: 'calc(100% - 16px)',
-              }}
-            >
-              {/* -- SIDEBAR DRAWER CONTENT -- */}
-              <SidebarContent
-                tab={activeTab}
-                user={user}
-                workspaces={workspaces}
-                folders={folders}
-                onSave={handleSave}
-                onCancel={handleSidebarClose}
-                buttonRef={buttonRef}
-                dataList={sidebarTabs}
-                dataMap={dataMap}
-              />
-            </div>
-          </Box>
-        </Drawer>
-      </motion.div>
+            {/* -- SIDEBAR DRAWER CONTENT -- */}
+            <SidebarContent
+              tab={activeTab}
+              user={user}
+              workspaces={workspaces}
+              folders={folders}
+              onSave={handleSave}
+              onCancel={handleSidebarClose}
+              buttonRef={buttonRef}
+              dataList={sidebarTabs}
+              dataMap={dataMap}
+            />
+          </div>
+        </Box>
+      </MotionDrawer>
 
       {/* -- MAIN CONTENT -- */}
       <motion.main

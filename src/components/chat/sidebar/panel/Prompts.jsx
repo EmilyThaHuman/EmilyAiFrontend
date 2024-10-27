@@ -13,7 +13,6 @@ import { useTabManager } from 'hooks/chat/useTabManager';
 
 import { AddPrompt, EditPrompt, PromptSuggest } from './items';
 import { FileDirectory } from './items/sidebar-items/components';
-import { useFileManagement } from './items/sidebar-items/useFileManagement';
 
 export const Prompts = props => {
   const { folders = [], data = [], space = 'prompts' } = props;
@@ -23,7 +22,6 @@ export const Prompts = props => {
   } = useChatStore();
 
   const { activeTabs, selectedTab, selectTab } = useTabManager('prompts');
-  const { selectedFolder } = useFileManagement();
   const [localPrompts, setLocalPrompts] = useState(data || []);
   const [editingPrompt, setEditingPrompt] = useState(null);
 
