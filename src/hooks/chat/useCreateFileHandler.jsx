@@ -1,6 +1,6 @@
+import { toast } from '@/services/toastService';
 import mammoth from 'mammoth';
-import { useState, useCallback } from 'react';
-import { toast } from 'sonner';
+import { useCallback, useState } from 'react';
 
 import { attachmentsApi } from 'api/Ai/chat-sessions';
 

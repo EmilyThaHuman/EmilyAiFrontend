@@ -1,41 +1,39 @@
 /* eslint-disable jsx-a11y/no-autofocus */
+import { toast } from '@/services/toastService';
 import {
-  Box,
-  Typography,
-  IconButton,
-  Button,
-  Tooltip,
-  Card,
-  Menu,
-  MenuItem,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  Avatar,
-  Collapse,
-  InputAdornment,
-  TextField,
-  useMediaQuery,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  CircularProgress,
+    Avatar,
+    Box,
+    Button,
+    CircularProgress,
+    Collapse,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    IconButton,
+    InputAdornment,
+    List,
+    ListItem,
+    ListItemAvatar,
+    ListItemText,
+    Menu,
+    MenuItem,
+    TextField,
+    Typography,
+    useMediaQuery
 } from '@mui/material';
 import { styled } from '@mui/system';
 import React, { useState } from 'react';
 import {
-  FaChevronDown,
-  FaChevronUp,
-  FaEdit,
-  FaPlus,
-  FaSearch,
-  FaTrash,
+    FaChevronDown,
+    FaChevronUp,
+    FaEdit,
+    FaPlus,
+    FaSearch,
+    FaTrash,
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 
 import { AiIcon } from 'assets/humanIcons';
 import { StyledButton } from 'components/chat/styled';

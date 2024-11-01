@@ -1,29 +1,22 @@
+import { toast } from '@/services/toastService';
 import { Editor } from '@monaco-editor/react';
 import {
-  Box,
-  Button,
-  Modal,
-  TextField,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  IconButton,
-  Grid,
-  Paper,
-  InputAdornment,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+    Box,
+    Button,
+    FormControl,
+    Grid,
+    InputLabel,
+    MenuItem,
+    Modal,
+    Paper,
+    Select,
+    TextField,
+    Typography
 } from '@mui/material';
 import { styled } from '@mui/system';
 import React, { useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid'; // Make sure to install uuid
 
-import apiUtils from '@/lib/apiUtils';
 import { attachmentsApi } from 'api/Ai/chat-sessions';
 import { CODE_SNIPPETS, CODE_SNIPPETS_FILES } from 'config/data-configs/editor';
 

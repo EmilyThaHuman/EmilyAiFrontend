@@ -8,14 +8,14 @@
   },
   "extends": [
     "eslint:recommended",
+    "plugin:prettier/recommended",
     "plugin:react/recommended",
     "plugin:react/jsx-runtime",
     "plugin:react-hooks/recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
-    "plugin:import/typescript",
-    "plugin:prettier/recommended"
+    "plugin:import/typescript"
   ],
   "parserOptions": {
     "ecmaFeatures": {

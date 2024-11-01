@@ -1,7 +1,7 @@
 /* eslint-disable no-constant-condition */
+import { toast } from '@/services/toastService';
 import { format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ChatApiService } from 'api/Ai';

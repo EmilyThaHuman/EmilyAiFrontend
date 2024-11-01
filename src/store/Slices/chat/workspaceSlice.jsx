@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { toast } from 'sonner';
 
+import { toast } from '@/services/toastService'; // Updated import
 import { workspacesApi } from 'api/workspaces';
 
 import { getLocalData, setLocalData } from '../helpers';

@@ -1,5 +1,5 @@
+import { toast } from '@/services/toastService';
 import { createSlice } from '@reduxjs/toolkit';
-import { toast } from 'sonner';
 
 import { getLocalData, setLocalData } from '../helpers';
 

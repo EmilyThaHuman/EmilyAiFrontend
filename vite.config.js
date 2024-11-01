@@ -13,29 +13,35 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const MONACO_WORKERS = ['json', 'css', 'html', 'typescript'];
 const PWA_CACHE_DURATION = 60 * 60 * 24 * 30; // 30 days in seconds
 
-// Alias configurations
-const createAliases = basePath => ({
-  '@': basePath,
-  'humanIcons': path.join(basePath, 'assets/humanIcons'),
-  'routes': path.join(basePath, 'routes'),
-  'colors': path.join(basePath, 'assets/themes/base'),
-  'lib': path.join(basePath, 'lib'),
-  'app': path.join(basePath, 'app'),
-  // Direct aliases for better maintainability
-  api: path.join(basePath, 'api'),
-  assets: path.join(basePath, 'assets'),
-  components: path.join(basePath, 'components'),
-  config: path.join(basePath, 'config'),
-  contexts: path.join(basePath, 'contexts'),
-  hooks: path.join(basePath, 'hooks'),
-  styles: path.join(basePath, 'styles'),
-  layouts: path.join(basePath, 'layouts'),
-  store: path.join(basePath, 'store'),
-  types: path.join(basePath, 'types'),
-  utils: path.join(basePath, 'utils'),
-  views: path.join(basePath, 'views'),
-});
+const DIRECTORIES = [
+  'api',
+  'app',
+  'assets',
+  'components',
+  'config',
+  'contexts',
+  'hooks',
+  'layouts',
+  'lib',
+  'routes',
+  'store',
+  'styles',
+  'types',
+  'utils',
+  'views',
+  'humanIcons',
+  'services',
+  'colors',
+];
 
+const createAliases = (basePath, dirs) => {
+  const aliases = { '@': basePath };
+  dirs.forEach(dir => {
+    aliases[`@/${dir}`] = path.join(basePath, dir);
+    aliases[dir] = path.join(basePath, dir);
+  });
+  return aliases;
+};
 // PWA Configuration
 const pwaConfig = {
   registerType: 'autoUpdate', // Changed from 'none' for better PWA experience
@@ -118,7 +124,7 @@ export default defineConfig(({ mode }) => {
       monacoEditorPlugin({ languageWorkers: MONACO_WORKERS }),
     ],
     resolve: {
-      alias: createAliases(path.resolve(__dirname, 'src')),
+      alias: createAliases(path.resolve(__dirname, 'src'), DIRECTORIES),
     },
     define: {
       ...Object.fromEntries(

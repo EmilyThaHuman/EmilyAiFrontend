@@ -1,6 +1,6 @@
 // src/libs/api.js
 import axios from 'axios';
-import { toast } from 'sonner';
+import { toast } from '@/services/toastService'; // Updated import
 import constants from '@/config';
 import { jwtDecode } from 'jwt-decode';
 
@@ -76,6 +76,8 @@ const refreshToken = async () => {
     throw error;
   }
 };
+
+// Function to handle token expiration
 const handleTokenExpiration = async config => {
   let accessToken = sessionStorage.getItem('accessToken');
   if (!accessToken) {

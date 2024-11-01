@@ -1,6 +1,6 @@
-// client/src/services/api.js
+import { apiUtils } from '@/lib';
 
-const { default: apiUtils } = require('@/lib/apiUtils');
+// client/src/services/api.js
 const FILE_ENDPOINT = '/files';
 
 export const fileApiService = {
