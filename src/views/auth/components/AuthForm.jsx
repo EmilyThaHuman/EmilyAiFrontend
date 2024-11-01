@@ -23,11 +23,26 @@ const SocialButton = styled(Button)(({ theme }) => ({
   justifyContent: 'center',
 }));
 
+/**
+ * Creates a styled Button component with custom styling applied.
+ * @param {Object} theme - The theme object containing spacing information.
+ * @returns {React.ComponentType} A styled Button component with additional top margin.
+ */
 const StyledButton = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
 export const AuthForm = React.memo(
+  /**
+   * Renders a sign-up or login form with social authentication options.
+   * @param {Object} props - The component props
+   * @param {boolean} props.isSignup - Determines if the form is for sign-up or login
+   * @param {Function} props.onSubmit - Callback function to handle form submission
+   * @param {string} props.errorMessage - Error message to display, if any
+   * @param {Function} props.handleResetPassword - Callback function to handle password reset
+   * @param {Array} props.formFieldsConfigs - Configuration for form fields
+   * @returns {React.Element} A React component representing the authentication form
+   */
   ({
     isSignup,
     onSubmit,
