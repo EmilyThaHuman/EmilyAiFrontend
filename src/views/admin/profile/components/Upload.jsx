@@ -5,7 +5,7 @@ import { useMode } from 'hooks';
 
 import Dropzone from './Dropzone';
 
-export default function Upload(props) {
+export const Upload = props => {
   const { used, total, ...rest } = props;
   const { theme } = useMode();
   const brandColor = theme.palette.primary.main;
@@ -115,4 +115,6 @@ export default function Upload(props) {
       {/* </CardContent> */}
     </Card>
   );
-}
+};
+
+export default Upload;

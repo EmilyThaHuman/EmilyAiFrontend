@@ -154,9 +154,7 @@ export const workspacesApi = {
       const response = await apiUtils.get(
         `/chat/workspaces/${encodeURIComponent(workspaceId)}/folders/space/${props.space}`
       );
-      console.log('RES', response);
-      console.log('FOLDERS_ARRAY', response.folders);
-      console.log('ITEMS_ARRAY', response.allItems);
+
       const folder = response?.folders[0];
       const folderItems = response.allItems;
       return { folder, folderItems };

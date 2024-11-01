@@ -3,10 +3,10 @@
 // =========================================================
 import {
   Box,
+  CssBaseline,
   Drawer,
   useMediaQuery,
   useTheme,
-  CssBaseline,
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import React, {
@@ -18,7 +18,6 @@ import React, {
 } from 'react';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 
-import { userApi } from 'api/user';
 import { SidebarContent, SidebarTabs } from 'components';
 import { SIDEBAR_CONFIG } from 'config/data-configs/sidebar'; // Move sidebar configuration to separate file
 import { useAppStore, useChatStore, useUserStore } from 'contexts/index'; // Consolidated imports
@@ -30,14 +29,12 @@ export const ChatLayout = () => {
   const navigate = useNavigate();
   const { theme } = useMode();
   const { isXs, isMobile, isMd, drawerWidth } = useResponsiveDrawer();
-  const [activeTab, setActiveTab] = useState(null);
   const {
     state: { user, profile },
   } = useUserStore();
   const {
     state: { workspaces, folders, selectedWorkspace },
     actions: {
-      setFolders,
       updateWorkspace,
       updateChatSession,
       updateAssistant,
@@ -50,7 +47,11 @@ export const ChatLayout = () => {
     state: { isSidebarOpen },
     actions: { setSidebarOpen },
   } = useAppStore();
+  // -- --
+  const [activeTab, setActiveTab] = useState(null);
+  // -- --
   const validWorkspace = !selectedWorkspace ? workspaces[0] : selectedWorkspace;
+  const validFolders = !folders ? selectedWorkspace?.folders : folders;
   // -- --
   const sideBarWidthRef = useRef(null);
   const buttonRef = useRef(null);
@@ -188,7 +189,11 @@ export const ChatLayout = () => {
 
   return (
     <Box
-      sx={{ display: 'flex', minHeight: '100vh', padding: theme.spacing(1) }}
+      sx={{
+        display: 'flex',
+        minHeight: '100vh',
+        padding: theme.spacing(1),
+      }}
     >
       <CssBaseline />
       {/* -- SIDEBAR SECTION ICON BUTTONS -- */}
@@ -264,7 +269,7 @@ export const ChatLayout = () => {
               tab={activeTab}
               user={user}
               workspaces={workspaces}
-              folders={folders}
+              folders={validFolders}
               onSave={handleSave}
               onCancel={handleSidebarClose}
               buttonRef={buttonRef}
@@ -320,4 +325,5 @@ export const useResponsiveDrawer = () => {
     drawerWidth,
   };
 };
+
 export default ChatLayout;

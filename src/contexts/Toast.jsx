@@ -1,92 +1,101 @@
+// Toast.js
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import ErrorIcon from '@mui/icons-material/Error';
 import InfoIcon from '@mui/icons-material/Info';
 import WarningIcon from '@mui/icons-material/Warning';
+import {
+  Button,
+  IconButton,
+  Snackbar,
+  SnackbarContent,
+  Typography,
+} from '@mui/material';
 import { styled } from '@mui/system';
 import React from 'react';
 
-const StyledToast = styled('div')(
-  ({ theme, severity }) => `
-  display: flex;
-  gap: 8px;
-  overflow: hidden;
-  background-color: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
-  border-radius: 8px;
-  border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
-  box-shadow: ${
-    theme.palette.mode === 'dark'
-      ? `0 2px 16px rgba(0,0,0, 0.5)`
-      : `0 2px 16px ${grey[200]}`
-  };
-  padding: 0.75rem;
-  color: ${theme.palette.mode === 'dark' ? grey[50] : grey[900]};
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-weight: 500;
-  text-align: start;
-  position: relative;
+import { useToast } from './toastContext';
+import PropTypes from 'prop-types';
 
-  .snackbar-message {
-    flex: 1 1 0%;
-    max-width: 100%;
-  }
-
-  .snackbar-title {
-    margin: 0;
-    line-height: 1.5rem;
-    margin-right: 0.5rem;
-    color: ${theme.palette[severity].main};
-  }
-
-  .snackbar-description {
-    margin: 0;
-    line-height: 1.5rem;
-    font-weight: 400;
-    color: ${theme.palette.mode === 'dark' ? grey[400] : grey[800]};
-  }
-
-  .snackbar-close-icon {
-    cursor: pointer;
-    flex-shrink: 0;
-    padding: 2px;
-    border-radius: 4px;
-
-    &:hover {
-      background: ${theme.palette.mode === 'dark' ? grey[800] : grey[50]};
-    }
-  }
-`
-);
-
-const IconMap = {
+const severityIconMap = {
   success: CheckCircleIcon,
   info: InfoIcon,
   warning: WarningIcon,
   error: ErrorIcon,
 };
 
-export const Toast = ({ message, severity, onClose }) => {
-  const Icon = IconMap[severity] || InfoIcon;
+const StyledSnackbarContent = styled(SnackbarContent)(
+  ({ theme, severity }) => ({
+    backgroundColor: theme.palette[severity]?.main || theme.palette.grey[800],
+    color: theme.palette.getContrastText(
+      theme.palette[severity]?.main || theme.palette.grey[800]
+    ),
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  })
+);
+
+export const Toast = ({
+  id,
+  severity = 'info',
+  title,
+  description,
+  action,
+}) => {
+  const { hideToast } = useToast();
+  const Icon = severityIconMap[severity];
 
   return (
-    <StyledToast severity={severity}>
-      <Icon
-        sx={{
-          color: theme => theme.palette[severity].main,
-          flexShrink: 0,
-          width: '1.25rem',
-          height: '1.5rem',
-        }}
+    <Snackbar
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      open={true}
+      autoHideDuration={6000}
+      onClose={() => hideToast(id)}
+    >
+      <StyledSnackbarContent
+        severity={severity}
+        message={
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {Icon && <Icon style={{ marginRight: 8 }} />}
+            <div>
+              {title && <Typography variant="subtitle1">{title}</Typography>}
+              {description && (
+                <Typography variant="body2">{description}</Typography>
+              )}
+            </div>
+          </div>
+        }
+        action={
+          <>
+            {action && (
+              <Button color="inherit" size="small" onClick={action.onClick}>
+                {action.label}
+              </Button>
+            )}
+            <IconButton
+              size="small"
+              aria-label="close"
+              color="inherit"
+              onClick={() => hideToast(id)}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </>
+        }
       />
-      <div className="snackbar-message">
-        <p className="snackbar-title">
-          {severity.charAt(0).toUpperCase() + severity.slice(1)}
-        </p>
-        <p className="snackbar-description">{message}</p>
-      </div>
-      <CloseIcon onClick={onClose} className="snackbar-close-icon" />
-    </StyledToast>
+    </Snackbar>
   );
 };
 
+Toast.propTypes = {
+  id: PropTypes.number.isRequired,
+  severity: PropTypes.oneOf(['success', 'info', 'warning', 'error']),
+  title: PropTypes.string,
+  description: PropTypes.string,
+  action: PropTypes.shape({
+    label: PropTypes.string,
+    onClick: PropTypes.func,
+  }),
+};
 export default Toast;

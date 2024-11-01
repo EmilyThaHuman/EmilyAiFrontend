@@ -19,6 +19,7 @@ export const Prompts = props => {
   const { theme } = useMode();
   const {
     actions: { setPrompts },
+    state: { selectedWorkspace },
   } = useChatStore();
 
   const { activeTabs, selectedTab, selectTab } = useTabManager('prompts');
@@ -68,7 +69,7 @@ export const Prompts = props => {
         const commonData = {
           userId,
           workspaceId,
-          folderId: selectedFolder.id || null,
+          folderId: folders[0]._id || null,
           name: promptData.name,
           content: promptData.content,
           role: promptData.role,
@@ -104,14 +105,7 @@ export const Prompts = props => {
         console.error('Failed to save prompt:', error);
       }
     },
-    [
-      selectedFolder.id,
-      editingPrompt,
-      folders,
-      uploadPromptAsFile,
-      selectTab,
-      setPrompts,
-    ]
+    [editingPrompt, folders, uploadPromptAsFile, selectTab, setPrompts]
   );
 
   const handleEditPrompt = useCallback(

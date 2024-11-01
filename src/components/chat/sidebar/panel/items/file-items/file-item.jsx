@@ -7,7 +7,7 @@ import { FileIcon } from '@/lib/fileUtils';
 import constants from 'config';
 
 import SidebarItem from '../REVIEW/sidebar-display-item';
-import { getFileFromStorage } from '../storage/files';
+import { getFileFromStorage } from '../REVIEW/storage/files';
 const { FILE_DESCRIPTION_MAX, FILE_NAME_MAX, ACCEPTED_FILE_TYPES } = constants;
 
 export const FileItem = ({ file }) => {

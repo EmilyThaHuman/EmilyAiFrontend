@@ -105,31 +105,47 @@ export const AuthForm = React.memo(
           <form onSubmit={formik.handleSubmit} style={{ width: '100%' }}>
             {formFieldsConfigs.map(field => (
               <Box key={field.name} sx={{ mb: 2 }}>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  label={field.label}
-                  name={field.name}
-                  type={field.type}
-                  value={formik.values[field.name]}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={
-                    formik.touched[field.name] &&
-                    Boolean(formik.errors[field.name])
-                  }
-                  helperText={
-                    formik.touched[field.name] && formik.errors[field.name]
-                  }
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  sx={{
-                    '& .MuiInputBase-input': {
-                      color: theme.palette.text.primary,
-                    },
-                  }}
-                />
+<TextField
+  fullWidth
+  variant="outlined"
+  label={field.label}
+  name={field.name}
+  type={field.type}
+  value={formik.values[field.name]}
+  onChange={formik.handleChange}
+  onBlur={formik.handleBlur}
+  error={
+    formik.touched[field.name] &&
+    Boolean(formik.errors[field.name])
+  }
+  helperText={
+    formik.touched[field.name] && formik.errors[field.name]
+  }
+  InputLabelProps={{
+    shrink: true,
+  }}
+  sx={{
+    color: theme.palette.common.white,
+    '& .MuiInputBase-input': {
+      color: theme.palette.common.white, // Set input text color to white
+    },
+    '& .MuiInputBase-input::placeholder': {
+      color: theme.palette.common.white, // Set placeholder text color to white
+      opacity: 1, // Ensure the placeholder is fully opaque
+    },
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: theme.palette.common.white, // Optional: Set border color to white
+      },
+      '&:hover fieldset': {
+        borderColor: theme.palette.common.white, // Optional: Set border color on hover
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: theme.palette.common.white, // Optional: Set border color when focused
+      },
+    },
+  }}
+/>
               </Box>
             ))}
 

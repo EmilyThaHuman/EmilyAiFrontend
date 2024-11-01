@@ -8,10 +8,10 @@ import {
 } from '@mui/material';
 import React from 'react';
 
-import MainMenu from 'components/themed/CommonUi/menu/MainMenu';
+import { MainMenu } from 'components/themed';
 import configs from 'config/index';
 
-export default function Notifications(props) {
+export const Notifications = props => {
   return (
     <Card
       sx={{ mb: '20px', mt: '40px', mx: 'auto', maxWidth: '410px' }}
@@ -71,4 +71,6 @@ export default function Notifications(props) {
       </CardContent>
     </Card>
   );
-}
+};
+
+export default Notifications;

@@ -25,7 +25,7 @@ export const BreadcrumbsComponent = ({ pathName, brandText, routes }) => {
     <Box>
       <Breadcrumbs aria-label="breadcrumb">
         <Link
-          href={`${process.env.PUBLIC_URL}/`}
+          href={`${PUBLIC_URL}/`}
           color="inherit"
           sx={{ fontSize: 'sm', marginBottom: '5px' }}
         >

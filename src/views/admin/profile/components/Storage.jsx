@@ -6,7 +6,7 @@ import { MainMenu } from 'components/index';
 import configs from 'config/index';
 import { useMode } from 'hooks';
 
-export default function Banner(props) {
+export const Storage = props => {
   const { used, total, ...rest } = props;
   const { theme } = useMode();
   const textColorPrimary = theme.palette.text.primary;
@@ -73,4 +73,6 @@ export default function Banner(props) {
       </Box>
     </Card>
   );
-}
+};
+
+export default Storage;

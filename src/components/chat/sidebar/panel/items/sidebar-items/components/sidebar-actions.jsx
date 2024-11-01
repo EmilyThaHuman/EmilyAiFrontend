@@ -30,4 +30,5 @@ export const SidebarActions = ({ handleNewFile, handleNewFolder, space }) => {
     </TopBar>
   );
 };
+
 export default SidebarActions;

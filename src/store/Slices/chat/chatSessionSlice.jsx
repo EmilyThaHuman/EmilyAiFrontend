@@ -50,6 +50,7 @@ const initialState = {
 };
 
 const setLocalSessionData = data => setLocalData(LOCAL_NAME, data);
+
 const clearLocalSessionData = () =>
   clearLocalDataAtStore(LOCAL_NAME, REDUX_NAME);
 

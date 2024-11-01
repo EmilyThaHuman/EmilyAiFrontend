@@ -1,0 +1,26 @@
+.system-prompt-generator {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.system-prompt-generator.expanded {
+  max-height: 300px; /* Adjust as needed */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+}
+
+textarea {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  border: none;
+  resize: none;
+}

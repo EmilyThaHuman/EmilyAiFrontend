@@ -1,0 +1,22 @@
+{
+  "Extract": {
+    "prompt": "Extract this selected code to a new file, name the file based on the component, and update all affected sections in the current file. Import the new component into the original file, refactor where needed, and ensure all paths are correctly adjusted.",
+    "context": {
+      "selection": true,
+      "currentFile": true,
+      "currentDir": true
+    },
+    "mode": "edit",
+    "settings": {
+      "autoSave": true,
+      "importSorter": {
+        "enabled": true,
+        "sortOnSave": true
+      },
+      "refactorSettings": {
+        "detectAffectedSections": true,
+        "autoRefactor": true
+      }
+    }
+  }
+}

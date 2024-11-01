@@ -142,10 +142,10 @@ export const MainWorkspace = () => {
   ]);
 
   return (
-    <div>
+    <>
       {/* Render child routes, e.g., MainChat */}
       <Outlet />
-    </div>
+    </>
   );
 };
 

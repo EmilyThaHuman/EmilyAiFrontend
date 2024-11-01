@@ -1,2 +1,1 @@
-export * from './file-manager-components';
-export * from './useFileEditor';
+export * from '../file-items/useFileEditor';

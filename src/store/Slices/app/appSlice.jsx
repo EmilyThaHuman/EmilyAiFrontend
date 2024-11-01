@@ -23,8 +23,12 @@ export const appSlice = createSlice({
       setLocalAppData({ ...state, theme: action.payload });
       state.theme = action.payload;
     },
+    setPageLoading: (state, action) => {
+      setLocalAppData({ ...state, pageLoading: action.payload });
+      state.pageLoading = action.payload;
+    },
   },
 });
-export const { setSidebarOpen, setTheme } = appSlice.actions;
+export const { setSidebarOpen, setTheme, setPageLoading } = appSlice.actions;
 
 export default appSlice.reducer;

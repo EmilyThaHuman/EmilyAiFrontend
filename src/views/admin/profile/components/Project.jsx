@@ -3,8 +3,7 @@ import { Box, IconButton, Link, Typography } from '@mui/material';
 import { EditIcon } from 'assets/humanIcons';
 import { Card } from 'components/index';
 import { useMode } from 'hooks';
-
-export default function Project(props) {
+export const Project = props => {
   const { title, ranking, link, image, ...rest } = props;
   const { theme } = useMode();
   const textColorPrimary = theme.palette.text.primary;
@@ -68,4 +67,6 @@ export default function Project(props) {
       </Box>
     </Card>
   );
-}
+};
+
+export default Project;

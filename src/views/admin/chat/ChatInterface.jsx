@@ -39,34 +39,44 @@ export const ChatInterface = ({ chatSession }) => {
     <Box
       sx={{
         flexGrow: 1,
-        overflowY: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden', // Prevent overflow
         marginTop: '20px',
         marginBottom: '20px',
+        height: '100%',
       }}
       ref={chatContainerRef}
     >
-      {chatSession?.messages?.length > 0 ? (
-        <MessageBox
-          handlePromptSelect={handlePromptSelect}
-          codePromptOptions={CODE_PROMPT_OPTIONS}
-        />
-      ) : (
-        <Box sx={{ textAlign: 'center', marginTop: '50px' }}>
-          <h3>No messages yet, try one of these prompts:</h3>
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflowY: 'auto', // Allow scrolling for messages
+          paddingBottom: '20px', // Add some padding to the bottom
+        }}
+      >
+        {chatSession?.messages?.length > 0 ? (
           <MessageBox
             handlePromptSelect={handlePromptSelect}
             codePromptOptions={CODE_PROMPT_OPTIONS}
           />
-          {chatLoading && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-              <CircularProgress />
-            </Box>
-          )}
-        </Box>
-      )}
+        ) : (
+          <Box sx={{ textAlign: 'center', marginTop: '50px' }}>
+            <h3>No messages yet, try one of these prompts:</h3>
+            <MessageBox
+              handlePromptSelect={handlePromptSelect}
+              codePromptOptions={CODE_PROMPT_OPTIONS}
+            />
+            {chatLoading && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                <CircularProgress />
+              </Box>
+            )}
+          </Box>
+        )}
+      </Box>
       <Box
         sx={{
-          mt: 'auto',
           width: '100%',
           backgroundColor: '#26242C',
           borderTop: '1px solid #444',

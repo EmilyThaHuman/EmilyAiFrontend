@@ -46,13 +46,8 @@ const AuthLayout = Loadable(lazy(() => import('layouts/auth')));
 const ChatLayout = Loadable(lazy(() => import('layouts/chat')));
 const RouterLayout = Loadable(lazy(() => import('layouts/router')));
 /* *** Views *** */
-const HeroDocs = Loadable(lazy(() => import('views/land/heroDocs')));
-const ReedAiLanding = Loadable(
-  lazy(() => import('views/landing/reedAi/Index'))
-);
-const TestAiLanding = Loadable(
-  lazy(() => import('views/landing/testAi/Index'))
-);
+const ReedAiLanding = Loadable(lazy(() => import('views/land/reedAi/Index')));
+const TestAiLanding = Loadable(lazy(() => import('views/land/testAi/Index')));
 
 const AuthDefault = Loadable(lazy(() => import('views/auth/default')));
 const SignInMain = Loadable(lazy(() => import('views/auth/login')));
@@ -96,16 +91,6 @@ const baseRoutes = [
       {
         index: true,
         element: <Navigate to="/land/reedAi" />, // Fallback to Hero Docs
-      },
-      {
-        name: 'Hero Docs',
-        title: 'HeroDocs',
-        path: 'heroDocs',
-        breadcrumb: 'Hero Docs',
-        element: <HeroDocs />,
-        icon: <FolderRoundedIcon />,
-        invisible: false,
-        collapse: false,
       },
       {
         name: 'ReedAi',

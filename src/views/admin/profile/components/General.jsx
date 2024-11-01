@@ -4,8 +4,7 @@ import { Card } from 'components/index';
 import { useMode } from 'hooks';
 
 import Information from './Information';
-
-export default function GeneralInformation(props) {
+export const GeneralInformation = props => {
   const { ...rest } = props;
   const { theme } = useMode();
   const textColorPrimary = theme.palette.grey[900];
@@ -68,4 +67,6 @@ export default function GeneralInformation(props) {
       </CardContent>
     </Card>
   );
-}
+};
+
+export default GeneralInformation;

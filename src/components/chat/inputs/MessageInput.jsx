@@ -133,7 +133,7 @@ export const MessageInput = React.memo(({ disabled }) => {
       }}
     >
       <Box sx={{ transform: 'translateZ(0px)', flexGrow: 1, zIndex: 1000 }}>
-        <ToolDial containerRef={messageInputRef} /> {/* Pass ref to ToolDial */}
+        <ToolDial containerRef={messageInputRef} />
       </Box>
       <CardActions
         sx={{

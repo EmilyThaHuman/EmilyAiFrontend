@@ -17,7 +17,6 @@ export const useDynamicState = (space, initialData) => {
   const [tools, setTools] = useState(space === 'tools' ? initialData : []);
   const [models, setModels] = useState(space === 'models' ? initialData : []);
 
-  // Object mapping space to their respective state and setter
   const stateMap = {
     files: [files, setFiles],
     chatSessions: [chatSessions, setChatSessions],
@@ -28,7 +27,6 @@ export const useDynamicState = (space, initialData) => {
     models: [models, setModels],
   };
 
-  // Return the matching state and setter, or default to null if not found
   return stateMap[space] || [null, () => {}];
 };
 

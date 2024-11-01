@@ -2,7 +2,7 @@ import { Box, Typography, Button } from '@mui/material';
 import { ArrowRight } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
-import { OpenAISVG } from 'assets/humanIcons';
+import OpenAISVG from 'assets/humanIcons/ai/openai-svg';
 import { useMode } from 'hooks/app';
 
 /**

@@ -112,15 +112,12 @@ export const ToolDial = ({ containerRef }) => {
 
   useLayoutEffect(() => {
     const updatePosition = () => {
-      if (containerRef.current) {
-        const { bottom, right } = containerRef.current.getBoundingClientRect();
-        setToolDialStyles({
-          position: 'fixed',
-          bottom: `${window.innerHeight - bottom + 15}px`,
-          right: `${window.innerWidth - right + 15}px`,
-          zIndex: 1000,
-        });
-      }
+      setToolDialStyles({
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        zIndex: 1000,
+      });
     };
 
     // Call on mount using requestAnimationFrame to wait for the DOM to be fully ready
@@ -135,12 +132,12 @@ export const ToolDial = ({ containerRef }) => {
       window.cancelAnimationFrame(rafId);
       window.removeEventListener('resize', updatePosition);
     };
-  }, [containerRef, speedDialOpen]);
+  }, [speedDialOpen]);
 
   const [toolDialStyles, setToolDialStyles] = useState({
     zIndex: 1000,
-    bottom: 50,
-    right: 50,
+    bottom: 20,
+    right: 20,
   });
 
   return (
