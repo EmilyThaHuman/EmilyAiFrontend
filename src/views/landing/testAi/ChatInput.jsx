@@ -4,6 +4,10 @@ import React, { useState } from 'react';
 import { Button } from '@/components/themed/RadixUi/button';
 import { Textarea } from '@/components/themed/RadixUi/textarea';
 
+/**
+ * Renders a chat input form component with a textarea and submit button.
+ * @returns {JSX.Element} A form element containing a textarea for message input and a submit button.
+ */
 export const ChatInput = () => {
   const [message, setMessage] = useState('');
 

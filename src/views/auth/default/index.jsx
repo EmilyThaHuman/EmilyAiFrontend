@@ -5,6 +5,12 @@ import { NavLink } from 'react-router-dom';
 import { OpenAISVG } from 'assets/humanIcons';
 import { useMode } from 'hooks/app';
 
+/**
+ * Renders the default authentication page for ReedAi LLM.
+ * This component displays a logo, title, and a button to start chatting.
+ * It also clears local and session storage, and sets up a data population checklist.
+ * @returns {JSX.Element} A React component representing the default authentication page.
+ */
 export const AuthDefault = () => {
   const { theme } = useMode();
   localStorage.clear();

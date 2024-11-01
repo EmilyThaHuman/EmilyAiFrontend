@@ -8,11 +8,21 @@ import remarkMath from 'remark-math';
 import { MessageCodeBlock } from './CodeBlock';
 
 export const MessageMarkdownMemoized = memo(
+  /**
+   * A memoized wrapper component for ReactMarkdown.
+   * @param {Object} props - The props to be passed to the ReactMarkdown component.
+   * @returns {React.Element} A rendered ReactMarkdown component with the given props.
+   */
   function MessageMarkdownMemoized(props) {
     return <ReactMarkdown {...props} />;
   }
 );
 
+/**
+ * Creates a styled Box component with custom styling for prose content
+ * @param {Object} theme - The theme object containing palette and spacing information
+ * @returns {Component} A styled Box component with custom CSS rules
+ */
 const StyledBox = styled(Box)(({ theme }) => ({
   '& .prose': {
     minWidth: '100%',
@@ -29,6 +39,12 @@ const StyledBox = styled(Box)(({ theme }) => ({
   },
 }));
 
+/**
+ * Renders markdown content with custom styling and component overrides.
+ * @param {Object} props - The component props.
+ * @param {string} props.content - The markdown content to be rendered.
+ * @returns {JSX.Element} A styled box containing the rendered markdown content.
+ */
 export const MessageMarkdown = ({ content }) => {
   return (
     <StyledBox>
