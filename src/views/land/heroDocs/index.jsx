@@ -24,12 +24,6 @@ import { PageLayout, RCTypography } from 'components/index';
 import { templateData } from 'config/data';
 import { useMode } from 'hooks';
 
-/**
- * Creates a styled MenuList component with custom elevation and positioning.
- * @param {Object} props - The props to be passed to the MenuList component.
- * @param {Object} props.theme - The theme object provided by styled-components.
- * @returns {React.Component} A styled MenuList component with custom styles.
- */
 const StyledMenuList = styled(props => (
   <MenuList
     elevation={0}
@@ -80,10 +74,6 @@ const StyledMenuList = styled(props => (
   },
 }));
 
-/**
- * Landing component for the ReedAi LLM application
- * @returns {JSX.Element} A Grid component containing the landing page layout
- */
 export const Landing = () => {
   const { theme } = useMode();
   const navigate = useNavigation();
@@ -405,10 +395,6 @@ export const Landing = () => {
   );
 };
 
-/**
- * Renders the hero documentation section of the landing page
- * @returns {JSX.Element} The Landing component
- */
 export const HeroDocs = () => {
   return <Landing />;
 };
