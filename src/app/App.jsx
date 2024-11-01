@@ -46,7 +46,6 @@ export const App = () => {
       }}
     >
       <Providers>
-        <CssBaseline />
         <RouterProvider router={Router} />
       </Providers>
     </ErrorBoundary>

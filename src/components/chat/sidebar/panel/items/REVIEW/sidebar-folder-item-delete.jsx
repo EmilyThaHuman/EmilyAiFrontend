@@ -1,15 +1,14 @@
 import { Delete as IconTrash } from '@mui/icons-material'; // Material-UI icons
 import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Typography,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    Typography,
 } from '@mui/material';
-import React, { useContext, useRef, useState } from 'react';
-import { toast } from 'sonner';
+import React, { useRef, useState } from 'react';
 
 import { workspacesApi } from 'api/workspaces';
 import { useChatStore } from 'contexts/ChatProvider';

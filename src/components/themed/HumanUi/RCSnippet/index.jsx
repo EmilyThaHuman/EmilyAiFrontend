@@ -3,6 +3,7 @@ import { Button, Tooltip, Box } from '@mui/material';
 import PropTypes from 'prop-types';
 import React, { forwardRef, useMemo } from 'react';
 
+import RCSnippetRoot from './RCSnippetRoot';
 import { useRCSnippet } from './useRCSnippet';
 
 /**
@@ -24,7 +25,7 @@ import { useRCSnippet } from './useRCSnippet';
  * @property {(value: string | string[]) => void} [onCopy] - Callback when the text is copied.
  */
 
-const RCSnippet = forwardRef((props, ref) => {
+export const RCSnippet = forwardRef((props, ref) => {
   const {
     ref: snippetRef,
     preRef,
@@ -34,6 +35,7 @@ const RCSnippet = forwardRef((props, ref) => {
     hideCopyButton,
     tooltipProps,
     copyButtonProps,
+    variant = 'default',
   } = useRCSnippet({ ...props, ref });
 
   const copyButton = useMemo(() => {
@@ -49,12 +51,12 @@ const RCSnippet = forwardRef((props, ref) => {
   }, [hideCopyButton, tooltipProps, copyButtonProps, copied]);
 
   return (
-    <Box ref={snippetRef} sx={{ display: 'flex', alignItems: 'center' }}>
+    <RCSnippetRoot variant={variant}>
       <pre ref={preRef} style={{ margin: 0, padding: 2, fontSize: 14 }}>
         {children}
       </pre>
       {copyButton}
-    </Box>
+    </RCSnippetRoot>
   );
 });
 
@@ -67,6 +69,7 @@ RCSnippet.propTypes = {
     PropTypes.node,
     PropTypes.arrayOf(PropTypes.node),
   ]),
+  variant: PropTypes.oneOf(['default', 'dark', 'light']), // Add more variants as needed
   symbol: PropTypes.string,
   timeout: PropTypes.number,
   copyIcon: PropTypes.node,

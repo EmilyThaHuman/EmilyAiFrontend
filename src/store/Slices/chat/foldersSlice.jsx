@@ -1,5 +1,5 @@
+import { toast } from '@/services/toastService';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { toast } from 'sonner';
 
 import { workspacesApi } from 'api/workspaces';
 

@@ -1,4 +1,4 @@
-import { toast } from 'sonner';
+import { toast } from '@/services/toastService';
 
 import constants from 'config/constants';
 

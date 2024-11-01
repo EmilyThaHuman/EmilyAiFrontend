@@ -1,4 +1,4 @@
-// Toast.js
+// src/components/ui/toast/Toast.js
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import ErrorIcon from '@mui/icons-material/Error';
@@ -11,11 +11,17 @@ import {
   SnackbarContent,
   Typography,
 } from '@mui/material';
+import Slide from '@mui/material/Slide';
 import { styled } from '@mui/system';
-import React from 'react';
-
-import { useToast } from './toastContext';
 import PropTypes from 'prop-types';
+import React from 'react';
+import { useDispatch } from 'react-redux';
+
+import { dismissToast, removeToast } from '@/store/Slices';
+
+const SlideTransition = props => {
+  return <Slide {...props} direction="up" />;
+};
 
 const severityIconMap = {
   success: CheckCircleIcon,
@@ -33,6 +39,7 @@ const StyledSnackbarContent = styled(SnackbarContent)(
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderRadius: theme.shape.borderRadius,
   })
 );
 
@@ -42,16 +49,28 @@ export const Toast = ({
   title,
   description,
   action,
+  open,
 }) => {
-  const { hideToast } = useToast();
+  const dispatch = useDispatch();
   const Icon = severityIconMap[severity];
+
+  const handleClose = (_, reason) => {
+    if (reason === 'clickaway') return;
+    dispatch(dismissToast({ id }));
+  };
+
+  const handleExited = () => {
+    dispatch(removeToast({ id }));
+  };
 
   return (
     <Snackbar
+      key={id}
       anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      open={true}
-      autoHideDuration={6000}
-      onClose={() => hideToast(id)}
+      open={open}
+      autoHideDuration={5000}
+      onClose={handleClose}
+      onExited={handleExited}
     >
       <StyledSnackbarContent
         severity={severity}
@@ -59,16 +78,22 @@ export const Toast = ({
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {Icon && <Icon style={{ marginRight: 8 }} />}
             <div>
-              {title && <Typography variant="subtitle1">{title}</Typography>}
+              {title && (
+                <Typography variant="subtitle1" component="div">
+                  {title}
+                </Typography>
+              )}
               {description && (
-                <Typography variant="body2">{description}</Typography>
+                <Typography variant="body2" component="div">
+                  {description}
+                </Typography>
               )}
             </div>
           </div>
         }
         action={
           <>
-            {action && (
+            {action && action.onClick && (
               <Button color="inherit" size="small" onClick={action.onClick}>
                 {action.label}
               </Button>
@@ -77,7 +102,7 @@ export const Toast = ({
               size="small"
               aria-label="close"
               color="inherit"
-              onClick={() => hideToast(id)}
+              onClick={() => dispatch(dismissToast({ id }))}
             >
               <CloseIcon fontSize="small" />
             </IconButton>
@@ -89,7 +114,7 @@ export const Toast = ({
 };
 
 Toast.propTypes = {
-  id: PropTypes.number.isRequired,
+  id: PropTypes.string.isRequired,
   severity: PropTypes.oneOf(['success', 'info', 'warning', 'error']),
   title: PropTypes.string,
   description: PropTypes.string,
@@ -97,5 +122,7 @@ Toast.propTypes = {
     label: PropTypes.string,
     onClick: PropTypes.func,
   }),
+  open: PropTypes.bool.isRequired,
 };
+
 export default Toast;

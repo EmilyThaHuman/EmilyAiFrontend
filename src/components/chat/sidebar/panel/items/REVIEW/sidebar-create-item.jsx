@@ -1,10 +1,10 @@
+import { toast } from '@/services/toastService';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import React, { useContext, useRef, useState } from 'react';
-import { toast } from 'sonner';
+import React, { useRef, useState } from 'react';
 
 import { useChatStore } from 'contexts/ChatProvider';
 

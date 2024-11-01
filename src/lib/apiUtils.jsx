@@ -1,7 +1,8 @@
 // src/libs/apiUtils.js
+import { toast } from '@/services/toastService';
 import { createApi } from '@reduxjs/toolkit/query/react';
 import axiosInstance from './api';
-import { toast } from 'sonner';
+
 const saveErrorToLocalStorage = (error, method) => {
   const errors = JSON.parse(localStorage.getItem('apiErrors') || '[]');
   errors.push({
@@ -31,6 +32,7 @@ const handleApiError = (error, method) => {
   );
   throw error;
 };
+
 export const apiUtils = {
   async get(url, config) {
     try {

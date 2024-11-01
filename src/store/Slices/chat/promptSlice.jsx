@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { toast } from 'sonner';
+
+import { toast } from '@/services/toastService';
 
 import { getLocalData, setLocalData } from '../helpers';
 

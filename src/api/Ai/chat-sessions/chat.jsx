@@ -1,6 +1,6 @@
 /* eslint-disable no-constant-condition */
+import { toast } from '@/services/toastService';
 import { createParser } from 'eventsource-parser';
-import { toast } from 'sonner';
 
 import { apiUtils } from '@/lib/apiUtils';
 

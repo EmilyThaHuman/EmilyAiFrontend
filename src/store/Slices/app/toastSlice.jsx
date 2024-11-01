@@ -1,12 +1,7 @@
 // src/store/toastSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
-import {
-  clearLocalDataAtStore,
-  createAsyncThunkWithErrorHandling,
-  getLocalData,
-  setLocalData,
-} from '../helpers';
+import { clearLocalDataAtStore, getLocalData, setLocalData } from '../helpers';
 
 let count = 0;
 
@@ -25,8 +20,7 @@ const initialState = getLocalData(LOCAL_NAME, REDUX_NAME);
 function setLocalToastData(data) {
   setLocalData(LOCAL_NAME, data);
 }
-const clearLocalToastData = () =>
-  clearLocalDataAtStore(LOCAL_NAME, REDUX_NAME);
+const clearLocalToastData = () => clearLocalDataAtStore(LOCAL_NAME, REDUX_NAME);
 
 export const toastSlice = createSlice({
   name: 'toast',
@@ -35,37 +29,42 @@ export const toastSlice = createSlice({
     addToast: (state, action) => {
       const id = generateId();
       const newToast = { id, open: true, ...action.payload };
-      state.toasts = [newToast, ...state.toasts].slice(0, TOAST_LIMIT);
-      setLocalToastData({ ...state, theme: action.payload });
-
+      const toasts = [newToast, ...state.toasts].slice(0, TOAST_LIMIT);
+      state.toasts = toasts;
+      setLocalToastData({ ...state, toasts });
     },
     updateToast: (state, action) => {
       const { id, updates } = action.payload;
-      const toast = state.toasts.find((t) => t.id === id);
+      const toast = state.toasts.find(t => t.id === id);
       if (toast) {
         Object.assign(toast, updates);
+        setLocalToastData({ ...state, toasts: [...state.toasts] });
       }
     },
     dismissToast: (state, action) => {
       const { id } = action.payload;
       if (id) {
-        const toast = state.toasts.find((t) => t.id === id);
+        const toast = state.toasts.find(t => t.id === id);
         if (toast) {
           toast.open = false;
+          setLocalToastData({ ...state, toasts: [...state.toasts] });
         }
       } else {
-        state.toasts.forEach((toast) => {
+        state.toasts.forEach(toast => {
           toast.open = false;
+          setLocalToastData({ ...state, toasts: [...state.toasts] });
         });
       }
     },
     removeToast: (state, action) => {
       const { id } = action.payload;
-      state.toasts = state.toasts.filter((t) => t.id !== id);
+      state.toasts = state.toasts.filter(t => t.id !== id);
+      setLocalToastData({ ...state, toasts: [...state.toasts] });
     },
   },
 });
 
-export const { addToast, updateToast, dismissToast, removeToast } = toastSlice.actions;
+export const { addToast, updateToast, dismissToast, removeToast } =
+  toastSlice.actions;
 
 export default toastSlice.reducer;
