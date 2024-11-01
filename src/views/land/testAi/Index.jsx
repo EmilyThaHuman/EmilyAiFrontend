@@ -3,10 +3,6 @@ import { Hero } from './Hero';
 import { Tests } from './Tests';
 import '../../../../index.css';
 
-/**
- * Renders the main TestAi component
- * @returns {JSX.Element} A div containing the entire application layout
- */
 export const TestAi = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-900 to-indigo-900 text-white flex flex-col">

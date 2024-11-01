@@ -10,11 +10,6 @@ import { useUserStore } from 'contexts/UserProvider';
 
 import { AuthForm } from '../components/AuthForm';
 
-/**
- * Renders a signup form component and handles user authentication
- * @param {Object} props - The component props
- * @returns {JSX.Element} A React component that displays either a loading spinner or an authentication form
- */
 export const Signup = props => {
   const [errorMessage, setErrorMessage] = useState('');
   const {

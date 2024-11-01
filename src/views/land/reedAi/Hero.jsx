@@ -24,12 +24,6 @@ import { analyzeRoutes } from 'utils/routing';
 
 import ChatInput from './ChatInput';
 
-/**
- * Creates a styled MenuList component with custom styling and positioning.
- * @param {Object} props - The props to be passed to the MenuList component.
- * @param {Object} props.theme - The theme object containing styling information.
- * @returns {React.Component} A styled MenuList component with custom elevation and positioning.
- */
 const StyledMenuList = styled(props => (
   <MenuList
     elevation={0}
@@ -80,10 +74,6 @@ const StyledMenuList = styled(props => (
   },
 }));
 
-/**
- * Hero component for displaying the main landing page content
- * @returns {JSX.Element} A React component containing the hero section with animated text, chat input, and a menu for additional information
- */
 export const Hero = () => {
   const { theme } = useMode();
   const [text] = useTypewriter({

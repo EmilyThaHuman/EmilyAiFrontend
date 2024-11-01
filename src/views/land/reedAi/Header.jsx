@@ -10,10 +10,6 @@ import { useUserStore } from 'contexts/UserProvider';
 import { useMode } from 'hooks/app';
 import { NavbarLogo } from 'layouts/navigation';
 
-/**
- * Renders the header component of the application
- * @returns {JSX.Element} The header component with navigation, authentication buttons, and branding
- */
 export const Header = () => {
   const { theme } = useMode();
   const [isLoggedIn, setIsLoggedIn] = useState(false);

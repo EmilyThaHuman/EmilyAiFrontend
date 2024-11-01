@@ -36,10 +36,6 @@ export const Dialog = ({ open, onClose, children }) => {
       window.scrollTo(0, currentScroll);
     }
 
-    /**
-     * Returns a function that resets the body's position and top style properties.
-     * @returns {Function} A function that when called, removes the 'position' and 'top' styles from the document's body.
-     */
     return () => {
       document.body.style.position = '';
       document.body.style.top = '';

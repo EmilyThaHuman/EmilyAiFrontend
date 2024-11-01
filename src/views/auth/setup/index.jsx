@@ -24,11 +24,6 @@ import { FinishStep } from '../components/FinishStep';
 import { ProfileStep } from '../components/ProfileStep';
 import { StepContainer } from '../components/StepContainer';
 
-/**
- * Creates a styled Paper component with custom styling using Material-UI's styled API.
- * @param {Object} theme - The theme object provided by Material-UI's ThemeProvider.
- * @returns {React.ComponentType} A styled Paper component with custom styling.
- */
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
   borderRadius: theme.shape.borderRadius * 2,
@@ -38,23 +33,11 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   marginTop: theme.spacing(4),
 }));
 
-/**
- * Creates a styled Typography component for displaying error text.
- * @param {Object} theme - The theme object containing styling properties.
- * @returns {React.ComponentType} A styled Typography component with error text styling.
- */
 const ErrorText = styled(Typography)(({ theme }) => ({
   color: theme.palette.error.main,
   marginTop: theme.spacing(1),
 }));
 
-/**
- * Renders an authentication stepper component for user setup and profile configuration.
- * This component manages a multi-step process for setting up user profiles and API keys,
- * including profile information, API setup, and a final confirmation step.
- * 
- * @returns {JSX.Element} A React component that displays a stepper interface for user authentication and setup.
- */
 export const AuthStepper = () => {
   const {
     state: { user },

@@ -5,16 +5,6 @@ import React, { useState, useCallback } from 'react';
 import { userApi } from 'api/user';
 import { CancelIcon, CheckCircleIcon } from 'assets/humanIcons';
 
-/**
- * Renders a profile setup step component with username and display name input fields.
- * @param {Object} props - The component props.
- * @param {string} props.username - The current username value.
- * @param {string} props.displayName - The current display name value.
- * @param {function} props.setProfileData - Function to update profile data.
- * @param {boolean} props.usernameAvailable - Indicates if the current username is available.
- * @param {function} props.setUsernameAvailable - Function to set username availability.
- * @returns {JSX.Element} A Box component containing username and display name input fields.
- */
 export const ProfileStep = ({
   username,
   displayName,

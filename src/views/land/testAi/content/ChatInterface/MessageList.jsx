@@ -1,9 +1,3 @@
-/**
- * Renders a list of messages in a chat-like interface.
- * @param {Object} props - The component props.
- * @param {Array} props.messages - An array of message objects to display.
- * @returns {JSX.Element} A div containing the rendered message list.
- */
 const MessageList = ({ messages }) => (
   <div className="message-list p-4 overflow-y-auto h-64 bg-gray-100">
     {messages.map((msg, index) => (
