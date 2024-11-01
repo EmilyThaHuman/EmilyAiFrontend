@@ -4,20 +4,10 @@ import Switch from '@mui/material/Switch';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
-import toast from 'react-hot-toast';
-
-import { SettingContext } from './contexts/SettingContext';
-import { HistoryContext } from './contexts/HistoryContext';
-import { EditorContext, deviceType } from './contexts/EditorContext';
-import NativePreview from './components/NativeMobile';
-import { TemplateContext } from './contexts/TemplateContext';
-import UpdateChatInput from './components/chatInput/Update';
-import { setUidAnchorPoint } from './compiler';
 import { useDebounceFn } from 'ahooks';
-import { useRouter } from 'next/navigation';
 import copy from 'copy-to-clipboard';
 import html2canvas from 'html2canvas';
-import { PiCursorClickFill } from 'react-icons/pi';
+import { useRouter } from 'next/navigation';
 import { useRouter as useNextRouter } from 'next/router';
 import React, {
   useEffect,
@@ -26,6 +16,7 @@ import React, {
   useContext,
   useCallback,
 } from 'react';
+import toast from 'react-hot-toast';
 import { AiFillCodepenCircle } from 'react-icons/ai';
 import { BiSolidLike, BiSolidDislike } from 'react-icons/bi';
 import {
@@ -40,13 +31,21 @@ import {
   FaMobileAlt,
   FaHome,
 } from 'react-icons/fa';
+import { PiCursorClickFill } from 'react-icons/pi';
+
+import { setUidAnchorPoint } from './compiler';
+import UpdateChatInput from './components/chatInput/Update';
 import HistoryDisplay from './components/history/HistoryDisplay';
 import {
   extractHistoryTree,
   findHistoryById,
 } from './components/history/utils';
-
+import NativePreview from './components/NativeMobile';
 import Spinner from './components/Spinner';
+import { EditorContext, deviceType } from './contexts/EditorContext';
+import { HistoryContext } from './contexts/HistoryContext';
+import { SettingContext } from './contexts/SettingContext';
+import { TemplateContext } from './contexts/TemplateContext';
 import { UploadFileContext } from './contexts/UploadFileContext';
 import { CodeGenerationParams, generateCode } from './generateCode';
 

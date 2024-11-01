@@ -7,7 +7,7 @@ import { RCTabs } from 'components/themed';
 import { useTabManager } from 'hooks/chat/useTabManager';
 
 import { EditFile, FileInfo, FileUpsert, useFileEditor } from './items';
-import { FileDirectory } from './items/sidebar-items/components/sidebar-file-directory';
+import { FileDirectory } from './items/sidebar-items/sidebar-file-directory';
 
 export const Files = props => {
   const { folders = [], data = [], space = 'files' } = props;
@@ -17,15 +17,11 @@ export const Files = props => {
     fileName,
     fileContent,
     fileDescription,
-    fileInfo,
     editingFile, // Method to set the file for editing
-    selectedItem,
     setEditingFile,
     setFileName,
     setFileContent,
     setFileDescription,
-    setFileInfo,
-    setSelectedItem,
   } = useFileEditor();
 
   const ErrorFallback = ({ error }) => (
@@ -34,19 +30,6 @@ export const Files = props => {
       <pre>{error.message}</pre>
     </div>
   );
-
-  const handleEditFile = file => {
-    setEditingFile(file);
-    setFileName(file.name);
-    setFileContent(file.content);
-    setFileDescription(file.description);
-    setFileInfo({
-      type: file.type,
-      size: file.size,
-      lastModified: file.lastModified,
-    });
-    selectTab(1); // Switch to the Edit tab
-  };
 
   const handleSaveFile = async () => {
     console.log('Saving file:', { fileName, fileContent, fileDescription });

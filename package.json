@@ -22,6 +22,7 @@
     "@headlessui/react": "^2.1.2",
     "@heroicons/react": "^2.1.5",
     "@magicul/react-chat-stream": "^0.4.0",
+    "@mendable/firecrawl-js": "^0.0.13",
     "@monaco-editor/react": "^4.6.0",
     "@mui/base": "^5.0.0-beta.40",
     "@mui/icons-material": "^5.15.20",
@@ -105,6 +106,7 @@
     "react-apexcharts": "^1.4.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-calendar": "^5.0.0",
+    "react-colorful": "^5.6.1",
     "react-cookie": "^7.1.4",
     "react-custom-scrollbars-2": "^4.5.0",
     "react-dnd": "^16.0.1",
@@ -126,6 +128,7 @@
     "react-table": "^7.7.0",
     "react-toastify": "^10.0.5",
     "react-typist-component": "^1.1.1",
+    "react-use-clipboard": "^1.0.9",
     "react-window": "^1.8.10",
     "readline-sync": "^1.4.10",
     "redux": "^5.0.1",
@@ -201,7 +204,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "depCheck": "depcheck --config=.depcheckrc",
-    "clean-install": "rimraf node_modules package-lock.json && npm cache clean --force && npm install"
+    "clean-install": "rimraf node_modules package-lock.json && npm cache clean --force && npm install",
+    "test": "jest"
   },
   "resolutions": {
     "@typescript-eslint/parser": "^5.5.0",

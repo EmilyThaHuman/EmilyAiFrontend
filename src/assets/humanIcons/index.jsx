@@ -1,28 +1,56 @@
 /* eslint-disable import/order */
-// [FILE: ICONS INDEX]
+
 // CUSTOM
 import {
-  AiIcon,
-  // GitHubIcon as GithubIcon2,
   ActivityIcon,
+  // Navigation Icons
+  DashboardLogo,
+  DashboardLogoWhite,
+  ButtonLeft,
+  ButtonRight,
   UpArrowIcon,
   DownArrowIcon,
-  // CodeIcon,
+  // Folder Management Icons
+  FolderIcon as HumanFolderIcon,
+  FolderAddIcon,
+  FolderDetailsIcon,
+  FolderOffIcon,
+  FolderSharedIcon,
+  FoldersIcon,
+  // Coding & Development Icons
+  CustomLogo,
+  CodeIcon as HumanCodeIcon,
+  OpenAiIcon,
+  TemplateIcon,
+  AiIcon,
+  // ThemeIcon,
+  // User Interface & Theming Icons
+  BlogIcon,
+  ThemeIcon as HumanThemeIcon,
 } from './custom/index';
-// import { LogoIcon } from './custom/logo';
+import OpenAISVG from './ai/openai-svg';
+
 // GENERAL
 import { ShareIcon } from '@heroicons/react/24/outline';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import {
+  ArrowUpIcon as KeyboardArrowUpIcon,
+  ArrowDownIcon as KeyboardArrowDownIcon,
+  CheckCircleIcon,
+  ChevronLeftIcon,
+  XMarkIcon as CloseIcon,
+  CloudIcon,
+  HomeIcon,
+  Bars3Icon as MenuIcon,
+  BookmarkIcon,
+  ArrowUpOnSquareIcon as UploadIcon,
+} from '@heroicons/react/24/solid';
 import InsertDriveFileOutlined from '@mui/icons-material/InsertDriveFileOutlined';
 import AddIcon from '@mui/icons-material/Add';
+import SaveIcon from '@mui/icons-material/Save';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ChecklistIcon from '@mui/icons-material/Checklist';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import CloseIcon from '@mui/icons-material/Close';
-import CloudDoneOutlinedIcon from '@mui/icons-material/CloudDoneOutlined';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -32,10 +60,7 @@ import ErrorIcon from '@mui/icons-material/Error';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import FilePresentIcon from '@mui/icons-material/FilePresent';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import HomeIcon from '@mui/icons-material/Home';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import LayersIcon from '@mui/icons-material/Layers';
-import MenuIcon from '@mui/icons-material/Menu';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
@@ -45,19 +70,18 @@ import PaletteIcon from '@mui/icons-material/Palette';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
-import SaveIcon from '@mui/icons-material/Save';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import TextFieldsIcon from '@mui/icons-material/TextFields';
-import UploadIcon from '@mui/icons-material/Upload';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import WorkspaceIcon from '@mui/icons-material/WorkspacePremium';
 import WorkIcon from '@mui/icons-material/Work';
 import ChatIcon from '@mui/icons-material/Chat';
-import UpgradeIcon from '@mui/icons-material/Upgrade'; // Importing UpgradeIcon
+import UpgradeIcon from '@mui/icons-material/Upgrade';
 import CancelIcon from '@mui/icons-material/Cancel';
 import KeyIcon from '@mui/icons-material/Key';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+
 // SOCIAL
 import FacebookIcon from '@mui/icons-material/Facebook';
 import GitHubIcon from '@mui/icons-material/GitHub';
@@ -67,6 +91,7 @@ import ApiIcon from '@mui/icons-material/Api';
 import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import MessageIcon from '@mui/icons-material/Message';
+
 // USER
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import LockIcon from '@mui/icons-material/Lock';
@@ -80,6 +105,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import ColorLensOutlinedIcon from '@mui/icons-material/ColorLensOutlined';
 import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
+
 // CONTENT
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
@@ -92,6 +118,7 @@ import CodeOutlinedIcon from '@mui/icons-material/CodeOutlined';
 import SendIcon from '@mui/icons-material/Send';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 // OTHER
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AdminPanelSettingsRoundedIcon from '@mui/icons-material/AdminPanelSettingsRounded';
@@ -108,8 +135,8 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 import GroupIcon from '@mui/icons-material/Group';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-import CloudIcon from '@mui/icons-material/Cloud';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+
 // FONT AWESOME
 import {
   FaCameraRetro,
@@ -123,52 +150,53 @@ import {
 
 // MATERIAL DESIGN
 import { MdAddTask, MdHome } from 'react-icons/md';
-import OpenAISVG from './openai-svg';
 
-// IBM CARBON ICONS
-// import AI from 'assets/humanIcons/ibm-carbon-icons/32/AI';
+// Exporting icons
 export {
-  // CUSTOM
-  AiIcon,
-  // GitHubIcon2,
+  // --- CUSTOM ---
   ActivityIcon,
+  // Navigation Icons
+  DashboardLogo,
+  DashboardLogoWhite,
+  ButtonLeft,
+  ButtonRight,
   UpArrowIcon,
   DownArrowIcon,
-  OpenAISVG,
+  // Folder Management Icons
+  HumanFolderIcon,
+  FolderAddIcon,
+  FolderDetailsIcon,
+  FolderOffIcon,
+  FolderSharedIcon,
+  FoldersIcon,
+  // Coding & Development Icons
+  CustomLogo,
+  HumanCodeIcon,
+  OpenAiIcon,
+  TemplateIcon,
+  AiIcon,
+  // ThemeIcon,
+  // User Interface & Theming Icons
+  BlogIcon,
+  HumanThemeIcon,
+  BookmarkIcon,
+  // HERO ICONS
+  MenuIcon,
+  SaveIcon,
+  UploadIcon,
+  CloseIcon,
   // GENERAL
-  StopCircleIcon,
-  CancelOutlinedIcon,
-  AccountCircleRoundedIcon,
-  AccountCircleIcon,
-  CreditCardIcon,
-  KeyboardIcon,
-  GroupIcon,
-  SupportAgentIcon,
-  CloudIcon,
-  ExitToAppIcon,
-  AssistantIcon,
-  CollectionsIcon,
-  FolderIcon,
-  FolderOpenIcon,
+  ShareIcon,
+  KeyboardArrowUpIcon,
   InsertDriveFileOutlined,
   AddIcon,
   AttachFileIcon,
   ArrowForwardIcon,
   CheckCircleIcon,
-  ExpandMoreIcon,
-  MessageIcon,
-  AccountTreeIcon,
-  FolderRoundedIcon,
-  AdminPanelSettingsRoundedIcon,
-  BugReportIcon,
-  PendingIcon,
-  DocumentScannerRoundedIcon,
-  SettingsIcon,
   CheckCircleOutlineIcon,
   ChecklistIcon,
   ChevronLeftIcon,
-  CloseIcon,
-  CloudDoneOutlinedIcon,
+  CloudIcon,
   DashboardIcon,
   DeleteIcon,
   DownloadIcon,
@@ -181,10 +209,7 @@ export {
   HomeIcon,
   KeyboardArrowDownIcon,
   LayersIcon,
-  MenuIcon,
-  UpgradeIcon,
   MoreVertIcon,
-  InfoOutlinedIcon,
   NoteAddIcon,
   NotificationsActiveIcon,
   NotificationsNoneIcon,
@@ -193,107 +218,102 @@ export {
   PictureAsPdfIcon,
   RefreshIcon,
   RemoveRedEyeOutlinedIcon,
-  SaveIcon,
   TableChartIcon,
   TextFieldsIcon,
-  UploadIcon,
   UploadFileIcon,
   WorkspaceIcon,
   WorkIcon,
   ChatIcon,
-  PersonAddIcon,
+  UpgradeIcon,
   CancelIcon,
-  TextSnippetIcon,
-  ApiIcon,
-  // Social
+  KeyIcon,
+  FingerprintIcon,
+  CancelOutlinedIcon,
+  // SOCIAL
   FacebookIcon,
   GitHubIcon,
   GoogleIcon,
   LinkedInIcon,
-  // User
+  ApiIcon,
+  FolderRoundedIcon,
+  TextSnippetIcon,
+  MessageIcon,
+  // USER
   EmojiEmotionsIcon,
   LockIcon,
   LoginIcon,
   MailIcon,
   PeopleAltRoundedIcon,
   PersonIcon,
+  PersonAddIcon,
   AlternateEmailIcon,
   EmailIcon,
   CheckCircleRoundedIcon,
-  // Content
+  ColorLensOutlinedIcon,
+  DashboardCustomizeIcon,
+  // CONTENT
+  InfoOutlinedIcon,
+  StopCircleIcon,
   ArticleIcon,
   AssignmentIcon,
   BarChartIcon,
   CodeIcon,
   ColorLensIcon,
   CodeOutlinedIcon,
-  ColorLensOutlinedIcon,
-  DashboardCustomizeIcon,
   SendIcon,
-  KeyIcon,
-  FingerprintIcon,
-  KeyboardArrowUpIcon,
-  ShareIcon,
-  // Font Awesome
-  // Font Awesome
-  FaCameraRetro,
-  FaCopy,
-  FaFileAlt,
-  FaSignInAlt,
-  FaSmile,
-  FaTachometerAlt,
-  FaUserPlus,
-  // Material Design
-  MdAddTask,
-  MdHome,
-};
-const reedThaHumansIconLibrary = {
-  // CUSTOM
-  AiIcon,
-  // GitHubIcon2,
-  ActivityIcon,
-  UpArrowIcon,
-  DownArrowIcon,
-  OpenAISVG,
-  //
+  SettingsIcon,
+  ExpandMoreIcon,
+  // OTHER
+  AccountTreeIcon,
+  AdminPanelSettingsRoundedIcon,
+  BugReportIcon,
+  PendingIcon,
+  DocumentScannerRoundedIcon,
+  AssistantIcon,
+  CollectionsIcon,
+  FolderIcon,
+  FolderOpenIcon,
   AccountCircleRoundedIcon,
   AccountCircleIcon,
   CreditCardIcon,
   KeyboardIcon,
   GroupIcon,
   SupportAgentIcon,
-  CloudIcon,
   ExitToAppIcon,
-  CancelOutlinedIcon,
+  // FONT AWESOME
+  FaCameraRetro,
+  FaCopy,
+  FaFileAlt,
+  FaSignInAlt,
+  FaSmile,
+  FaTachometerAlt,
+  FaUserPlus,
+  // MATERIAL DESIGN
+  MdAddTask,
+  MdHome,
+};
+
+// Icon library
+const reedThaHumansIconLibrary = {
+  // CUSTOM
+  AiIcon,
+  ActivityIcon,
+  UpArrowIcon,
+  DownArrowIcon,
+  OpenAISVG,
+  // GENERAL
   ShareIcon,
-  StopCircleIcon,
-  InfoOutlinedIcon,
-  // General
-  AssistantIcon,
-  CollectionsIcon,
-  FolderIcon,
-  FolderOpenIcon,
-  ExpandMoreIcon,
-  FolderRoundedIcon,
-  AccountTreeIcon,
-  MessageIcon,
-  AdminPanelSettingsRoundedIcon,
-  BugReportIcon,
-  PendingIcon,
-  DocumentScannerRoundedIcon,
+  KeyboardArrowUpIcon,
   InsertDriveFileOutlined,
-  KeyIcon,
-  FingerprintIcon,
-  SettingsIcon,
-  DashboardCustomizeIcon,
   AddIcon,
+  AttachFileIcon,
   ArrowForwardIcon,
   CheckCircleIcon,
   CheckCircleOutlineIcon,
   ChecklistIcon,
   ChevronLeftIcon,
   CloseIcon,
-  CloudDoneOutlinedIcon,
+  CloudIcon,
   DashboardIcon,
   DeleteIcon,
   DownloadIcon,
@@ -325,18 +345,20 @@ const reedThaHumansIconLibrary = {
   WorkIcon,
   ChatIcon,
   UpgradeIcon,
-  TextSnippetIcon,
-  ApiIcon,
-
   CancelIcon,
-  // Social
+  KeyIcon,
+  FingerprintIcon,
+  CancelOutlinedIcon,
+  // SOCIAL
   FacebookIcon,
   GitHubIcon,
   GoogleIcon,
   LinkedInIcon,
-
-  SendIcon,
-  // User
+  ApiIcon,
+  FolderRoundedIcon,
+  TextSnippetIcon,
+  MessageIcon,
+  // USER
   EmojiEmotionsIcon,
   LockIcon,
   LoginIcon,
@@ -347,17 +369,38 @@ const reedThaHumansIconLibrary = {
   AlternateEmailIcon,
   EmailIcon,
   CheckCircleRoundedIcon,
-
-  // Content
+  ColorLensOutlinedIcon,
+  DashboardCustomizeIcon,
+  // CONTENT
+  InfoOutlinedIcon,
+  StopCircleIcon,
   ArticleIcon,
   AssignmentIcon,
   BarChartIcon,
   CodeIcon,
   ColorLensIcon,
   CodeOutlinedIcon,
-  ColorLensOutlinedIcon,
-  KeyboardArrowUpIcon,
-  // Font Awesome
+  SendIcon,
+  SettingsIcon,
+  ExpandMoreIcon,
+  // OTHER
+  AccountTreeIcon,
+  AdminPanelSettingsRoundedIcon,
+  BugReportIcon,
+  PendingIcon,
+  DocumentScannerRoundedIcon,
+  AssistantIcon,
+  CollectionsIcon,
+  FolderIcon,
+  FolderOpenIcon,
+  AccountCircleRoundedIcon,
+  AccountCircleIcon,
+  CreditCardIcon,
+  KeyboardIcon,
+  GroupIcon,
+  SupportAgentIcon,
+  ExitToAppIcon,
+  // FONT AWESOME
   FaCameraRetro,
   FaCopy,
   FaFileAlt,
@@ -365,8 +408,7 @@ const reedThaHumansIconLibrary = {
   FaSmile,
   FaTachometerAlt,
   FaUserPlus,
-
-  // Material Design
+  // MATERIAL DESIGN
   MdAddTask,
   MdHome,
 };

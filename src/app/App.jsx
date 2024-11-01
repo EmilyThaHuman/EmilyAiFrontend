@@ -21,7 +21,7 @@ function ErrorFallback(props) {
 // =========================================================
 // [App] | This code provides the app with the router and renders it
 // =========================================================
-const App = () => {
+export const App = () => {
   const [someKey, setSomeKey] = React.useState(null);
 
   if (import.meta.hot) {

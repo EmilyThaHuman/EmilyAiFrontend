@@ -3,13 +3,11 @@
 import { pdfjs } from 'react-pdf';
 export const constants = {
   // APP CONFIG
-  API_URL: 'http://localhost:3001/api',
+  API_URL: import.meta.env.VITE_API_URL,
   OPENAI_API_KEY: import.meta.env.VITE_OPENAI_API_PROJECT_KEY,
   PUBLIC_URL: import.meta.env.VITE_PUBLIC_URL,
+  PUBLIC_USER_FILE_SIZE_LIMIT: import.meta.env.VITE_PUBLIC_USER_FILE_SIZE_LIMIT,
   PDF_WORKER_SRC: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`,
-  DEFAULT_LINKEDIN_URL: encodeURI(
-    'https://www.linkedin.com/jobs/search/?currentJobId=3917250167&geoId=103644278&keywords=developer%20tcgplayer&location=United%20States&origin=JOB_SEARCH_PAGE_SEARCH_BUTTON&refresh=true'
-  ),
   OPENAI_ACCEPTED_FILE_EXTENSIONS: {
     text: [
       '.txt', // Plain text files

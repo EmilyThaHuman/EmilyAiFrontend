@@ -2,9 +2,8 @@
   "compilerOptions": {
     "baseUrl": "src",
     "jsx": "react",
-    // "types": ["vite/client"],
     "paths": {
-      "app/*": ["app/*"], // This will import app
+      "app/*": ["app/*"],
       "api/*": ["api/*"],
       "assets/*": ["assets/*"],
       "styles/*": ["styles/*"],
@@ -17,14 +16,13 @@
       "types/*": ["types/*"],
       "utils/*": ["utils/*"],
       "views/*": ["views/*"],
-      // "@/*": ["*"],
-      "@/routes/*": ["routes/*"],
-      "@/config/*": ["config/*"],
-      "@/colors/*": ["assets/themes/base/*"],
-      "@/lib/*": ["lib/*"],
-      "@/humanIcons/*": ["assets/humanIcons/*"],
-    },
+      "*": ["*"],
+      "routes/*": ["routes/*"],
+      "colors/*": ["assets/themes/base/*"],
+      "lib/*": ["lib/*"],
+      "humanIcons/*": ["assets/humanIcons/*"]
+    }
   },
-  "exclude": ["node_modules", "build"],
-  "include": ["src", "archive/CLEAN_UP"],
+  "exclude": ["node_modules", "build", "archive"],
+  "include": ["src", "archive/CLEAN_UP", "archive/SAVE/heroDocs", "archive/SAVE/index.jsx"]
 }

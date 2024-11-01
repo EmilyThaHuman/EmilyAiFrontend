@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 
+import { ChatApiService } from 'api/Ai';
 import { useChatStore } from 'contexts';
 
 import { useChatStream } from './useChatStream';
@@ -22,6 +23,7 @@ export const useChatHandler = () => {
     actions: {
       setChatStreaming,
       setChatLoading,
+      setChatMessages,
       setChatError,
       setIsRegenerating,
       setStreamingMessageId,
@@ -38,20 +40,21 @@ export const useChatHandler = () => {
   const [messageCount, setMessageCount] = useState(0);
   const [startAccumulating, setStartAccumulating] = useState(false);
   const [streamCompleted, setStreamCompleted] = useState(false);
-
+  const aiMessageRef = useRef(''); // To keep track of AI message content
+  const debounceRef = useRef(null); // For debouncing state updates
   const handleSendMessage = useCallback(
     async (content, isNewSession = false) => {
-      if (content.trim() === '') return;
+      const trimmedContent = content.trim();
+      if (!trimmedContent) return;
 
       setChatLoading(true);
       setChatStreaming(true);
-
-      insertContentAndSync(content);
+      insertContentAndSync(trimmedContent);
 
       const userMessage = {
         _id: uuidv4(),
         role: 'user',
-        content: content.trim(),
+        content: trimmedContent,
         timestamp: format(new Date(), 'yyyy-MM-dd').toString(),
       };
       addChatMessage(userMessage);
@@ -68,7 +71,7 @@ export const useChatHandler = () => {
           workspaceId ||
           sessionStorage.getItem('workspaceId') ||
           'id not provided',
-        prompt: content.trim() || 'No prompt provided',
+        prompt: trimmedContent,
         userId: sessionStorage.getItem('userId') || 'id not provided',
         clientApiKey: sessionStorage.getItem('apiKey') || 'key not provided',
         role: 'user',
@@ -81,28 +84,7 @@ export const useChatHandler = () => {
 
       try {
         console.log('Sending message with payload:', payload);
-        const response = await fetch(
-          'http://localhost:3001/api/chat/v1/stream',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`,
-            },
-            body: JSON.stringify(payload),
-            signal: controllerRef.current.signal,
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error('Failed to send message');
-        }
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder('utf-8');
-        let buffer = '';
-        let done = false;
-
+        const apiKey = sessionStorage.getItem('apiKey') || 'key not provided';
         const assistantMessageId = uuidv4();
         const assistantMessage = {
           _id: assistantMessageId,
@@ -114,91 +96,28 @@ export const useChatHandler = () => {
         setStreamingMessageId(assistantMessageId);
         addChatMessage(assistantMessage);
 
-        while (!done) {
-          const { value, done: readerDone } = await reader.read();
-          done = readerDone;
+        await ChatApiService.streamChatCompletion(
+          chatMessages
+            .filter(msg => msg.role !== 'assistant')
+            .map(msg => ({ role: 'user', content: msg.content }))
+            .concat({ role: 'user', content: userInput }),
+          apiKey,
+          chunk => {
+            aiMessageRef.current += chunk;
 
-          const chunk = decoder.decode(value || new Uint8Array(), {
-            stream: true,
-          });
-          buffer += chunk;
-
-          let boundary = buffer.indexOf('\n\n');
-          while (boundary !== -1) {
-            const line = buffer.substring(0, boundary);
-            buffer = buffer.substring(boundary + 2);
-            boundary = buffer.indexOf('\n\n');
-
-            if (line.startsWith('data: ')) {
-              const dataStr = line.substring(6).trim();
-              try {
-                // Sanitize control characters
-                const sanitizedDataStr = dataStr.replace(
-                  // eslint-disable-next-line no-control-regex
-                  /[\u0000-\u001F\u007F]/g,
-                  c => '\\u' + ('000' + c.charCodeAt(0).toString(16)).slice(-4)
-                );
-                const dataObj = JSON.parse(sanitizedDataStr);
-
-                if (dataObj.type === 'token' && dataObj.content) {
-                  // Check if we should start accumulating
-                  if (!startAccumulating) {
-                    const indexOfHash = dataObj.content.indexOf('#');
-                    if (indexOfHash !== -1) {
-                      setStartAccumulating(true);
-                      const contentFromHash =
-                        dataObj.content.substring(indexOfHash);
-                      appendToChatMessage({
-                        _id: assistantMessageId,
-                        content: contentFromHash,
-                        isStreaming: true,
-                      });
-                    }
-                  } else {
-                    // Already started accumulating
-                    appendToChatMessage({
-                      _id: assistantMessageId,
-                      content: dataObj.content,
-                      isStreaming: true,
-                    });
-                  }
-                } else if (dataObj.type === 'markdown' && dataObj.content) {
-                  // Handle the final markdown content
-                  setStreamCompleted(true);
-                  completeChatMessage({
-                    _id: assistantMessageId,
-                    content: dataObj.content,
-                  });
-                } else if (dataObj.type === '[DONE]') {
-                  // Stream has completed
-                  setStreamCompleted(true);
-                  completeChatMessage({
-                    _id: assistantMessageId,
-                    isStreaming: false,
-                    isComplete: true,
-                  });
-                  break;
-                } else if (dataObj.type === 'error') {
-                  // Handle error from server
-                  logError('Server error', new Error(dataObj.message));
-                  markChatMessageError({
-                    _id: assistantMessageId,
-                    error: dataObj.message,
-                  });
-                  break;
-                }
-              } catch (e) {
-                console.error('Failed to parse JSON:', e, 'Data:', dataStr);
-                logError('An error occurred while processing the message', e);
-                markChatMessageError({
-                  _id: assistantMessageId,
-                  error: e.message,
-                });
-                break;
-              }
-            }
+            // Update the assistant message in the Redux store
+            appendToChatMessage({
+              _id: assistantMessageId,
+              content: aiMessageRef.current,
+            });
           }
-        }
+        );
+
+        // Mark the message as complete after streaming
+        completeChatMessage({
+          _id: assistantMessageId,
+          content: aiMessageRef.current,
+        });
       } catch (error) {
         if (controllerRef.current.signal.aborted) {
           logError('Request aborted', error);
@@ -225,14 +144,15 @@ export const useChatHandler = () => {
       isRegenerating,
       messageCount,
       clearInput,
+      chatMessages,
+      userInput,
       setStreamingMessageId,
       appendToChatMessage,
       completeChatMessage,
-      startAccumulating,
-      setStreamCompleted,
       markChatMessageError,
     ]
   );
+
   const handleRegenerateResponse = useCallback(async () => {
     setIsRegenerating(true);
     const lastUserMessage =
@@ -278,6 +198,200 @@ export const useChatHandler = () => {
   );
 };
 export default useChatHandler;
+// const handleSendMessage = useCallback(
+//   async (content, isNewSession = false) => {
+//     if (content.trim() === '') return;
+
+//     setChatLoading(true);
+//     setChatStreaming(true);
+
+//     insertContentAndSync(content);
+
+//     const userMessage = {
+//       _id: uuidv4(),
+//       role: 'user',
+//       content: content.trim(),
+//       timestamp: format(new Date(), 'yyyy-MM-dd').toString(),
+//     };
+//     addChatMessage(userMessage);
+
+//     if (controllerRef.current) {
+//       controllerRef.current.abort();
+//     }
+//     controllerRef.current = new AbortController();
+
+//     const payload = {
+//       sessionId:
+//         sessionId || sessionStorage.getItem('sessionId') || 'id not provided',
+//       workspaceId:
+//         workspaceId ||
+//         sessionStorage.getItem('workspaceId') ||
+//         'id not provided',
+//       prompt: content.trim() || 'No prompt provided',
+//       userId: sessionStorage.getItem('userId') || 'id not provided',
+//       clientApiKey: sessionStorage.getItem('apiKey') || 'key not provided',
+//       role: 'user',
+//       regenerate: isRegenerating,
+//       length: messageCount,
+//       newSession: isNewSession,
+//     };
+
+//     clearInput();
+
+//     try {
+//       console.log('Sending message with payload:', payload);
+//       const response = await fetch(
+//         'http://localhost:3001/api/chat/v1/stream',
+//         {
+//           method: 'POST',
+//           headers: {
+//             'Content-Type': 'application/json',
+//             Authorization: `Bearer ${sessionStorage.getItem('accessToken')}`,
+//           },
+//           body: JSON.stringify(payload),
+//           signal: controllerRef.current.signal,
+//         }
+//       );
+
+//       if (!response.ok) {
+//         throw new Error('Failed to send message');
+//       }
+
+//       const reader = response.body.getReader();
+//       const decoder = new TextDecoder('utf-8');
+//       let buffer = '';
+//       let done = false;
+
+//       const assistantMessageId = uuidv4();
+//       const assistantMessage = {
+//         _id: assistantMessageId,
+//         role: 'assistant',
+//         content: '',
+//         isStreaming: true,
+//         isComplete: false,
+//       };
+//       setStreamingMessageId(assistantMessageId);
+//       addChatMessage(assistantMessage);
+
+//       while (!done) {
+//         const { value, done: readerDone } = await reader.read();
+//         done = readerDone;
+
+//         const chunk = decoder.decode(value || new Uint8Array(), {
+//           stream: true,
+//         });
+//         buffer += chunk;
+
+//         let boundary = buffer.indexOf('\n\n');
+//         while (boundary !== -1) {
+//           const line = buffer.substring(0, boundary);
+//           buffer = buffer.substring(boundary + 2);
+//           boundary = buffer.indexOf('\n\n');
+
+//           if (line.startsWith('data: ')) {
+//             const dataStr = line.substring(6).trim();
+//             try {
+//               // Sanitize control characters
+//               const sanitizedDataStr = dataStr.replace(
+//                 // eslint-disable-next-line no-control-regex
+//                 /[\u0000-\u001F\u007F]/g,
+//                 c => '\\u' + ('000' + c.charCodeAt(0).toString(16)).slice(-4)
+//               );
+//               const dataObj = JSON.parse(sanitizedDataStr);
+
+//               if (dataObj.type === 'token' && dataObj.content) {
+//                 // Check if we should start accumulating
+//                 if (!startAccumulating) {
+//                   const indexOfHash = dataObj.content.indexOf('#');
+//                   if (indexOfHash !== -1) {
+//                     setStartAccumulating(true);
+//                     const contentFromHash =
+//                       dataObj.content.substring(indexOfHash);
+//                     appendToChatMessage({
+//                       _id: assistantMessageId,
+//                       content: contentFromHash,
+//                       isStreaming: true,
+//                     });
+//                   }
+//                 } else {
+//                   // Already started accumulating
+//                   appendToChatMessage({
+//                     _id: assistantMessageId,
+//                     content: dataObj.content,
+//                     isStreaming: true,
+//                   });
+//                 }
+//               } else if (dataObj.type === 'markdown' && dataObj.content) {
+//                 // Handle the final markdown content
+//                 setStreamCompleted(true);
+//                 completeChatMessage({
+//                   _id: assistantMessageId,
+//                   content: dataObj.content,
+//                 });
+//               } else if (dataObj.type === '[DONE]') {
+//                 // Stream has completed
+//                 setStreamCompleted(true);
+//                 completeChatMessage({
+//                   _id: assistantMessageId,
+//                   isStreaming: false,
+//                   isComplete: true,
+//                 });
+//                 break;
+//               } else if (dataObj.type === 'error') {
+//                 // Handle error from server
+//                 logError('Server error', new Error(dataObj.message));
+//                 markChatMessageError({
+//                   _id: assistantMessageId,
+//                   error: dataObj.message,
+//                 });
+//                 break;
+//               }
+//             } catch (e) {
+//               console.error('Failed to parse JSON:', e, 'Data:', dataStr);
+//               logError('An error occurred while processing the message', e);
+//               markChatMessageError({
+//                 _id: assistantMessageId,
+//                 error: e.message,
+//               });
+//               break;
+//             }
+//           }
+//         }
+//       }
+//     } catch (error) {
+//       if (controllerRef.current.signal.aborted) {
+//         logError('Request aborted', error);
+//       } else {
+//         logError('An error occurred while sending the message', error);
+//         markChatMessageError({
+//           _id: uuidv4(),
+//           error: error.message,
+//         });
+//       }
+//     } finally {
+//       setChatStreaming(false);
+//       setChatLoading(false);
+//       setMessageCount(prev => prev + 1);
+//     }
+//   },
+//   [
+//     setChatLoading,
+//     setChatStreaming,
+//     insertContentAndSync,
+//     addChatMessage,
+//     sessionId,
+//     workspaceId,
+//     isRegenerating,
+//     messageCount,
+//     clearInput,
+//     setStreamingMessageId,
+//     appendToChatMessage,
+//     completeChatMessage,
+//     startAccumulating,
+//     setStreamCompleted,
+//     markChatMessageError,
+//   ]
+// );
 // for (let line of lines) {
 //   fullLines.push(line);
 //   if (line.startsWith('data: ')) {

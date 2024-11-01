@@ -10,11 +10,6 @@ import { useUserStore } from 'contexts/UserProvider';
 
 import { AuthForm } from '../components/AuthForm';
 
-/**
- * Renders a login component with authentication and password reset functionality.
- * @returns {JSX.Element} The rendered login form or loading indicator.
- * @throws {Error} If login or password reset fails.
- */
 export const Login = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const {

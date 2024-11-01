@@ -18,8 +18,8 @@ import { userReducer } from './user';
 
 const reedAiReducer = combineReducers({
   app: appReducer,
+  toast: toastReducer,
   user: userReducer,
-
   workspace: workspaceReducer,
   baseChat: baseChatReducer,
   chatSession: chatSessionReducer,

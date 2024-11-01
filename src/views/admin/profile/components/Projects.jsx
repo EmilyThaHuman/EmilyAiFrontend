@@ -2,14 +2,11 @@ import { Typography } from '@mui/material';
 import React from 'react';
 
 import Project1 from 'assets/img/profile/Project1.png';
-// import Project2 from 'assets/img/profile/Project2.png';
-// import Project3 from 'assets/img/profile/Project3.png';
 import { Card } from 'components/index';
 import { useMode } from 'hooks';
 
 import Project from './Project';
-
-export default function Projects(props) {
+export const Projects = props => {
   const { theme } = useMode();
   const textColorPrimary = theme.palette.text.primary;
   const textColorSecondary = theme.palette.text.secondary;
@@ -60,4 +57,6 @@ export default function Projects(props) {
       /> */}
     </Card>
   );
-}
+};
+
+export default Projects;

@@ -1,10 +1,11 @@
 import { Box, Card, Typography } from '@mui/material';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import PropTypes from 'prop-types';
 import React, { useMemo, useRef } from 'react';
 
 import { useChatStore } from 'contexts/ChatProvider';
 import { useMode } from 'hooks/app';
+import MessageMarkdown from 'views/land/testAi/content/ChatInterface/MessageMarkdown';
 
 import { UserMessage, AssistantMessage } from './MessagesMemoized';
 import { ChatLoader } from '../ChatLoader';
@@ -29,6 +30,7 @@ export const MessageBox = React.memo(
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                overflowY: 'auto',
               }}
             >
               <Box
@@ -73,11 +75,39 @@ export const MessageBox = React.memo(
               </Box>
             </Box>
           ) : (
-            <MessageList
-              messages={chatMessages}
-              isLoading={isChatLoading}
-              streamingMessageId={streamingMessageId}
-            />
+            <AnimatePresence>
+              {chatMessages.map((msg, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  style={{
+                    maxWidth: '48rem',
+                    margin: '0 auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      mb: 2,
+                      textAlign: msg.role === 'user' ? 'right' : 'left',
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      color={msg.role === 'user' ? 'primary' : 'secondary'}
+                    >
+                      {msg.role === 'user' ? 'You' : 'AI'}
+                    </Typography>
+                    <MessageMarkdown content={msg.content} />
+                  </Box>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           )}
         </AnimatePresence>
       </>

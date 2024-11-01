@@ -2,7 +2,7 @@
 import { Box, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
 
-import { CustomLogoIcon } from 'assets/humanIcons/custom-logo';
+import { CustomLogoIcon } from 'assets/humanIcons/custom/custom-logo';
 
 import BreadcrumbsComponent from './BreadCrumbsComponent';
 

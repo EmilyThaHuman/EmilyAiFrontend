@@ -1,9 +1,5 @@
 // src/variables/data.js
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import AdminPanelSettingsRoundedIcon from '@mui/icons-material/AdminPanelSettingsRounded';
-import BugReportIcon from '@mui/icons-material/BugReport';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
-import PendingIcon from '@mui/icons-material/Pending';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { uniqueId } from 'lodash';
 
@@ -17,17 +13,8 @@ import {
   PageviewIcon,
   PersonAddIcon,
   TextFieldsIcon,
-  ArticleIcon,
-  ChatIcon,
-  CodeIcon,
-  ColorLensIcon,
-  ErrorIcon,
-  NoteAddIcon,
-  PersonIcon,
-  TableChartIcon,
-  LockIcon,
-  WorkspaceIcon,
 } from 'assets/humanIcons';
+
 const miniStatisticsData = {
   interviewsEarned: {
     name: 'Interviews Earned',
@@ -95,8 +82,6 @@ const careerTrackerTable = {
   columns: tableColumnsCareerTracker,
   data: tableDataCareerTracker,
 };
-const base = `${window.location.origin}`;
-const host = 'http://localhost:3000';
 
 const Menuitems = [
   {
@@ -143,6 +128,7 @@ const Menuitems = [
     href: '/sample-page',
   },
 ];
+
 const buttonsData = [
   {
     startIcon: <RefreshIcon />,
@@ -190,6 +176,7 @@ const buttonsData = [
     children: 'Go Back to Home',
   },
 ];
+
 const error404Props = {
   statusText: '404',
   message: 'Oops! Page Not Found.',
@@ -197,6 +184,7 @@ const error404Props = {
   letSubTextA: 'Failed Route: ',
   subTextB: ' ~ insert error details here ~ ',
 };
+
 const error500Props = {
   statusText: '500',
   message: 'Oops! Something went wrong.',
@@ -204,6 +192,7 @@ const error500Props = {
   subTextA: 'Routing Error: ',
   subTextB: ' ~ insert error details here ~ ',
 };
+
 const errorProps = {
   errorTypes: {
     404: error404Props,

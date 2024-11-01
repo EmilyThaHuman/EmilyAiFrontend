@@ -1,5 +1,6 @@
-import { HeroDocs } from './heroDocs';
+import { ReedAi } from './reedAi/Index';
+import { TestAi } from './testAi/Index';
 
-// ==============================|| LAND VIEWS ||============================== //
+// ==============================|| REEDAI VIEWS ||============================== //
 
-export { HeroDocs };
+export { ReedAi, TestAi };
