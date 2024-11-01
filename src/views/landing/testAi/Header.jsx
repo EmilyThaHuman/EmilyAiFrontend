@@ -6,12 +6,6 @@ import { Button } from '@/components/themed/RadixUi/button';
 import routes from '@/routes/index';
 import { analyzeRoutes } from 'utils/routing';
 
-/**
- * Renders the header component of the application.
- * This component includes the app logo, title, and a back button.
- * It uses motion animations for a smooth appearance effect.
- * @returns {JSX.Element} A header component with navigation and animation.
- */
 export const Header = () => {
   const navigate = useNavigate();
   const routeData = analyzeRoutes(routes);
