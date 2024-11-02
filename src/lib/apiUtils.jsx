@@ -26,10 +26,12 @@ const handleApiError = (error, method) => {
   saveErrorToLocalStorage(error, method);
   const errorMessage = error.response?.data?.message || error.message;
   const statusCode = error.response?.status;
+
+  // Use the new toast service
   toast.error(
-    `${method} request failed: ${errorMessage}${statusCode ? ` (${statusCode})` : ''}`,
-    { className: 'error-toast' }
+    `${method} request failed: ${errorMessage}${statusCode ? ` (${statusCode})` : ''}`
   );
+
   throw error;
 };
 

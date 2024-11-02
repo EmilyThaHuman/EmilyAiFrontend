@@ -41,72 +41,69 @@ const ErrorText = styled(Typography)(({ theme }) => ({
 export const AuthStepper = () => {
   const {
     state: { user },
-    actions: { setProfile, setIsSetup },
+    actions: { setProfile, setIsSetup, setIsSettingUp, setIsAuthLoading },
   } = useUserStore();
   const {
     actions: { setApiKey },
   } = useChatStore();
   const { setupWorkspaceAndNavigate } = useWorkspaceHandler();
-  const [loading, setLoading] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
-  const isSignup = location.pathname === '/auth/sign-up';
 
-  // Profile and API keys state
-  const [profileData, setProfileData] = useState({
-    avatarUrl: user.profile.avatarPath || '',
-    displayName: user.profile.displayName || '',
-    username: user.profile.username || '',
-    openaiApiKey: user.profile?.openaiApiKey || '',
-    openaiOrgId: user.profile?.openaiOrgId || '',
-    anthropicApiKey: '',
-    googleGeminiApiKey: '',
-    mistralApiKey: '',
-    groqApiKey: '',
-    perplexityApiKey: '',
-    openrouterApiKey: '',
-  });
+  // Memoize initial profile data
+  const initialProfileData = useMemo(
+    () => ({
+      avatarUrl: user.profile.avatarPath || '',
+      displayName: user.profile.displayName || '',
+      username: user.profile.username || '',
+      openaiApiKey: user.profile?.openaiApiKey || '',
+      openaiOrgId: user.profile?.openaiOrgId || '',
+      anthropicApiKey: '',
+      googleGeminiApiKey: '',
+      mistralApiKey: '',
+      groqApiKey: '',
+      perplexityApiKey: '',
+      openrouterApiKey: '',
+    }),
+    [user.profile]
+  );
+
+  const [profileData, setProfileData] = useState(initialProfileData);
   const [usernameAvailable, setUsernameAvailable] = useState(false);
+  const userId = sessionStorage.getItem('userId');
 
   const handleSaveSetupSetting = useCallback(async () => {
+    setIsAuthLoading(true);
     try {
-      const userId = sessionStorage.getItem('userId');
-      console.log('userId', userId);
-      console.log('profileData', profileData);
-
       const updatedProfile = await userApi.updateProfile(userId, profileData);
       setProfile(updatedProfile);
       setApiKey(updatedProfile.openai.apiKey);
+      setIsSettingUp(false);
       setIsSetup(true);
-      await setupWorkspaceAndNavigate(userId);
     } catch (error) {
       console.error('Error updating profile:', error);
+      // Add user feedback for error
+      alert('Failed to update profile. Please try again.');
+    } finally {
+      setIsAuthLoading(false);
     }
-  }, [
-    profileData,
-    setProfile,
-    setApiKey,
-    setIsSetup,
-    setupWorkspaceAndNavigate,
-  ]);
+  }, [profileData, setProfile, setApiKey, setIsSetup, setIsSettingUp, userId]);
 
   const steps = ['Profile', 'API Setup', 'Finish'];
 
-  const handleNext = async () => {
+  const handleNext = useCallback(async () => {
     if (activeStep === steps.length - 1) {
-      // Save settings
-      await setProfile(profileData);
-      setIsSetup(true);
-      await setupWorkspaceAndNavigate();
+      await handleSaveSetupSetting();
+      await setupWorkspaceAndNavigate(userId);
     } else {
       setActiveStep(prev => prev + 1);
     }
-  };
+  }, [activeStep, handleSaveSetupSetting, setupWorkspaceAndNavigate, userId]);
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     setActiveStep(prev => (prev > 0 ? prev - 1 : prev));
-  };
+  }, []);
 
-  const renderStepContent = () => {
+  const renderStepContent = useCallback(() => {
     switch (activeStep) {
       case 0:
         return (
@@ -124,13 +121,13 @@ export const AuthStepper = () => {
       default:
         return null;
     }
-  };
+  }, [activeStep, profileData]);
 
   return (
     <>
       <CssBaseline />
       <Container component="main" maxWidth="sm">
-        <Paper variant="outlined" sx={{ my: { xs: 3 }, p: { xs: 2 } }}>
+        <StyledPaper>
           <Typography component="h1" variant="h4" align="center">
             Setup
           </Typography>
@@ -170,7 +167,7 @@ export const AuthStepper = () => {
               </Box>
             </StepContainer>
           </motion.div>
-        </Paper>
+        </StyledPaper>
       </Container>
     </>
   );

@@ -2,8 +2,8 @@ import { Box, Typography } from '@mui/material';
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
+import { useMode } from '@/hooks';
 import { RCFlex } from 'components';
-import { useMode } from 'hooks';
 
 export const SidebarLinks = props => {
   const { theme } = useMode();

@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 
-import { useDisclosure } from 'hooks';
+import { useDisclosure } from '@/hooks';
 
 export const TransparentMenu = props => {
   const { icon, ...rest } = props;

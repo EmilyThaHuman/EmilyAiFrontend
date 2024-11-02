@@ -8,6 +8,8 @@ import {
   useParams,
 } from 'react-router-dom';
 
+import { settingsApi, workspacesApi } from '@/api';
+import { deduplicateArray } from '@/utils';
 import { ChatHeader } from 'components/chat/ChatHeader';
 import { useChatStore } from 'contexts/ChatProvider';
 
@@ -17,8 +19,10 @@ export const ChatLayout = () => {
   const navigate = useNavigate();
 
   const {
-    state: { selectedWorkspace, selectedChatSession },
-    actions: { setSessionId, setChatMessages },
+    // state: { selectedWorkspace, selectedChatSession },
+    // actions: { setSessionId, setChatMessages },
+    state: { selectedPreset, presets, selectedWorkspace, selectedChatSession },
+    actions: { setSelectedPreset, setPresets, setChatMessages },
   } = useChatStore();
 
   const sessionId = sessionStorage.getItem('sessionId');
@@ -34,6 +38,54 @@ export const ChatLayout = () => {
           }
         : { ...message, isUserMessage: message.role === 'user' }
     );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const isValidWorkspace = selectedWorkspace && selectedWorkspace._id;
+      const isValidChatSession = selectedChatSession && selectedChatSession._id;
+      const isActiveWorkspacePath = location.pathname.startsWith(
+        `/admin/workspaces/${selectedWorkspace._id}`
+      );
+      const isActiveChatPath = location.pathname.startsWith(
+        `/admin/workspaces/${selectedWorkspace._id}/chat/${selectedChatSession._id}`
+      );
+      const hasPresetBeenSet = selectedPreset && selectedPreset.name;
+
+      if (
+        isActiveWorkspacePath &&
+        isActiveChatPath &&
+        isValidWorkspace &&
+        isValidChatSession &&
+        !hasPresetBeenSet
+      ) {
+        try {
+          // const messages = transformMessages(chatSession.messages);
+          // setChatMessages(messages);
+          const presetsData = await workspacesApi.getWorkspacePresets(
+            selectedWorkspace._id
+          );
+          // const presetsData = await settingsApi.getAllPresetsByWorkspaceId(
+          //   selectedWorkspace._id
+          // );
+          const filtedPresets = deduplicateArray(presetsData);
+          setPresets(filtedPresets);
+          setSelectedPreset(filtedPresets[0]);
+        } catch (error) {
+          console.error('Error fetching presets:', error);
+        }
+      } else {
+        console.log('Invalid workspace or chat session');
+      }
+    };
+
+    fetchData();
+  }, [
+    selectedWorkspace,
+    selectedChatSession,
+    setPresets,
+    setSelectedPreset,
+    selectedPreset,
+  ]);
 
   return (
     <Box

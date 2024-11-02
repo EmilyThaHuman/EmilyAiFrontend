@@ -5,16 +5,21 @@ export class ColumnChart extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      chartData: [],
-      chartOptions: {},
+      chartData: props.chartData || [{ name: 'Series 1', data: [] }],
+      chartOptions: props.chartOptions || {},
     };
   }
 
-  componentDidMount() {
-    this.setState({
-      chartData: this.props.chartData,
-      chartOptions: this.props.chartOptions,
-    });
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps.chartData !== this.props.chartData ||
+      prevProps.chartOptions !== this.props.chartOptions
+    ) {
+      this.setState({
+        chartData: this.props.chartData || [{ name: 'Series 1', data: [] }],
+        chartOptions: this.props.chartOptions || {},
+      });
+    }
   }
 
   render() {

@@ -6,7 +6,6 @@ import { LoadingIndicator } from 'components/themed';
 import { store } from 'store'; // Assuming you have configured your store here
 
 import 'styles/index.css';
-// import App from 'app/App';
 
 const App = lazy(() => import('app/App'));
 

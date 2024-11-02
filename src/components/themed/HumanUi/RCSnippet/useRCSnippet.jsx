@@ -1,6 +1,31 @@
 import { useFocusRing } from '@react-aria/focus';
 import { useState, useCallback, useRef } from 'react';
-import { useClipboard } from 'react-use-clipboard'; // Using react-use-clipboard for clipboard functionality
+/**
+ * Custom hook to copy text to clipboard with a specified timeout.
+ * @param {string} initialText - Initial text to copy.
+ * @param {Object} options - Configuration options.
+ * @param {number} options.successDuration - Duration for the copied status.
+ * @returns {Array} - Copied state and copy function.
+ */
+function useClipboard(initialText, options = { successDuration: 2000 }) {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const copyToClipboard = useCallback(
+    async (text = initialText) => {
+      try {
+        await navigator.clipboard.writeText(text);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), options.successDuration);
+      } catch (error) {
+        console.error('Failed to copy text: ', error);
+        setIsCopied(false);
+      }
+    },
+    [initialText, options.successDuration]
+  );
+
+  return [isCopied, copyToClipboard];
+}
 
 /**
  * @typedef {Object} UseRCSnippetProps

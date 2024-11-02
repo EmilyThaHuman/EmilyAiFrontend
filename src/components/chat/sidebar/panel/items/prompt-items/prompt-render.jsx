@@ -13,13 +13,13 @@ import {
 import { motion } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
 
+import { useCopyToClipboard, useMode } from '@/hooks';
 import {
   EditIcon,
   FileCopyIcon,
   KeyboardArrowDownIcon,
   KeyboardArrowUpIcon,
 } from 'assets/humanIcons';
-import { useCopyToClipboard, useMode } from 'hooks';
 
 export const CurrentPromptRenderer = ({ prompt, isOpen, onToggle }) => {
   const { copyToClipboard } = useCopyToClipboard();

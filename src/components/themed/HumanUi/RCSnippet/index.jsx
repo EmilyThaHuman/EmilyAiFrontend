@@ -1,4 +1,5 @@
-import { CopyLinearIcon, CheckLinearIcon } from '@mui/icons-material'; // Make sure to import the icons from MUI
+import CheckIcon from '@mui/icons-material/Check';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { Button, Tooltip, Box } from '@mui/material';
 import PropTypes from 'prop-types';
 import React, { forwardRef, useMemo } from 'react';
@@ -44,7 +45,7 @@ export const RCSnippet = forwardRef((props, ref) => {
     return (
       <Tooltip {...tooltipProps} title="Copy to clipboard">
         <Button {...copyButtonProps}>
-          {copied ? <CheckLinearIcon /> : <CopyLinearIcon />}
+          {copied ? <CheckIcon /> : <ContentCopyIcon />}
         </Button>
       </Tooltip>
     );

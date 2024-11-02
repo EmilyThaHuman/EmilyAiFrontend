@@ -2,7 +2,7 @@ import { Search as SearchIcon } from '@mui/icons-material';
 import { IconButton, InputAdornment, TextField } from '@mui/material';
 import React from 'react';
 
-import { useMode } from 'hooks';
+import { useMode } from '@/hooks';
 
 export function SearchBar(props) {
   const { variant, background, children, placeholder, borderRadius, ...rest } =

@@ -14,7 +14,7 @@ export const Signup = props => {
   const [errorMessage, setErrorMessage] = useState('');
   const {
     state: { isAuthenticated, isAuthLoading },
-    actions: { handleAuthSubmit, setIsSignedUp },
+    actions: { handleAuthSubmit, setIsSettingUp },
   } = useUserStore();
 
   const navigate = useNavigate();
@@ -23,13 +23,13 @@ export const Signup = props => {
     async values => {
       try {
         await handleAuthSubmit(values);
-        setIsSignedUp(true);
+        setIsSettingUp(true);
         navigate('/auth/setup');
       } catch (error) {
         setErrorMessage(`Sign Up failed: ${error.message || 'Unknown error'}`);
       }
     },
-    [handleAuthSubmit, navigate, setIsSignedUp]
+    [handleAuthSubmit, navigate, setIsSettingUp]
   );
 
   const handleResetPassword = async email => {

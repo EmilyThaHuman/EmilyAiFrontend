@@ -4,6 +4,7 @@ import React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { RouterProvider } from 'react-router-dom';
 
+import { CustomThemeProvider } from '@/contexts';
 import { Providers } from 'contexts/Providers';
 import { NotFoundPage } from 'views/error';
 
@@ -21,6 +22,7 @@ function ErrorFallback(props) {
 // =========================================================
 // [App] | This code provides the app with the router and renders it
 // =========================================================
+
 export const App = () => {
   const [someKey, setSomeKey] = React.useState(null);
 
@@ -45,9 +47,12 @@ export const App = () => {
         console.error(errorInfo);
       }}
     >
-      <Providers>
-        <RouterProvider router={Router} />
-      </Providers>
+      <CustomThemeProvider>
+        {/* <CssBaseline /> Ensure global styles are applied */}
+        <Providers>
+          <RouterProvider router={Router} />
+        </Providers>
+      </CustomThemeProvider>
     </ErrorBoundary>
   );
 };

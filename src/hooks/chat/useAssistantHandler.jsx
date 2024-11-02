@@ -4,7 +4,7 @@
 // import { useState } from 'react';
 // import { useParams } from 'react-router-dom';
 // import { useChatStore, useUserStore } from 'contexts';
-// import { useChatScroll } from 'hooks';
+// import { useChatScroll } from '@/hooks';
 // import 'styles/ChatStyles.css';
 
 // export const useAssistantHandler = (functionCallHandler = () => '') => {

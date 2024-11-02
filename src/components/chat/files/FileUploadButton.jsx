@@ -2,9 +2,9 @@ import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { Input } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
+import { useFileProcesser } from '@/hooks';
 import { DarkIconBox } from 'assets/humanIcons/utils';
 import { useChatStore } from 'contexts';
-import { useFileProcesser } from 'hooks';
 
 import { ChatMessageIconContainer } from '../styled';
 

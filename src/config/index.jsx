@@ -7,15 +7,9 @@ import {
   statsConfig,
   systemConfig,
   promptsConfig,
+  genericMenuItems,
 } from './data-configs';
 import { authConfigs } from './form-configs';
-import {
-  formTemplatesMenuItems,
-  routerMenuData,
-  snippetsMenuItems,
-  templatesMenuData,
-  genericMenuItems,
-} from './menu-configs';
 
 // src/variables/index.js
 const constant = {
@@ -34,10 +28,6 @@ const forms = {
   authConfigs: authConfigs,
 };
 const menus = {
-  formTemplates: formTemplatesMenuItems,
-  routerMenu: routerMenuData,
-  snippets: snippetsMenuItems,
-  templatesData: templatesMenuData,
   genericMenuItems: genericMenuItems,
 };
 export const configs = {

@@ -1,8 +1,8 @@
 import { Box, Stack } from '@mui/material';
 import PropTypes from 'prop-types';
 
+import { useMode } from '@/hooks';
 import { RCFlex } from 'components';
-import { useMode } from 'hooks';
 
 import Brand from './Brand';
 import Links from './Links';

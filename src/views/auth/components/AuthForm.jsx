@@ -16,15 +16,30 @@ import { FaFacebook, FaGoogle } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 
+// Styled Social Button with Grey and White Scheme
 const SocialButton = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(1),
   width: '48%',
   justifyContent: 'center',
+  borderColor: theme.palette.grey[500],
+  color: theme.palette.grey[500],
+  backgroundColor: 'transparent',
+  '&:hover': {
+    borderColor: theme.palette.common.white,
+    color: theme.palette.common.white,
+    backgroundColor: theme.palette.grey[800],
+  },
 }));
 
+// Styled Primary Button with Grey Background and White Text
 const StyledButton = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(2),
+  backgroundColor: theme.palette.grey[700],
+  color: theme.palette.common.white,
+  '&:hover': {
+    backgroundColor: theme.palette.grey[600],
+  },
 }));
 
 export const AuthForm = React.memo(
@@ -53,7 +68,7 @@ export const AuthForm = React.memo(
         return {
           ...values,
           isSignup: isSignup,
-        }
+        };
       }, {}),
       validationSchema,
       onSubmit: async values => {
@@ -77,69 +92,72 @@ export const AuthForm = React.memo(
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            padding: 3,
+            padding: 4,
             mt: 5,
             width: '100%',
             maxWidth: 400,
             mx: 'auto',
+            // backgroundColor: '#000', // Pure Black Background
+            borderRadius: theme.shape.borderRadius,
+            boxShadow: theme.shadows[10],
           }}
         >
-          <Typography variant="h4" gutterBottom>
+          <Typography variant="h4" gutterBottom color="common.white">
             {isSignup ? 'Sign Up' : 'Login'}
           </Typography>
           <form onSubmit={formik.handleSubmit} style={{ width: '100%' }}>
             {formFieldsConfigs.map(field => (
               <Box key={field.name} sx={{ mb: 2 }}>
-<TextField
-  fullWidth
-  variant="outlined"
-  label={field.label}
-  name={field.name}
-  type={field.type}
-  value={formik.values[field.name]}
-  onChange={formik.handleChange}
-  onBlur={formik.handleBlur}
-  error={
-    formik.touched[field.name] &&
-    Boolean(formik.errors[field.name])
-  }
-  helperText={
-    formik.touched[field.name] && formik.errors[field.name]
-  }
-  InputLabelProps={{
-    shrink: true,
-  }}
-  sx={{
-    color: theme.palette.common.white,
-    '& .MuiInputBase-input': {
-      color: theme.palette.common.white, // Set input text color to white
-    },
-    '& .MuiInputBase-input::placeholder': {
-      color: theme.palette.common.white, // Set placeholder text color to white
-      opacity: 1, // Ensure the placeholder is fully opaque
-    },
-    '& .MuiOutlinedInput-root': {
-      '& fieldset': {
-        borderColor: theme.palette.common.white, // Optional: Set border color to white
-      },
-      '&:hover fieldset': {
-        borderColor: theme.palette.common.white, // Optional: Set border color on hover
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: theme.palette.common.white, // Optional: Set border color when focused
-      },
-    },
-  }}
-/>
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  label={field.label}
+                  name={field.name}
+                  type={field.type}
+                  value={formik.values[field.name]}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={
+                    formik.touched[field.name] &&
+                    Boolean(formik.errors[field.name])
+                  }
+                  helperText={
+                    formik.touched[field.name] && formik.errors[field.name]
+                  }
+                  InputLabelProps={{
+                    shrink: true,
+                    style: { color: theme.palette.grey[500] }, // Label Color
+                  }}
+                  color="secondary"
+                  sx={{
+                    color: theme.palette.common.white,
+                    textcolor: theme.palette.common.white,
+                    '& .MuiInputBase-input': {
+                      color: '#fff !important',
+                    },
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: theme.palette.grey[500], // Default Border Color
+                      },
+                      '&:hover fieldset': {
+                        borderColor: theme.palette.grey[400], // Hover Border Color
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: theme.palette.common.white, // Focused Border Color
+                      },
+                      '&.Mui-focused .MuiInputBase-input': {
+                        color: theme.palette.common.white, // Focused Input Text Color
+                      },
+                    },
+                    '& .MuiFormHelperText-root': {
+                      color: theme.palette.error.main, // Helper Text Color
+                    },
+                  }}
+                />
               </Box>
             ))}
 
-            <StyledButton
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-            >
+            <StyledButton type="submit" variant="contained" fullWidth>
               {isSignup ? 'Sign Up' : 'Login'}
             </StyledButton>
 
@@ -147,7 +165,7 @@ export const AuthForm = React.memo(
               onClick={handleToggle}
               variant="text"
               fullWidth
-              sx={{ mt: 1 }}
+              sx={{ mt: 1, color: theme.palette.grey[500] }}
             >
               {isSignup
                 ? 'Already have an account? Login'
@@ -182,7 +200,7 @@ export const AuthForm = React.memo(
                 onClick={handleResetPassword}
                 variant="text"
                 fullWidth
-                sx={{ mt: 2 }}
+                sx={{ mt: 2, color: theme.palette.grey[500] }}
               >
                 Forgot your password?
               </Button>

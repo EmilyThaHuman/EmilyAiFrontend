@@ -14,8 +14,15 @@ import {
   TextField,
   Chip,
   Box,
+  CardContent,
+  Typography,
+  Divider,
 } from '@mui/material';
 import { useState, useMemo } from 'react';
+
+import { useMode } from '@/hooks';
+
+import { StyledCard } from '../../profile/components/styled';
 
 export function RevokeDialog({ apiKey, open, onClose }) {
   const handleRevoke = () => {
@@ -62,6 +69,9 @@ function Actions({ apiKey }) {
 }
 
 export function ApiKeyTable({ apiKeys }) {
+  const { theme } = useMode();
+  const textColorPrimary = theme.palette.grey[900];
+
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredKeys = useMemo(() => {
@@ -78,58 +88,76 @@ export function ApiKeyTable({ apiKeys }) {
   }, [apiKeys, searchTerm]);
 
   return (
-    <Box>
-      <TextField
-        placeholder="Search table"
-        value={searchTerm}
-        onChange={e => setSearchTerm(e.target.value)}
-        fullWidth
-        variant="outlined"
-        margin="normal"
-      />
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Description</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Client Key</TableCell>
-              <TableCell>Server Key</TableCell>
-              <TableCell>Expires At</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredKeys.map(key => (
-              <TableRow key={key.clientKey}>
-                <TableCell>{key.description}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={key.status}
-                    color={
-                      key.status === 'valid'
-                        ? 'success'
-                        : key.status === 'expired'
-                          ? 'default'
-                          : 'error'
-                    }
-                  />
-                </TableCell>
-                <TableCell>*******{key.clientKey}</TableCell>
-                <TableCell>*******{key.serverKey}</TableCell>
-                <TableCell>
-                  {new Date(key.expiresAt).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  <Actions apiKey={key} />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+    <StyledCard className="profile-banner" theme={theme}>
+      <CardContent>
+        <Box display="flex" flexDirection="row" alignItems="center">
+          <Typography
+            color={textColorPrimary}
+            fontWeight="bold"
+            fontSize="2xl"
+            mt={2}
+            mb={1}
+            textAlign="start"
+            mr="auto"
+            minWidth="100px"
+          >
+            API Keys
+          </Typography>
+          <Divider />
+          <TextField
+            placeholder="Search table"
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            fullWidth
+            variant="outlined"
+            margin="normal"
+          />
+        </Box>
+        <Box mt={2}>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Description</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Client Key</TableCell>
+                  <TableCell>Server Key</TableCell>
+                  <TableCell>Expires At</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredKeys.map(key => (
+                  <TableRow key={key.clientKey}>
+                    <TableCell>{key.description}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={key.status}
+                        color={
+                          key.status === 'valid'
+                            ? 'success'
+                            : key.status === 'expired'
+                              ? 'default'
+                              : 'error'
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>*******{key.clientKey}</TableCell>
+                    <TableCell>*******{key.serverKey}</TableCell>
+                    <TableCell>
+                      {new Date(key.expiresAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      <Actions apiKey={key} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </CardContent>
+    </StyledCard>
   );
 }
 

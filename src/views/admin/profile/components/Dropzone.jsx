@@ -3,7 +3,7 @@ import { Button, Input } from '@mui/material';
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
 
-import { useMode } from 'hooks';
+import { useMode } from '@/hooks';
 
 import { DropzoneContainer } from './styled';
 

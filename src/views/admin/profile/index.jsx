@@ -72,12 +72,12 @@ export default function Overview() {
                   following={userData.following}
                 />
               </Grid>
-              <Grid id="row-1-col-2" item xs={12} md={6}>
+              <Grid id="row-1-col-2" item xs={12} md={8}>
                 <ProfileInfoComponent userData={userData} />
               </Grid>
             </Grid>
             <Grid container id="row-2" direction="row" spacing={2}>
-              <Grid id="row-2-col-1" item xs={12} md={6}>
+              <Grid id="row-2-col-1" item xs={12}>
                 <ApiKeyTable
                   apiKeys={[
                     {
@@ -105,9 +105,9 @@ export default function Overview() {
                   ]}
                 />
               </Grid>
-              <Grid id="row-2-col-2" item xs={12} md={6}>
+              {/* <Grid id="row-2-col-2" item xs={12} md={6}>
                 <Projects />
-              </Grid>
+              </Grid> */}
             </Grid>
             <Grid id="row-3" container direction="row">
               <Grid item id="row-3-col-1" xs={12}>

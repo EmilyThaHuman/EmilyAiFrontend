@@ -1,6 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit';
 
-import { appReducer } from './app';
+import { appReducer, toastReducer } from './app';
 import {
   assistantReducer,
   baseChatReducer,

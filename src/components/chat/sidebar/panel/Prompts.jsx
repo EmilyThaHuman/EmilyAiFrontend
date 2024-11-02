@@ -3,12 +3,12 @@ import { Pencil } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
+import { useMode } from '@/hooks';
 import { settingsApi } from 'api/Ai/chat-items';
 import { attachmentsApi } from 'api/Ai/chat-sessions';
 import { PromptCreatorSpace } from 'components/chat/prompts';
 import { RCTabs } from 'components/themed';
 import { useChatStore } from 'contexts/ChatProvider';
-import { useMode } from 'hooks';
 import { useTabManager } from 'hooks/chat/useTabManager';
 
 import { AddPrompt, EditPrompt, PromptSuggest } from './items';

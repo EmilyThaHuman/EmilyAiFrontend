@@ -1,6 +1,6 @@
+import { apiUtils } from '@/lib/apiUtils';
 import { toast } from '@/services/toastService';
 
-import { apiUtils } from '@/lib/apiUtils';
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB size limit
 
 // Helper function to prepare form data

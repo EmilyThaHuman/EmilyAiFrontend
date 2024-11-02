@@ -1,4 +1,4 @@
-export type HistoryItemType = "ai_create" | "ai_edit";
+export type HistoryItemType = 'ai_create' | 'ai_edit';
 
 type CommonHistoryItem = {
   parentIndex: null | number;
@@ -10,11 +10,11 @@ type CommonHistoryItem = {
 
 export type HistoryItem =
   | ({
-      type: "ai_create";
+      type: 'ai_create';
       inputs: AiCreateInputs;
     } & CommonHistoryItem)
   | ({
-      type: "ai_edit";
+      type: 'ai_edit';
       inputs: AiEditInputs;
     } & CommonHistoryItem);
 

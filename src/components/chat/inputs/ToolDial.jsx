@@ -8,6 +8,7 @@ import React, {
   useMemo,
 } from 'react';
 
+import { useMenu, useMode, useTipTapEditor } from '@/hooks';
 import {
   CodeIcon,
   EmojiEmotionsIcon,
@@ -17,7 +18,6 @@ import {
 import { RCSpeedDial } from 'components/themed';
 import { useChatStore } from 'contexts/ChatProvider';
 import { useUserStore } from 'contexts/UserProvider';
-import { useMenu, useMode, useTipTapEditor } from 'hooks';
 
 import { ApiModal } from './ApiModal';
 

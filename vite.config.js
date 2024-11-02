@@ -42,6 +42,7 @@ const createAliases = (basePath, dirs) => {
   });
   return aliases;
 };
+
 // PWA Configuration
 const pwaConfig = {
   registerType: 'autoUpdate', // Changed from 'none' for better PWA experience

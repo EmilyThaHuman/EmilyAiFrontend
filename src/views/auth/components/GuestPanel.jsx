@@ -2,7 +2,7 @@
 import { Box, Typography, styled } from '@mui/material';
 import React, { memo } from 'react';
 
-import { useMode } from 'hooks';
+import { useMode } from '@/hooks';
 
 export const StyledInfoPanel = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1),

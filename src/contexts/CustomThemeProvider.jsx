@@ -11,14 +11,33 @@ import React, {
   useState,
   useEffect,
 } from 'react';
+import { ThemeProvider as StyledThemeProvider } from 'styled-components';
 
-const ColorModeContext = createContext({
-  mode: 'light',
-  // theme: createTheme(),
+import { getTheme } from '@/assets/theme';
+import { useManageCookies } from '@/hooks';
+
+export const ColorModeContext = createContext({
+  mode: 'dark',
   toggleColorMode: () => {},
+  theme: getTheme('dark'),
 });
 
 export const CustomThemeProvider = ({ children }) => {
+  // const { addCookies, getCookie } = useManageCookies();
+  // const initialMode = getCookie('colorMode') || 'dark';
+  // const [mode, setMode] = useState(initialMode);
+
+  // useEffect(() => {
+  //   addCookies('colorMode', mode, { path: '/' });
+  // }, [mode]);
+
+  // const toggleColorMode = () => {
+  //   const newMode = mode === 'dark' ? 'light' : 'dark';
+  //   setMode(newMode);
+  //   addCookies('colorMode', newMode, { path: '/' });
+  // };
+
+  // const theme = useMemo(() => getTheme(mode), [mode]);
   // Retrieve the user's theme preference from localStorage or default to 'light'
   const [mode, setMode] = useState(() => {
     const storedMode = localStorage.getItem('themeMode');
@@ -30,7 +49,7 @@ export const CustomThemeProvider = ({ children }) => {
       mode,
       toggleColorMode: () => {
         setMode(prevMode => {
-          const nextMode = prevMode === 'light' ? 'dark' : 'light';
+          const nextMode = prevMode === 'dark' ? 'light' : 'dark';
           localStorage.setItem('themeMode', nextMode);
           return nextMode;
         });
@@ -39,42 +58,7 @@ export const CustomThemeProvider = ({ children }) => {
     []
   );
 
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode,
-          ...(mode === 'light'
-            ? {
-                // Light mode palette
-                primary: {
-                  main: '#1976d2',
-                },
-                background: {
-                  default: '#f5f5f5',
-                  paper: '#fff',
-                },
-              }
-            : {
-                // Dark mode palette
-                primary: {
-                  main: '#90caf9',
-                },
-                background: {
-                  default: '#121212',
-                  paper: '#1e1e1e',
-                },
-              }),
-        },
-        typography: {
-          fontFamily: 'IBM Plex Sans, sans-serif',
-        },
-        shape: {
-          borderRadius: 8,
-        },
-      }),
-    [mode]
-  );
+  const theme = useMemo(() => getTheme(mode), [mode]);
 
   useEffect(() => {
     // Optional: Synchronize with system theme preferences
@@ -88,11 +72,25 @@ export const CustomThemeProvider = ({ children }) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
+  const state = {
+    mode,
+    theme,
+  };
+
+  const actions = {
+    toggleColorMode: colorMode.toggleColorMode,
+  };
+
+  const contextValue = {
+    ...state,
+    ...actions,
+  };
+
   return (
-    <ColorModeContext.Provider value={colorMode}>
+    <ColorModeContext.Provider value={contextValue}>
       <MuiThemeProvider theme={theme}>
         <CssBaseline />
-        {children}
+        <StyledThemeProvider theme={theme}>{children}</StyledThemeProvider>
       </MuiThemeProvider>
     </ColorModeContext.Provider>
   );

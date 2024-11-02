@@ -1,6 +1,6 @@
 import { Box, Link, List, ListItem, Typography } from '@mui/material';
 
-import { useMode } from 'hooks';
+import { useMode } from '@/hooks';
 
 export const FooterAuth = props => {
   const { theme } = useMode();

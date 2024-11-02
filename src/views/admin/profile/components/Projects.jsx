@@ -1,9 +1,9 @@
 import { Typography } from '@mui/material';
 import React from 'react';
 
+import { useMode } from '@/hooks';
 import Project1 from 'assets/img/profile/Project1.png';
 import { Card } from 'components/index';
-import { useMode } from 'hooks';
 
 import Project from './Project';
 export const Projects = props => {

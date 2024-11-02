@@ -42,6 +42,6 @@
       "@/colors/*": ["src/colors/*"]
     }
   },
-  "exclude": ["node_modules", "build", "archive"],
-  "include": ["src", "archive/generic-layouts"]
+  "exclude": ["node_modules", "build", "archive", "resources"],
+  "include": ["src"]
 }

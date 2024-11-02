@@ -10,12 +10,16 @@ const { size } = typography;
 export default {
   styleOverrides: {
     root: {
-      fontSize: size.sm,
-      borderRadius: borderRadius.md,
+      // fontSize: size.sm,
+      // borderRadius: borderRadius.md,
       padding: pxToRem(2),
       margin: pxToRem(4),
-      borderColor: '#808080',
-      borderWidth: '3px',
+      // borderColor: '#808080',
+      // color: '#fff',
+      // borderWidth: '3px',
+      '& .MuiInputBase-input': {
+        color: '#fff', // Input Text Color
+      },
       '&.success .MuiOutlinedInput-notchedOutline': {
         borderColor: success.main,
         borderWidth: '3px',

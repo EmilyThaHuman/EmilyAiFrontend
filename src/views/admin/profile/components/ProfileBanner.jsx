@@ -1,6 +1,6 @@
 import { Box, CardContent, Typography } from '@mui/material';
 
-import { useMode } from 'hooks';
+import { useMode } from '@/hooks';
 
 import { AvatarWrapper, BannerImage, StyledCard } from './styled';
 

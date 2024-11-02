@@ -4,8 +4,8 @@ import { useAnimation } from 'framer-motion';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 
+import { useMode } from '@/hooks';
 import routes from '@/routes/index';
-import { useMode } from 'hooks';
 
 import { NavbarContainer } from './components';
 import { AdminHeaderLinks } from './links';

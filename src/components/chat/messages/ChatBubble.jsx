@@ -3,9 +3,8 @@ import { motion } from 'framer-motion';
 import React, { useEffect, useRef, useState } from 'react';
 import { FaUser } from 'react-icons/fa';
 
+import { useMode } from '@/hooks';
 import { AiIcon } from 'assets/humanIcons';
-import { useMode } from 'hooks';
-import { convertToMarkdown } from 'utils/format';
 
 import { ChatBubbleAvatarWrapper } from '../styled';
 import { MessageOptions } from './MessageOptions';

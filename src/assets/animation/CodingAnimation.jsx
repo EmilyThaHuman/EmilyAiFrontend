@@ -3,8 +3,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
+import { useMode } from '@/hooks';
 import { AspectRatioBox, StyledPaper } from 'components/index';
-import { useMode } from 'hooks';
 
 export function CodingAnimation() {
   const { theme } = useMode();
