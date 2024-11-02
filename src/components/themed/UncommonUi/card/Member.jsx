@@ -7,7 +7,7 @@ import {
   Typography,
 } from '@mui/material';
 
-import { useMode } from 'hooks';
+import { useMode } from '@/hooks';
 
 export const Member = props => {
   const { avatar, name, job, ...rest } = props;

@@ -24,6 +24,7 @@ import { useAppStore, useChatStore, useUserStore } from 'contexts/index'; // Con
 import { useMode } from 'hooks/app';
 
 const MotionDrawer = motion(Drawer);
+
 export const ChatLayout = () => {
   const { workspaceId, sessionId } = useParams();
   const navigate = useNavigate();

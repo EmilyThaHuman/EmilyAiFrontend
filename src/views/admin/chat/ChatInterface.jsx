@@ -3,10 +3,10 @@
 import { Box, CircularProgress } from '@mui/material';
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 
+import { useChatHandler, useMenu } from '@/hooks';
 import { MessageInput, MessageBox } from 'components/chat';
 import { CODE_PROMPT_OPTIONS } from 'config/data-configs';
 import { useChatStore } from 'contexts/ChatProvider';
-import { useChatHandler, useMenu } from 'hooks';
 import 'styles/ChatStyles.css';
 
 export const ChatInterface = ({ chatSession }) => {

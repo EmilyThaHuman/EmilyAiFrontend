@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ThreeDots } from 'react-loader-spinner';
 
-import { useMode } from 'hooks';
+import { useMode } from '@/hooks';
 
 export const ThreeDotsLoader = () => {
   const { theme } = useMode();

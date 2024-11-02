@@ -90,6 +90,30 @@ export const workspacesApi = {
       throw error;
     }
   },
+  // --- Presets service ---
+  getWorkspacePresets: async workspaceId => {
+    const validId = workspaceId
+      ? workspaceId
+      : sessionStorage.getItem('workspaceId');
+    try {
+      const data = await apiUtils.get(
+        `/chat/workspaces/${encodeURIComponent(validId)}/presets`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          params: {
+            userId: sessionStorage.getItem('userId'),
+            workspaceId: sessionStorage.getItem('workspaceId'),
+          },
+        }
+      );
+      return data;
+    } catch (error) {
+      console.error('Error fetching workspace presets:', error);
+      throw error;
+    }
+  },
   // --- Folders service ---
   createWorkspaceFolder: async folderData => {
     try {

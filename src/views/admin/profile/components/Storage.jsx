@@ -1,10 +1,10 @@
 import { Box, Card, LinearProgress, Typography } from '@mui/material';
 import { MdOutlineCloudDone } from 'react-icons/md';
 
+import { useMode } from '@/hooks';
 import IconBox from 'assets/humanIcons/utils/IconBox';
 import { MainMenu } from 'components/index';
 import configs from 'config/index';
-import { useMode } from 'hooks';
 
 export const Storage = props => {
   const { used, total, ...rest } = props;

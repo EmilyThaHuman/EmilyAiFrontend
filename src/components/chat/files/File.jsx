@@ -2,8 +2,8 @@ import { Box, IconButton, Typography } from '@mui/material';
 import React, { useCallback } from 'react';
 import { FiX } from 'react-icons/fi';
 
+import { useFileProcesser } from '@/hooks';
 import { FileIcon } from '@/lib/fileUtils';
-import { useFileProcesser } from 'hooks';
 
 export const File = React.memo(props => {
   const { file, hidden } = props;

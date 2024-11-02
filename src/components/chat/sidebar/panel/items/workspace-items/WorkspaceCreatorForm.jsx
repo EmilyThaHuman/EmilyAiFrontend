@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 
+import { useDialog } from '@/hooks';
 import { InfoOutlinedIcon, SettingsIcon } from 'assets/humanIcons';
 import { IconButtonWithTooltip } from 'components/compositions';
 import {
@@ -30,7 +31,6 @@ import {
 import { DEFAULT_APP_DATA } from 'config/app-data-configs';
 import { useChatStore } from 'contexts/ChatProvider';
 import { useUserStore } from 'contexts/UserProvider';
-import { useDialog } from 'hooks';
 import { useChatSessionHandler } from 'hooks/chat/useChatSessionHandler';
 
 import { PresetSelect } from '../preset-items';

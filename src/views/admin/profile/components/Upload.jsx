@@ -1,7 +1,7 @@
 import { Box, Button, Card, Typography } from '@mui/material';
 import { MdUpload } from 'react-icons/md';
 
-import { useMode } from 'hooks';
+import { useMode } from '@/hooks';
 
 import Dropzone from './Dropzone';
 

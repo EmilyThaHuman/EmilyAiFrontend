@@ -1,9 +1,9 @@
 import { Box, Typography } from '@mui/material';
 import React, { Suspense } from 'react';
 
+import { useMode } from '@/hooks';
 import { CustomLogoIcon } from 'assets/humanIcons/custom/custom-logo';
 import { LoadingIndicator, RCFlex } from 'components';
-import { useMode } from 'hooks';
 
 export const NavbarLogo = () => (
   <Suspense fallback={<LoadingIndicator />}>

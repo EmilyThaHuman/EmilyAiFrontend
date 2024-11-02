@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
-// src/variables/constants.js
 import { pdfjs } from 'react-pdf';
+
 export const constants = {
   // APP CONFIG
   API_URL: import.meta.env.VITE_API_URL,
@@ -101,4 +101,5 @@ export const constants = {
     ACTION_INVALID_URL: 'Invalid URL',
   },
 };
+
 export default constants;

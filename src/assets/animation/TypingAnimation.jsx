@@ -2,8 +2,8 @@
 import { Typography } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
 
+import { useMode } from '@/hooks';
 import { AspectRatioBox, StyledPaper } from 'components/index';
-import { useMode } from 'hooks';
 
 export function TypingAnimation() {
   const { theme } = useMode();

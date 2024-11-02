@@ -3,11 +3,11 @@ import React, { useRef, useState } from 'react';
 import { FiSettings } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
+import { useMenu, useMode } from '@/hooks';
 import { HomeIcon } from 'assets/humanIcons';
 import { PanelHeaderRow } from 'components/chat/styled';
 import { RCTabs, SelectMenu } from 'components/themed';
 import { useChatStore } from 'contexts';
-import { useMenu, useMode } from 'hooks';
 import { useTabManager } from 'hooks/chat/useTabManager';
 
 import { WorkspaceCreatorForm, WorkspaceFolders } from './items';

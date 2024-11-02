@@ -1,12 +1,12 @@
 import { Delete as IconTrash } from '@mui/icons-material'; // Material-UI icons
 import {
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-    Typography,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Typography,
 } from '@mui/material';
 import React, { useRef, useState } from 'react';
 

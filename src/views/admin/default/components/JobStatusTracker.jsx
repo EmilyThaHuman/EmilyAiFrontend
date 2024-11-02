@@ -21,11 +21,11 @@ import {
   useTable,
 } from 'react-table';
 
+import { useMode } from '@/hooks';
 import { CancelIcon, CheckCircleIcon } from 'assets/humanIcons';
 import { Card } from 'components/index';
 import MainMenu from 'components/themed/CommonUi/menu/MainMenu';
 import configs from 'config/index';
-import { useMode } from 'hooks';
 
 // ==============================|| DASHBOARD JOB TRACKER ||============================== //
 

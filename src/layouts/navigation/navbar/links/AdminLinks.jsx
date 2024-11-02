@@ -14,6 +14,7 @@ import React, { useEffect, useState } from 'react';
 import { MdInfoOutline, MdNotificationsNone } from 'react-icons/md';
 import { Form, Link, useNavigation } from 'react-router-dom';
 
+import { useMode } from '@/hooks';
 import routes from '@/routes/index';
 import {
   CheckCircleRoundedIcon,
@@ -26,7 +27,6 @@ import {
 } from 'assets/humanIcons';
 import { ReusableDropdownMenu, SearchBar } from 'components/themed';
 import { useUserStore } from 'contexts';
-import { useMode } from 'hooks';
 
 import { Sidebar } from '../../sidebar';
 

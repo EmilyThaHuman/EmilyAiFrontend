@@ -7,3 +7,4 @@ export * from './is';
 export * from './navigation';
 export * from './chat';
 export * from './routing';
+export * from './data';

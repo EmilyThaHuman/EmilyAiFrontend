@@ -1,5 +1,12 @@
 // settings.js
 import { apiUtils } from '@/lib/apiUtils';
+const baseUrl = '/chat';
+const baseUrlSpaceWithParams = params => baseUrl + `/${params}`;
+const COLLECTIONS = baseUrlSpaceWithParams('collections');
+const MODELS = baseUrlSpaceWithParams('models');
+const PROMPTS = baseUrlSpaceWithParams('prompts');
+const TOOLS = baseUrlSpaceWithParams('tools');
+const PRESETS = baseUrlSpaceWithParams('presets');
 
 export const settingsApi = {
   // Collections
@@ -50,6 +57,18 @@ export const settingsApi = {
   },
 
   // Models
+  getAllModelsByWorkspaceId: async workspaceId => {
+    try {
+      const data = await apiUtils.get(`/models?workspaceId=${workspaceId}`);
+      return data;
+    } catch (error) {
+      console.error(
+        `Error fetching models for workspace with id ${workspaceId}:`,
+        error
+      );
+      throw error;
+    }
+  },
   getAllModels: async () => {
     try {
       const data = await apiUtils.get('/models');
@@ -99,16 +118,30 @@ export const settingsApi = {
   // Presets
   getAllPresets: async () => {
     try {
-      const data = await apiUtils.get('/presets');
+      const data = await apiUtils.get(`${PRESETS}`);
       return data;
     } catch (error) {
       console.error('Error fetching presets:', error);
       throw error;
     }
   },
+  getAllPresetsByWorkspaceId: async workspaceId => {
+    try {
+      const data = await apiUtils.get(`${PRESETS}`, {
+        params: { workspaceId },
+      });
+      return data;
+    } catch (error) {
+      console.error(
+        `Error fetching presets for workspace with id ${workspaceId}:`,
+        error
+      );
+      throw error;
+    }
+  },
   getPresetById: async id => {
     try {
-      const data = await apiUtils.get(`/presets/${id}`);
+      const data = await apiUtils.get(`${PRESETS}/${id}`);
       return data;
     } catch (error) {
       console.error(`Error fetching preset with id ${id}:`, error);
@@ -117,7 +150,8 @@ export const settingsApi = {
   },
   createPreset: async presetData => {
     try {
-      const data = await apiUtils.post('/presets', presetData);
+      const data = await apiUtils.post(`${PRESETS}`, presetData);
+
       return data;
     } catch (error) {
       console.error('Error creating preset:', error);
@@ -126,7 +160,7 @@ export const settingsApi = {
   },
   updatePreset: async (id, presetData) => {
     try {
-      const data = await apiUtils.put(`/presets/${id}`, presetData);
+      const data = await apiUtils.put(`${PRESETS}/${id}`, presetData);
       return data;
     } catch (error) {
       console.error(`Error updating preset with id ${id}:`, error);
@@ -144,6 +178,18 @@ export const settingsApi = {
   },
 
   // Prompts
+  getAllPromptsByWorkspaceId: async workspaceId => {
+    try {
+      const data = await apiUtils.get(`${PROMPTS}/${workspaceId}`);
+      return data;
+    } catch (error) {
+      console.error(
+        `Error fetching prompts for workspace with id ${workspaceId}:`,
+        error
+      );
+      throw error;
+    }
+  },
   getPromptFiles: async () => {
     try {
       const response = await apiUtils.get('/chat/prompts?name=prompt_files');
@@ -258,6 +304,20 @@ export const settingsApi = {
   },
 
   // Tools
+  getAllToolsByWorkspaceId: async workspaceId => {
+    try {
+      const data = await apiUtils.get(`/tools`, {
+        params: { workspaceId },
+      });
+      return data;
+    } catch (error) {
+      console.error(
+        `Error fetching tools for workspace with id ${workspaceId}:`,
+        error
+      );
+      throw error;
+    }
+  },
   getToolFiles: async () => {
     try {
       const response = await apiUtils.get('/chat/tools?name=tool_files');

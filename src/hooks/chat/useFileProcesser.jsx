@@ -1,10 +1,11 @@
-import { toast } from '@/services/toastService';
 import mammoth from 'mammoth';
 import { useCallback, useRef, useState } from 'react';
 
+import { useTipTapEditor } from '@/hooks';
+import { toast } from '@/services/toastService';
 import constants from 'config/constants';
 import { useChatStore } from 'contexts';
-import { useTipTapEditor } from 'hooks';
+
 export const ACCEPTED_FILE_TYPES = [
   'text/csv',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',

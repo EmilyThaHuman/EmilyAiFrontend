@@ -2,11 +2,11 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-import Toast from './Toast';
+import { Toast } from './Toast';
 
 export const ToastViewport = () => {
   const toasts = useSelector(state => state.toast.toasts);
-
+  console.log('TOASTS', toasts);
   return (
     <>
       {toasts.map(toast => (

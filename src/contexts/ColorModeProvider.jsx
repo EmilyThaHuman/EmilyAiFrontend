@@ -9,12 +9,12 @@
 // import { ThemeProvider as StyledThemeProvider } from 'styled-components';
 
 // import { getTheme } from 'assets/theme';
-// import { useManageCookies } from 'hooks';
+// import { useManageCookies } from '@/hooks';
 
 // export const ColorModeContext = createContext({
 //   mode: 'dark',
 //   toggleColorMode: () => {},
-//   theme: getTheme('dark'),
+// theme: getTheme('dark'),
 // });
 
 // export const ColorModeProvider = ({ children }) => {
@@ -22,9 +22,9 @@
 //   const initialMode = getCookie('colorMode') || 'dark';
 //   const [mode, setMode] = useState(initialMode);
 
-//   useEffect(() => {
-//     addCookies('colorMode', mode, { path: '/' });
-//   }, [mode]);
+// useEffect(() => {
+//   addCookies('colorMode', mode, { path: '/' });
+// }, [mode]);
 
 //   const toggleColorMode = () => {
 //     const newMode = mode === 'dark' ? 'light' : 'dark';

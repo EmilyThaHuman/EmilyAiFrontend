@@ -1,7 +1,7 @@
 import { TextField, Box, Typography, CircularProgress } from '@mui/material';
-import { enqueueSnackbar } from 'notistack';
 import React, { useState, useCallback } from 'react';
 
+import { toast } from '@/services';
 import { userApi } from 'api/user';
 import { CancelIcon, CheckCircleIcon } from 'assets/humanIcons';
 
@@ -30,9 +30,7 @@ export const ProfileStep = ({
         const data = await userApi.checkUsernameAvailability(username);
         setUsernameAvailable(data.isAvailable);
       } catch (error) {
-        enqueueSnackbar('Error checking username availability', {
-          variant: 'error',
-        });
+        toast.error('Error checking username availability');
       } finally {
         setLoading(false);
       }

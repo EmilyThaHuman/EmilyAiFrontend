@@ -22,6 +22,7 @@ import {
 import { Fullscreen } from 'lucide-react';
 import React, { useState } from 'react';
 
+import { useDialog, useMenu, useMode } from '@/hooks';
 import routes from '@/routes/index';
 import {
   CodeIcon,
@@ -32,7 +33,6 @@ import {
   ShareIcon,
 } from 'assets/humanIcons';
 import { useChatStore } from 'contexts';
-import { useDialog, useMenu, useMode } from 'hooks';
 import { extractPaths, findBreadcrumbs } from 'utils/navigation';
 
 import { PresetSelect } from './sidebar/panel';
@@ -91,6 +91,8 @@ export const ChatHeader = props => {
   const shareDialog = useDialog();
   const chatPresetsDialog = useDialog();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const textColorPrimary = theme.palette.grey[100];
+  const textColorSecondary = theme.palette.grey[400];
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mobileMenu = useMenu();
   const pathName = window.location.pathname;
@@ -120,6 +122,7 @@ export const ChatHeader = props => {
     const preset = presets.find(p => p.name === selectedPresetName);
     setSelectedPreset(preset);
   };
+
   return (
     <>
       <CssBaseline />
@@ -154,9 +157,24 @@ export const ChatHeader = props => {
               flexDirection="column"
               alignItems="center"
               justifyContent="center"
+              overflow="ellipsis"
+              textOverflow="ellipsis"
+              whiteSpace="nowrap"
+              textAlign="start"
             >
-              <Typography variant="h4">{selectedWorkspace?.name}</Typography>
-              <Typography variant="body1" color="#1C1C1C">
+              <Typography
+                variant="h5"
+                color={textColorPrimary}
+                textAlign="start"
+              >
+                {selectedWorkspace?.name}
+              </Typography>
+              <Typography
+                variant="body2"
+                color={textColorSecondary}
+                textAlign="start"
+                sx={{ opacity: 0.7, overflow: 'ellipsis' }}
+              >
                 {header || 'Chat'}
               </Typography>
             </Box>

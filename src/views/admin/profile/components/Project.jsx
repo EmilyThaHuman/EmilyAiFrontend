@@ -1,8 +1,8 @@
 import { Box, IconButton, Link, Typography } from '@mui/material';
 
+import { useMode } from '@/hooks';
 import { EditIcon } from 'assets/humanIcons';
 import { Card } from 'components/index';
-import { useMode } from 'hooks';
 export const Project = props => {
   const { title, ranking, link, image, ...rest } = props;
   const { theme } = useMode();

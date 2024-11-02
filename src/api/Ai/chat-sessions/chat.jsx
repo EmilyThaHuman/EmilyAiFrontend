@@ -1,8 +1,8 @@
 /* eslint-disable no-constant-condition */
-import { toast } from '@/services/toastService';
 import { createParser } from 'eventsource-parser';
 
 import { apiUtils } from '@/lib/apiUtils';
+import { toast } from '@/services/toastService';
 
 export const chatApi = {
   getStreamCompletion: async function fetchMessageStream({

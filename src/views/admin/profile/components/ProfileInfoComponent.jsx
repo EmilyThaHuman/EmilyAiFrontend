@@ -7,10 +7,23 @@ import { StyledCard } from './styled';
 
 export const ProfileInfoComponent = ({ userData }) => {
   const { theme } = useMode();
+  const textColorPrimary = theme.palette.grey[900];
 
   return (
     <StyledCard className="profile-banner" theme={theme}>
       <CardContent>
+        <Typography
+          color={textColorPrimary}
+          fontWeight="bold"
+          fontSize="2xl"
+          mt={2}
+          mb={1}
+          textAlign="start"
+          mr={2}
+        >
+          General Information
+        </Typography>
+        <Divider />
         <Typography variant="h5" component="div" gutterBottom>
           {userData.name}
         </Typography>

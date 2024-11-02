@@ -9,7 +9,8 @@ export default {
       props: { variant: 'darkMode' },
       style: {
         margin: '10px 0',
-        color: '#3d3d3d',
+        color: '#fff',
+        // color: '#3d3d3d',
         '& label': { display: 'none' },
         '& .MuiOutlinedInput-root': {
           '& fieldset': {

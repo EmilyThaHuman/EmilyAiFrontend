@@ -1,18 +1,17 @@
 import {
   Box,
-  TextField,
   Button,
-  IconButton,
-  Modal,
-  Typography,
   Card,
+  IconButton,
   Link,
+  Modal,
+  TextField,
+  Typography,
 } from '@mui/material';
 import React, { useCallback } from 'react';
 import { MdLock } from 'react-icons/md';
 
-import { useUserStore } from 'contexts/UserProvider';
-import { useMode } from 'hooks';
+import { useMode } from '@/hooks';
 
 export const ApiModal = ({
   open = false,

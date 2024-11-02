@@ -16,6 +16,7 @@ import Scrollbars from 'react-custom-scrollbars-2';
 import { IoMenuOutline } from 'react-icons/io5';
 import { NavLink, useParams } from 'react-router-dom';
 
+import { useDisclosure, useMode } from '@/hooks';
 import {
   RCBox,
   RCFlex,
@@ -23,7 +24,6 @@ import {
   renderTrack,
   renderView,
 } from 'components';
-import { useDisclosure, useMode } from 'hooks';
 import { extractPaths } from 'utils';
 
 import { Brand } from './components';

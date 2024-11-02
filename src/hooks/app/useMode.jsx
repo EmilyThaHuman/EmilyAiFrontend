@@ -1,12 +1,13 @@
 import { useContext } from 'react';
 
 import { getTheme } from 'assets/theme';
-import { useColorMode } from 'contexts/CustomThemeProvider';
+import { ColorModeContext } from 'contexts/CustomThemeProvider';
 
 export const useMode = () => {
-  const themeStore = useColorMode();
-  const { mode, toggleColorMode } = themeStore;
-  // const { mode, toggleColorMode } = useContext(ColorModeContext);
+  // const themeStore = useColorMode();
+  // const { mode, toggleColorMode } = themeStore;
+  const { mode, toggleColorMode } = useContext(ColorModeContext);
+
   const theme = getTheme(mode);
 
   const validateColor = color => {

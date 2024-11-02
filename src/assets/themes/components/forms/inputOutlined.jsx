@@ -12,14 +12,10 @@ export default {
     root: {
       border: '1px solid #808080',
       '&:hover': {
-        // borderColor: action.dark.disabled,
-        // borderWidth: '3px',
         border: '1px solid #3d3d3d',
-        // boxShadow: `${alpha(action.dark.hover, 0.25)} 0 0 0 0.2rem !important`,
       },
       '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-        // borderColor: '#3d3d3d',
-        // boxShadow: `${alpha(info.main, 0.25)} 0 0 0 0.2rem !important`,
+        borderColor: '#3d3d3d',
       },
     },
     input: {

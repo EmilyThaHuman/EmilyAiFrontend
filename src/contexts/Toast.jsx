@@ -19,10 +19,6 @@ import { useDispatch } from 'react-redux';
 
 import { dismissToast, removeToast } from '@/store/Slices';
 
-const SlideTransition = props => {
-  return <Slide {...props} direction="up" />;
-};
-
 const severityIconMap = {
   success: CheckCircleIcon,
   info: InfoIcon,
@@ -71,6 +67,10 @@ export const Toast = ({
       autoHideDuration={5000}
       onClose={handleClose}
       onExited={handleExited}
+      TransitionComponent={Slide}
+      TransitionProps={{
+        timeout: 500,
+      }}
     >
       <StyledSnackbarContent
         severity={severity}

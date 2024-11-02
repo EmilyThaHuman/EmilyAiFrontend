@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { useMode } from 'hooks';
+import { useMode } from '@/hooks';
 
 import RCButtonRoot from './RCButtonRoot';
 

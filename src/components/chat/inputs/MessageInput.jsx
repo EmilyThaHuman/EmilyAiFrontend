@@ -5,16 +5,16 @@ import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
-import { SendIcon, StopCircleIcon } from 'assets/humanIcons';
-import { DarkIconBox } from 'assets/humanIcons/utils';
-import { useChatStore, useUserStore } from 'contexts';
 import {
   useChatHandler,
   useChatHistoryHandler,
   useDialog,
   useMode,
   useTipTapEditor,
-} from 'hooks';
+} from '@/hooks';
+import { SendIcon, StopCircleIcon } from 'assets/humanIcons';
+import { DarkIconBox } from 'assets/humanIcons/utils';
+import { useChatStore, useUserStore } from 'contexts';
 
 import { FileDisplay, FileUploadButton } from '../files';
 import {

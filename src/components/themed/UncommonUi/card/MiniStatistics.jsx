@@ -1,7 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import React from 'react';
 
-import { useMode } from 'hooks';
+import { useMode } from '@/hooks';
 
 export const MiniStatistics = props => {
   const { startContent, endContent, name, growth, value } = props;

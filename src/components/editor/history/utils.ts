@@ -1,4 +1,4 @@
-import { History, HistoryItem } from "./history_types";
+import { History, HistoryItem } from './history_types';
 
 export function extractHistoryTree(
   history: History,
@@ -11,7 +11,7 @@ export function extractHistoryTree(
     const item: HistoryItem = history[currentIndex];
 
     if (item) {
-      if (item.type === "ai_create") {
+      if (item.type === 'ai_create') {
         // Don't include the image for ai_create
         flatHistory.unshift(item.code);
       } else {
@@ -31,5 +31,5 @@ export function extractHistoryTree(
   return flatHistory;
 }
 
-const t = {}
+const t = {};
 export default t;

@@ -18,7 +18,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import PromptRecommend from 'assets/recommend.json';
 import { useChatStore } from 'contexts/ChatProvider';
 // import { usePromptStore } from 'contexts/PromptProvider';
-import { useMode } from 'hooks';
+import { useMode } from '@/hooks';
 import { isASCII } from 'utils/is';
 
 const StyledTextField = styled(TextField)({

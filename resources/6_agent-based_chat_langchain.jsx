@@ -10,28 +10,30 @@
 // 1. Import necessary modules for chat functionality and schema validation
 
 //   a. Import the DynamicTool and DynamicStructuredTool classes for creating custom tools
-import { DynamicTool, DynamicStructuredTool } from "langchain/tools";
+import { DynamicTool, DynamicStructuredTool } from 'langchain/tools';
 
 //  b. Import the ChatOpenAI class for using the OpenAI model in the chat
-import { ChatOpenAI } from "langchain/chat_models/openai";
+import { ChatOpenAI } from 'langchain/chat_models/openai';
 
 //  c. Import the initializeAgentExecutorWithOptions function for setting up the agent executor
-import { initializeAgentExecutorWithOptions } from "langchain/agents";
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { createToolCallingAgent } from 'langchain/agents';
+import { AgentExecutor } from 'langchain/agents';
 
 //  d. Import the WikipediaQueryRun class for fetching information from Wikipedia
-import { WikipediaQueryRun } from "langchain/tools";
+import { WikipediaQueryRun } from 'langchain/tools';
 
 //  e. Import the StreamingTextResponse class for streaming text responses
-import { StreamingTextResponse } from 'ai';
 
 //  f. Import the zod library for schema validation
 import * as z from 'zod';
+import { streamText } from 'ai';
 
 // 2. Specify the execution runtime as 'edge'
 export const runtime = 'edge';
 
 // 3. Define the POST method to handle incoming requests
-export async function POST(req: Request, res: Response) {
+export async function POST(req, res) {
   // 4. Extract message data from incoming request
   const { messages } = await req.json();
 
@@ -50,8 +52,8 @@ export async function POST(req: Request, res: Response) {
     description: 'returns the answer to what foo is',
     func: async () => {
       console.log('Triggered foo function');
-      return 'The value of food is "This is a demo for YouTube"'
-    }
+      return 'The value of food is "This is a demo for YouTube"';
+    },
   });
 
   // 8. Define a structured tool to fetch cryptocurrency prices from CoinGecko API
@@ -62,13 +64,18 @@ export async function POST(req: Request, res: Response) {
       cryptoName: z.string(),
       vsCurrency: z.string().optional().default('USD'),
     }),
-    func: async (options) => {
-      console.log('Triggered fetchCryptoPrice function with options: ', options);
+    func: async options => {
+      console.log(
+        'Triggered fetchCryptoPrice function with options: ',
+        options
+      );
       const { cryptoName, vsCurrency } = options;
       const url = `https://api.coingecko.com/api/v3/simple/price?ids=${cryptoName}&vs_currencies=${vsCurrency}`;
       const response = await fetch(url);
       const data = await response.json();
-      return data[cryptoName.toLowerCase()][vsCurrency.toLowerCase()].toString();
+      return data[cryptoName.toLowerCase()][
+        vsCurrency.toLowerCase()
+      ].toString();
     },
   });
 
@@ -76,8 +83,15 @@ export async function POST(req: Request, res: Response) {
   const tools = [wikipediaQuery, foo, fetchCryptoPrice];
 
   // 10. Initialize the agent executor, which will use the specified tools and model to process input
-  const executor = await initializeAgentExecutorWithOptions(tools, model, {
-    agentType: "openai-functions",
+  const agent = createToolCallingAgent({
+    llm: model,
+    tools,
+    prompt: new ChatPromptTemplate(),
+  });
+  const executor = AgentExecutor.fromAgentAndTools({
+    agent: async () => loadAgentFromLangchainHub(),
+    tools: [new SerpAPI(), new Calculator()],
+    returnIntermediateSteps: true,
   });
 
   // 11. Extract the most recent input message from the array of messages
@@ -87,20 +101,22 @@ export async function POST(req: Request, res: Response) {
   const result = await executor.run(input);
 
   // 13. Break the result into individual word chunks for streaming
-  const chunks = result.split(" ");
+  const chunks = result.split(' ');
 
   // 14. Define the streaming mechanism to send chunks of data to the client
   const responseStream = new ReadableStream({
     async start(controller) {
       for (const chunk of chunks) {
-        const bytes = new TextEncoder().encode(chunk + " ");
+        const bytes = new TextEncoder().encode(chunk + ' ');
         controller.enqueue(bytes);
-        await new Promise((r) => setTimeout(r, Math.floor(Math.random() * 20 + 10)));
+        await new Promise(r =>
+          setTimeout(r, Math.floor(Math.random() * 20 + 10))
+        );
       }
       controller.close();
     },
   });
 
   // 15. Send the created stream as a response to the client
-  return new StreamingTextResponse(responseStream)
+  return new streamText(responseStream);
 }

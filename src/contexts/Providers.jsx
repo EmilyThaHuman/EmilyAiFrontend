@@ -4,7 +4,6 @@ import * as providers from './index';
 
 const ProviderWrapper = ({ children }) => {
   const providerList = [
-    providers.CustomThemeProvider,
     providers.ErrorProvider,
     providers.ToastProvider,
     providers.AppProvider,

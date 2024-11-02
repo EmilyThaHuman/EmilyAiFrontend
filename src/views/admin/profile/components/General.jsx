@@ -1,7 +1,7 @@
 import { CardContent, Grid, Typography } from '@mui/material';
 
+import { useMode } from '@/hooks';
 import { Card } from 'components/index';
-import { useMode } from 'hooks';
 
 import Information from './Information';
 export const GeneralInformation = props => {

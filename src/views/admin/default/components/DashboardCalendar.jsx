@@ -2,9 +2,9 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { Box, CardContent, Typography } from '@mui/material';
 import React from 'react';
 
+import { useMode } from '@/hooks';
 import IconBox from 'assets/humanIcons/utils/IconBox';
 import { Card, MiniCalendar, PaperCard } from 'components';
-import { useMode } from 'hooks';
 import 'react-calendar/dist/Calendar.css';
 // import 'react-quill/dist/quill.snow.css';
 import 'styles/MiniCalendar.css';

@@ -28,7 +28,7 @@ export const StepContainer = ({
         width: 600,
         overflow: 'auto',
         backgroundColor: 'black',
-        color: 'white',
+        color: '#fff',
         p: 4,
         borderRadius: 2,
         maxWidth: 500,
