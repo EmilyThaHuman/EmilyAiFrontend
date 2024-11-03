@@ -5,7 +5,7 @@ import {
   MdOutlineSettings,
 } from 'react-icons/md';
 
-export const genericMenuItems = [
+export const DEFAULT_MENU_ITEMS = [
   {
     label: 'Panel 1',
     icon: MdOutlinePerson,
@@ -28,4 +28,4 @@ export const genericMenuItems = [
   },
 ];
 
-export default genericMenuItems;
+export default DEFAULT_MENU_ITEMS;

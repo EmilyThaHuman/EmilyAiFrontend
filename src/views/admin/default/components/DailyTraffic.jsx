@@ -7,14 +7,12 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import PropTypes from 'prop-types';
 import React from 'react';
 
 import BarChart from 'components/themed/CommonUi/charts/BarChart';
-import {
-  barChartDataDailyTraffic,
-  barChartOptionsDailyTraffic,
-} from 'config/data-configs/charts';
-export default function DailyTraffic(props) {
+
+export const DailyTraffic = props => {
   const { ...rest } = props;
   const theme = useTheme();
 
@@ -50,11 +48,17 @@ export default function DailyTraffic(props) {
         </Grid>
         <Box sx={{ height: 240, mt: 'auto' }}>
           <BarChart
-            chartData={barChartDataDailyTraffic}
-            chartOptions={barChartOptionsDailyTraffic}
+            chartData={props.data.data}
+            chartOptions={props.data.options}
           />
         </Box>
       </CardContent>
     </Card>
   );
-}
+};
+
+DailyTraffic.propTypes = {
+  data: PropTypes.object,
+};
+
+export default DailyTraffic;

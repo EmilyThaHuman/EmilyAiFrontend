@@ -1,7 +1,6 @@
 import { DEFAULT_APP_DATA } from './app-data-configs';
 import constants from './constants';
 import {
-  chartConfigs,
   componentConfig,
   programmingLanguages,
   statsConfig,
@@ -9,6 +8,8 @@ import {
   promptsConfig,
   genericMenuItems,
 } from './data-configs';
+import { DASHBOARD_CONFIGS } from './data-configs/dashboard';
+import DEFAULT_MENU_ITEMS from './data-configs/menu';
 import { authConfigs } from './form-configs';
 
 // src/variables/index.js
@@ -18,7 +19,6 @@ const constant = {
 };
 const data = {
   stats: statsConfig,
-  charts: chartConfigs,
   components: componentConfig,
   system: systemConfig,
   programmingLanguages: programmingLanguages,
@@ -27,14 +27,16 @@ const data = {
 const forms = {
   authConfigs: authConfigs,
 };
-const menus = {
-  genericMenuItems: genericMenuItems,
-};
 export const configs = {
   constant,
   data,
   forms,
-  menus,
+  ui: {
+    menu: DEFAULT_MENU_ITEMS,
+  },
+  page: {
+    dashboard: DASHBOARD_CONFIGS,
+  },
 };
 
 export default configs;

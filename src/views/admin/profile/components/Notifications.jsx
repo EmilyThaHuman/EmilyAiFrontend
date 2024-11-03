@@ -8,8 +8,8 @@ import {
 } from '@mui/material';
 import React from 'react';
 
+import DEFAULT_MENU_ITEMS from '@/config/data-configs/menu';
 import { MainMenu } from 'components/themed';
-import configs from 'config/index';
 
 export const Notifications = props => {
   return (
@@ -27,7 +27,7 @@ export const Notifications = props => {
           <Typography variant="h6" fontWeight="bold">
             Notifications
           </Typography>
-          <MainMenu items={configs.menus.genericMenuItems} />
+          <MainMenu items={DEFAULT_MENU_ITEMS} />
         </Box>
         {[
           {

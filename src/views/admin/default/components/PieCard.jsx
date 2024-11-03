@@ -9,12 +9,12 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import PropTypes from 'prop-types';
 import React from 'react';
 
 import PieChart from 'components/themed/CommonUi/charts/PieChart';
-import { pieChartData, pieChartOptions } from 'config/data-configs/charts';
 
-export default function PieCard(props) {
+export const PieCard = props => {
   const { ...rest } = props;
   const theme = useTheme();
 
@@ -48,8 +48,8 @@ export default function PieCard(props) {
         <PieChart
           height="100%"
           width="100%"
-          chartData={pieChartData}
-          chartOptions={pieChartOptions}
+          chartData={props.data.data}
+          chartOptions={props.data.options}
         />
 
         <Card sx={{ mt: 2, p: 2, boxShadow: theme.shadows[1] }}>
@@ -106,4 +106,10 @@ export default function PieCard(props) {
       </CardContent>
     </Card>
   );
-}
+};
+
+PieCard.propTypes = {
+  data: PropTypes.object,
+};
+
+export default PieCard;

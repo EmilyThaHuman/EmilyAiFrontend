@@ -8,8 +8,8 @@ import TestCard from './TestCard';
 
 export const Tests = () => {
   const chatTestDialog = useDialog();
-  const secondTestDialog = useDialog();
-  const thirdTestDialog = useDialog();
+  const reactAgentDialog = useDialog();
+  const fileTreeDialog = useDialog();
 
   return (
     <div>
