@@ -21,11 +21,11 @@ import {
   useTable,
 } from 'react-table';
 
+import DEFAULT_MENU_ITEMS from '@/config/data-configs/menu';
 import { useMode } from '@/hooks';
 import { CancelIcon, CheckCircleIcon } from 'assets/humanIcons';
 import { Card } from 'components/index';
 import MainMenu from 'components/themed/CommonUi/menu/MainMenu';
-import configs from 'config/index';
 
 // ==============================|| DASHBOARD JOB TRACKER ||============================== //
 
@@ -171,7 +171,7 @@ const JobStatusTracker = ({ tableData }) => {
         >
           Job Application Progress and Status Tracker
         </Typography>
-        <MainMenu items={configs.menus.genericMenuItems} />
+        <MainMenu items={DEFAULT_MENU_ITEMS} />
       </Box>
       {/* <RCBox theme={theme} variant="card">
         <Box display="flex" alignItems="center">

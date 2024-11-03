@@ -1,10 +1,10 @@
 import { Box, Card, LinearProgress, Typography } from '@mui/material';
 import { MdOutlineCloudDone } from 'react-icons/md';
 
+import DEFAULT_MENU_ITEMS from '@/config/data-configs/menu';
 import { useMode } from '@/hooks';
 import IconBox from 'assets/humanIcons/utils/IconBox';
 import { MainMenu } from 'components/index';
-import configs from 'config/index';
 
 export const Storage = props => {
   const { used, total, ...rest } = props;
@@ -22,7 +22,7 @@ export const Storage = props => {
       sx={{ mb: 2.5, p: 2.5, textAlign: 'center', minHeight: '100%' }}
     >
       <Box display="flex" width="100%" justifyContent="flex-end">
-        <MainMenu items={configs.menus.genericMenuItems} ms="auto" />
+        <MainMenu items={DEFAULT_MENU_ITEMS} ms="auto" />
       </Box>
       <IconBox
         mx="auto"

@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
-import { Box, Paper } from '@mui/material';
+import { Box, Paper, alpha } from '@mui/material';
+import { TreeItem, treeItemClasses } from '@mui/x-tree-view/TreeItem';
 import { styled } from 'styled-components';
-
 // --- MAIN UI COMPONENTS --- //
 const FlexBetween = styled(Box)({
   display: 'flex',
@@ -69,6 +69,32 @@ const AspectRatioBox = styled(Box)({
     margin: 'auto',
   },
 });
+export const FileTreeWidget = styled(TreeItem)(({ theme }) => ({
+  color: theme.palette.grey[800],
+  [`& .${treeItemClasses.content}`]: {
+    borderRadius: theme.spacing(0.5),
+    padding: theme.spacing(0.5, 1),
+    margin: theme.spacing(0.2, 0),
+    [`& .${treeItemClasses.label}`]: {
+      fontSize: '0.8rem',
+      fontWeight: 500,
+    },
+  },
+  [`& .${treeItemClasses.iconContainer}`]: {
+    borderRadius: '50%',
+    backgroundColor:
+      theme.palette.mode === 'light'
+        ? alpha(theme.palette.primary.main, 0.25)
+        : theme.palette.primary.dark,
+    color: theme.palette.mode === 'dark' && theme.palette.primary.contrastText,
+    padding: theme.spacing(0, 1.2),
+  },
+  [`& .${treeItemClasses.groupTransition}`]: {
+    marginLeft: 15,
+    paddingLeft: 18,
+    borderLeft: `1px dashed ${alpha(theme.palette.text.primary, 0.4)}`,
+  },
+}));
 
 export {
   StyledIconContainer,

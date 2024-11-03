@@ -33,6 +33,21 @@ export const metadata = {
   description: ' * insert description * ',
 };
 
+export const siteConfig = {
+  name: 'ReedAi',
+  url: 'http://localhost:3000',
+  ogImage: 'https://example.com/og-image.jpg',
+  description:
+    "Your AI React Component Assistant: ReedAi is a frontend development tool that helps you create React components using AI. It's a great tool for frontend developers who want to speed up their development process.",
+  links: {
+    twitter: 'https://twitter.com',
+    github: 'https://github.com',
+    cal: 'https://cal.com',
+    discord: 'https://discord.gg',
+  },
+  keywords: ['OpenAI', 'ChatGPT', 'GPT-3.5', 'GPT-4', 'Analytics'],
+};
+
 export const RouterLayout = () => {
   const navigation = useNavigation();
   const appContext = useAppStore();

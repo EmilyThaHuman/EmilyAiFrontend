@@ -6,15 +6,11 @@ import {
   Select,
   Typography,
 } from '@mui/material';
-import React from 'react';
+import PropTypes from 'prop-types';
 
 import BarChart from 'components/themed/CommonUi/charts/BarChart';
-import {
-  barChartDataDailyTraffic,
-  barChartOptionsDailyTraffic,
-} from 'config/data-configs';
 
-export default function UserActivity(props) {
+export const UserActivity = props => {
   return (
     <Card sx={{ width: '100%' }} {...props}>
       <CardContent>
@@ -36,11 +32,17 @@ export default function UserActivity(props) {
         </Box>
         <Box height="240px" mt="auto">
           <BarChart
-            chartData={barChartDataDailyTraffic}
-            chartOptions={barChartOptionsDailyTraffic}
+            chartData={props.data.data}
+            chartOptions={props.data.options}
           />
         </Box>
       </CardContent>
     </Card>
   );
-}
+};
+
+UserActivity.propTypes = {
+  data: PropTypes.object,
+};
+
+export default UserActivity;
