@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import { FiX } from 'react-icons/fi';
 
 import { useFileProcesser } from '@/hooks';
-import { FileIcon } from '@/lib/fileUtils';
+import { FileIcon } from '@/lib/utils/fileUtils';
 
 export const File = React.memo(props => {
   const { file, hidden } = props;

@@ -24,3 +24,5 @@ export const analyzeUserSentiment = async text => {
     return { error: 'Failed to analyze sentiment' };
   }
 };
+
+export default analyzeUserSentiment;

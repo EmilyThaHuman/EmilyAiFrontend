@@ -1,5 +1,6 @@
 import { Help, Info } from '@mui/icons-material';
 import {
+  alpha,
   Avatar,
   Box,
   Button,
@@ -8,16 +9,22 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  Portal,
+  useTheme,
 } from '@mui/material';
+import { MenuIcon } from 'lucide-react';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { MdInfoOutline, MdNotificationsNone } from 'react-icons/md';
 import { Form, Link, useNavigation } from 'react-router-dom';
 
+import { useSidebar } from '@/components/ui/sidebar';
 import { useMode } from '@/hooks';
+import AppSidebarV2 from '@/layouts/navigation/sidebar/app-sidebar';
 import routes from '@/routes/index';
 import {
   CheckCircleRoundedIcon,
+  CloseIcon,
   ExitToAppIcon,
   MailIcon,
   NotificationsActiveIcon,
@@ -28,7 +35,30 @@ import {
 import { ReusableDropdownMenu, SearchBar } from 'components/themed';
 import { useUserStore } from 'contexts';
 
-import { Sidebar } from '../../sidebar';
+// New reusable toggle button component
+export function SidebarToggleButton() {
+  const { open, toggleSidebar } = useSidebar();
+  const theme = useTheme();
+
+  return (
+    <IconButton
+      onClick={toggleSidebar}
+      aria-label={open ? 'Close sidebar' : 'Open sidebar'}
+      sx={{
+        color: theme.palette.text.secondary,
+        '&:hover': {
+          backgroundColor: alpha(theme.palette.primary.main, 0.08),
+        },
+      }}
+    >
+      {open ? (
+        <CloseIcon style={{ width: 20, height: 20 }} />
+      ) : (
+        <MenuIcon style={{ width: 20, height: 20 }} />
+      )}
+    </IconButton>
+  );
+}
 
 export const AdminHeaderLinks = props => {
   const { secondary } = props;
@@ -136,7 +166,13 @@ export const AdminHeaderLinks = props => {
           // bgColor: 'white',
         }}
       />
-      <Sidebar routes={routes} />
+      {/* --- Drawer Menu Button --- */}
+      <SidebarToggleButton />
+      <Portal>
+        <Box sx={{ display: { xs: 'flex', xl: 'none' }, alignItems: 'center' }}>
+          <AppSidebarV2 routes={routes} />
+        </Box>
+      </Portal>
       <ReusableDropdownMenu
         triggerIcon={<MdNotificationsNone style={{ color: grey[400] }} />}
         items={notificationsMenuItems}

@@ -1,9 +1,8 @@
 /* eslint-disable no-case-declarations */
-import path from 'path';
 
 import { Typography } from '@mui/material';
 
-import { getFileExtension } from '@/lib/fileUtils';
+import { getFileExtension } from '@/lib/utils/fileUtils';
 
 export function generateTempFileName(metadata) {
   const { fileSize, fileType, lastModified } = metadata;

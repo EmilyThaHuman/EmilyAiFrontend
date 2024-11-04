@@ -1,8 +1,7 @@
 // SidebarDataList.js
 import React, { useContext, useEffect, useRef, useState } from 'react';
 
-import { cn } from '@/lib/utils';
-
+import { useDragAndDrop } from '../archive/useDragAndDrop';
 import { Separator } from '../ui/separator';
 import { AssistantItem } from './items/assistants/assistant-item';
 import { ChatItem } from './items/chat/chat-item';
@@ -13,7 +12,6 @@ import { ModelItem } from './items/models/model-item';
 import { PresetItem } from './items/presets/preset-item';
 import { PromptItem } from './items/prompts/prompt-item';
 import { ToolItem } from './items/tools/tool-item';
-import { useDragAndDrop } from '../archive/useDragAndDrop';
 
 import { ChatbotUIContext } from '@/context/context';
 import { updateAssistant } from '@/db/assistants';

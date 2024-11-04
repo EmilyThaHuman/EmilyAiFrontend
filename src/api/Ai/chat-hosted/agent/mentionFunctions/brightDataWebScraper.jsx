@@ -105,3 +105,5 @@ export async function brightDataWebScraper(
     }
   }
 }
+
+export default brightDataWebScraper;

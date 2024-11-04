@@ -1,7 +1,16 @@
-import { alpha, Box, Grid, Icon, Paper, styled } from '@mui/material';
+import {
+  alpha,
+  Box,
+  Grid,
+  Icon,
+  Paper,
+  Typography,
+  Card,
+  CardContent,
+} from '@mui/material';
 import { RichTreeView } from '@mui/x-tree-view';
-import { TreeItem, treeItemClasses } from '@mui/x-tree-view/TreeItem';
 import { useEffect, useState } from 'react';
+import Chart from 'react-google-charts';
 import { MdAddChart, MdBarChart, MdFileCopy, MdMoney } from 'react-icons/md';
 import { useDispatch } from 'react-redux';
 
@@ -20,8 +29,7 @@ import ChatPromptDisplay from './components/ChatPromptDisplay';
 import DailyTraffic from './components/DailyTraffic';
 import { CalendarComponent } from './components/DashboardCalendar';
 import PieCard from './components/PieCard';
-import { Conversion } from './components/Tasks';
-import Chart from 'react-google-charts';
+import Tasks from './components/Tasks';
 
 // =========================================================
 // [DASHBOARD] | ...
@@ -68,32 +76,32 @@ export const MainDashboard = () => {
     initializeData();
   }, [space, initialItems, initialFolders, fetchItems, dispatch]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      // This example assumes you have an endpoint set up to pull Google Analytics data.
-      const response = await fetch('/api/analytics/sessions');
-      const sessionResult = await response.json();
-      setSessionData(sessionResult);
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     // This example assumes you have an endpoint set up to pull Google Analytics data.
+  //     const response = await fetch('/api/analytics/sessions');
+  //     const sessionResult = await response.json();
+  //     setSessionData(sessionResult);
 
-      const userResponse = await fetch('/api/analytics/users');
-      const userResult = await userResponse.json();
-      setUserData(userResult);
-    };
+  //     const userResponse = await fetch('/api/analytics/users');
+  //     const userResult = await userResponse.json();
+  //     setUserData(userResult);
+  //   };
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
-  const sessionOptions = {
-    title: 'User Sessions Over Time',
-    curveType: 'function',
-    legend: { position: 'bottom' },
-  };
+  // const sessionOptions = {
+  //   title: 'User Sessions Over Time',
+  //   curveType: 'function',
+  //   legend: { position: 'bottom' },
+  // };
 
-  const userOptions = {
-    title: 'Active Users',
-    pieHole: 0.4,
-    is3D: false,
-  };
+  // const userOptions = {
+  //   title: 'Active Users',
+  //   pieHole: 0.4,
+  //   is3D: false,
+  // };
 
   if (uiState.loading) return <Spinner />;
 
@@ -222,7 +230,7 @@ export const MainDashboard = () => {
       <Grid container spacing={3} mb={3}>
         <Grid item xs={12}>
           <Box sx={{ height: '100%' }}>
-            <ChatPromptDisplay promptData={validPrompts} />
+            {/* <ChatPromptDisplay promptData={validPrompts} /> */}
 
             {/* <RCBox variant="card"> */}
             {/* <JobStatusTracker tableData={careerTrackerTable} /> */}
@@ -235,7 +243,7 @@ export const MainDashboard = () => {
         <Grid item xs={12} md={6}>
           <Box sx={{ height: '100%' }}>
             <Box paddingTop={{ xs: '130px', md: '80px', xl: '80px' }}>
-              <Conversion />
+              <Tasks />
             </Box>
           </Box>
         </Grid>
@@ -283,20 +291,20 @@ export const MainDashboard = () => {
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          <ChartCard
+          {/* <ChartCard
             title="User Sessions"
             data={sessionData}
             options={sessionOptions}
             type="LineChart"
-          />
+          /> */}
         </Grid>
         <Grid item xs={12} md={6}>
-          <ChartCard
+          {/* <ChartCard
             title="User Distribution"
             data={userData}
             options={userOptions}
             type="PieChart"
-          />
+          /> */}
         </Grid>
       </Grid>
     </Box>

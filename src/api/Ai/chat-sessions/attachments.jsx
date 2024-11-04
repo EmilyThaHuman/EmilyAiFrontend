@@ -1,4 +1,4 @@
-import { apiUtils } from '@/lib/apiUtils';
+import { apiUtils } from '@/lib/utils/apiUtils';
 import { toast } from '@/services/toastService';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB size limit

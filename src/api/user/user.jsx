@@ -1,4 +1,4 @@
-import { apiUtils } from '@/lib/apiUtils';
+import { apiUtils } from '@/lib/utils/apiUtils';
 
 export const userApi = {
   getUserById: async id => {

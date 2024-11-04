@@ -9,7 +9,7 @@ import TestCard from './TestCard';
 export const Tests = () => {
   const chatTestDialog = useDialog();
   const reactAgentDialog = useDialog();
-  const fileTreeDialog = useDialog();
+  const artifactsChatDialog = useDialog();
 
   return (
     <div>
@@ -29,9 +29,9 @@ export const Tests = () => {
           title="Second Test"
           description="Description for the second test."
           state={{
-            open: secondTestDialog.open,
-            onOpen: secondTestDialog.handleOpen,
-            onClose: secondTestDialog.handleClose,
+            open: reactAgentDialog.open,
+            onOpen: reactAgentDialog.handleOpen,
+            onClose: reactAgentDialog.handleClose,
           }}
         />
         <TestCard
@@ -39,9 +39,9 @@ export const Tests = () => {
           title="Third Test"
           description="Description for the third test."
           state={{
-            open: thirdTestDialog.open,
-            onOpen: thirdTestDialog.handleOpen,
-            onClose: thirdTestDialog.handleClose,
+            open: artifactsChatDialog.open,
+            onOpen: artifactsChatDialog.handleOpen,
+            onClose: artifactsChatDialog.handleClose,
           }}
         />
       </div>
@@ -54,19 +54,19 @@ export const Tests = () => {
       )}
 
       {/* Dialogs for the second and third tests (placeholders) */}
-      {secondTestDialog.open && (
+      {reactAgentDialog.open && (
         <Dialog
-          open={secondTestDialog.open}
-          onClose={secondTestDialog.handleClose}
+          open={reactAgentDialog.open}
+          onClose={reactAgentDialog.handleClose}
         >
           {/* Content for the second test */}
           <div>Second Test Content</div>
         </Dialog>
       )}
-      {thirdTestDialog.open && (
+      {artifactsChatDialog.open && (
         <Dialog
-          open={thirdTestDialog.open}
-          onClose={thirdTestDialog.handleClose}
+          open={artifactsChatDialog.open}
+          onClose={artifactsChatDialog.handleClose}
         >
           {/* Content for the third test */}
           <div>Third Test Content</div>

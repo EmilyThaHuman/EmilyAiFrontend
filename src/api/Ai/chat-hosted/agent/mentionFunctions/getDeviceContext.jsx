@@ -14,3 +14,5 @@ export const getDeviceContext = async () => {
   };
   return context;
 };
+
+export default getDeviceContext;

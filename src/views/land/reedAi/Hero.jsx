@@ -106,7 +106,7 @@ export const Hero = () => {
     actions: { logout },
   } = useUserStore();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const routeData = analyzeRoutes(routes);
+  const { routeInfo, routeInfoMap } = analyzeRoutes(routes);
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -120,7 +120,7 @@ export const Hero = () => {
       handleClose();
     } else {
       setAnchorEl(event.currentTarget);
-      getInfoRef.current = routeData;
+      getInfoRef.current = routeInfo;
       setMenuVisible(true);
     }
   };
@@ -147,9 +147,9 @@ export const Hero = () => {
   }, [menuExpanded]);
 
   // Split routeData into two columns
-  const half = Math.ceil(routeData.length / 2);
-  const firstColumn = routeData.slice(0, half);
-  const secondColumn = routeData.slice(half);
+  const half = Math.ceil(routeInfo.length / 2);
+  const firstColumn = routeInfo.slice(0, half);
+  const secondColumn = routeInfo.slice(half);
 
   return (
     <div className="flex flex-col items-center justify-center text-center py-20">
@@ -265,7 +265,7 @@ export const Hero = () => {
                       margin: '8px',
                     }} // Adjust the flex basis to ensure wrapping
                   >
-                    <MenuItem component={NavLink} to={item.link}>
+                    <MenuItem component={NavLink} to={item.url}>
                       <ListItemIcon
                         sx={{
                           color:

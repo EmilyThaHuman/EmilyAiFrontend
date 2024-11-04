@@ -1,12 +1,7 @@
+// Import statements remain the same
 import { createBrowserHistory } from 'history';
 import React, { lazy, Suspense } from 'react';
-import {
-  createBrowserRouter,
-  Navigate,
-  redirect,
-  useNavigate,
-  useRouteError,
-} from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import {
   AdminPanelSettingsRoundedIcon,
@@ -69,270 +64,202 @@ customHistory.listen((location, action) => {
 });
 
 // =========================================================
-// Base Routes
+// Separate Configuration for Non-Router Data
 // =========================================================
-const baseRoutes = [
+const routeConfig = [
   {
-    name: 'Docs',
-    title: 'Docs',
-    path: '/land',
-    breadcrumb: 'Docs',
-    element: (
-      <Suspense fallback={<LoadingIndicator />}>
-        <BlankLayout />
-      </Suspense>
-    ),
-    errorElement: <ErrorElement />,
-    icon: <HomeIcon />,
-    collapse: true,
-    invisible: false,
-    items: ['Hero Docs'],
+    // Root Route Config
+    name: 'Root',
+    title: 'Root',
+    hide: true,
+    type: 'root',
     children: [
+      {},
+      // Base Routes Config
       {
-        index: true,
-        element: <Navigate to="/land/reedAi" />, // Fallback to Hero Docs
-      },
-      {
-        name: 'ReedAi',
-        title: 'ReedAi',
-        path: 'reedAi',
-        breadcrumb: 'ReedAi',
-        element: <ReedAiLanding />,
-        icon: <FolderRoundedIcon />,
-        invisible: false,
-        collapse: false,
-      },
-      {
-        name: 'TestAi',
-        title: 'TestAi',
-        path: 'testAi',
-        breadcrumb: 'TestAi',
-        element: <TestAiLanding />,
-        icon: <FolderRoundedIcon />,
-        invisible: false,
-        collapse: false,
-      },
-    ],
-  },
-];
-// =========================================================
-// Admin Routes
-// =========================================================
-const adminRoutes = [
-  {
-    name: 'Admin',
-    title: 'Admin',
-    path: '/admin',
-    breadcrumb: 'Admin',
-    element: (
-      <Suspense fallback={<LoadingIndicator />}>
-        <AdminLayout />
-      </Suspense>
-    ),
-    errorElement: <ErrorElement />,
-    icon: <AdminPanelSettingsRoundedIcon />,
-    collapse: true,
-    children: [
-      {
-        index: true,
-        element: <Navigate to="/admin/dashboard" />, // Fallback to Main Dashboard
-      },
-      {
-        index: true,
-        name: 'Main Dashboard',
-        title: 'MainDashboard',
-        path: 'dashboard',
-        breadcrumb: 'Main Dashboard',
-        element: <MainDashboard />,
-        icon: <DashboardIcon />,
-        description: 'Main Dashboard',
-        collapse: false,
-      },
-      {
-        name: 'Profile',
-        title: 'Profile',
-        path: 'profile',
-        breadcrumb: 'Profile',
-        element: <UserProfile />,
-        icon: <PersonIcon />,
-        collapse: false,
-      },
-      {
-        name: 'Workspace',
-        title: 'Workspace',
-        path: 'workspaces', // Dynamic route for workspaces
-        breadcrumb: 'Workspace',
-        element: (
-          <Suspense fallback={<LoadingIndicator />}>
-            <ChatLayout />
-          </Suspense>
-        ),
-        icon: <FolderRoundedIcon />,
+        name: 'Docs',
+        title: 'Docs',
+        breadcrumb: 'Docs',
+        icon: <HomeIcon />,
         collapse: true,
+        invisible: false,
+        items: ['Hero Docs'],
         children: [
+          {},
           {
-            index: true,
-            element: <Navigate to="/admin/workspaces/home" />, // Fallback to Workspace Home
-          },
-          {
-            name: 'Workspace Home',
-            title: 'WorkspaceHome',
-            path: 'home',
-            breadcrumb: 'Workspace Home',
-            element: (
-              <Suspense fallback={<LoadingIndicator />}>
-                <WorkspaceActive />
-              </Suspense>
-            ),
-            icon: <HomeIcon />,
-            description: 'Workspace Home',
-            loader: homeWorkspaceLoader,
+            name: 'ReedAi',
+            title: 'ReedAi',
+            breadcrumb: 'ReedAi',
+            icon: <FolderRoundedIcon />,
+            invisible: false,
             collapse: false,
           },
           {
-            name: 'Active Workspace',
-            title: 'ActiveWorkspace',
-            path: ':workspaceId',
-            breadcrumb: 'Active Workspace',
-            element: (
-              <Suspense fallback={<LoadingIndicator />}>
-                <WorkspaceActive />
-              </Suspense>
-            ),
-            icon: <HomeIcon />,
-            description: 'Active Workspace',
-            loader: workspaceLoader,
+            name: 'TestAi',
+            title: 'TestAi',
+            breadcrumb: 'TestAi',
+            icon: <FolderRoundedIcon />,
+            invisible: false,
+            collapse: false,
+          },
+        ],
+      },
+      // Admin Routes Config
+      {
+        name: 'Admin',
+        title: 'Admin',
+        breadcrumb: 'Admin',
+        icon: <AdminPanelSettingsRoundedIcon />,
+        collapse: true,
+        children: [
+          {},
+          {
+            name: 'Main Dashboard',
+            title: 'MainDashboard',
+            breadcrumb: 'Main Dashboard',
+            icon: <DashboardIcon />,
+            description: 'Main Dashboard',
+            collapse: false,
+          },
+          {
+            name: 'Profile',
+            title: 'Profile',
+            breadcrumb: 'Profile',
+            icon: <PersonIcon />,
+            collapse: false,
+          },
+          {
+            name: 'Workspace',
+            title: 'Workspace',
+            breadcrumb: 'Workspace',
+            icon: <FolderRoundedIcon />,
             collapse: true,
             children: [
-              // {
-              //   index: true,
-              //   element: <Navigate to="/admin/workspaces/:workspaceId/chat" />,
-              // },
+              {},
               {
-                name: 'Chat',
-                title: 'Chat',
-                path: 'chat',
-                breadcrumb: 'Chat',
-                element: (
-                  <Suspense fallback={<LoadingIndicator />}>
-                    <ChatDefault />
-                  </Suspense>
-                ),
-                icon: <AiIcon />,
+                name: 'Workspace Home',
+                title: 'WorkspaceHome',
+                breadcrumb: 'Workspace Home',
+                icon: <HomeIcon />,
+                description: 'Workspace Home',
+                collapse: false,
+              },
+              {
+                name: 'Active Workspace',
+                title: 'ActiveWorkspace',
+                breadcrumb: 'Active Workspace',
+                icon: <HomeIcon />,
+                description: 'Active Workspace',
                 collapse: true,
                 children: [
-                  // {
-                  //   index: true,
-                  //   element: (
-                  //     <Navigate to="/admin/workspaces/:workspaceId/chat/:sessionId" />
-                  //   ),
-                  // },
                   {
                     name: 'Chat',
                     title: 'Chat',
-                    path: 'default',
                     breadcrumb: 'Chat',
-                    element: (
-                      <Suspense fallback={<LoadingIndicator />}>
-                        <ChatDefault />
-                      </Suspense>
-                    ),
                     icon: <AiIcon />,
-                    description: 'Chat Home',
-                    collapse: false,
-                    loader: chatSessionLoader,
-                  },
-                  {
-                    name: 'Chat Session',
-                    title: 'ChatSession',
-                    path: ':sessionId', // Dynamic route for chat session
-                    breadcrumb: 'Chat Session',
-                    element: (
-                      <Suspense fallback={<LoadingIndicator />}>
-                        <ChatActive />
-                      </Suspense>
-                    ),
-                    icon: <DocumentScannerRoundedIcon />,
-                    description: 'Chat Sessions',
-                    collapse: false,
-                    loader: chatSessionLoader,
-                    // errorElement: (
-                    //   <Suspense fallback={<LoadingIndicator />}></Suspense>
-                    // ),
-                  },
-                  {
-                    name: 'New Chat',
-                    title: 'NewChat',
-                    path: 'new',
-                    breadcrumb: 'New Chat',
-                    element: (
-                      <Suspense fallback={<LoadingIndicator />}>
-                        <NewChat />
-                      </Suspense>
-                    ),
-                    action: createChatAction,
-                  },
-                  {
-                    name: 'Chat Mode',
-                    title: 'ChatMode',
-                    path: ':modeId', // Dynamic modeId route
-                    breadcrumb: 'Chat Mode',
-                    element: (
-                      <Suspense fallback={<LoadingIndicator />}>
-                        <ChatActive />
-                      </Suspense>
-                    ),
-                    icon: <AiIcon />, // Replace with appropriate icon if needed
-                    loader: async ({ params }) => {
-                      const { workspaceId, modeId } = params;
-                      // Optional: Add loader logic if necessary
-                      return { modeId };
-                    },
-                  },
-                  {
-                    name: 'Chat Test',
-                    title: 'ChatTest',
-                    path: 'test', // Static test route
-                    breadcrumb: 'Chat Test',
-                    element: (
-                      <Suspense fallback={<LoadingIndicator />}>
-                        <ChatActive />
-                      </Suspense>
-                    ),
-                    icon: <AiIcon />, // Replace with appropriate icon if needed
+                    collapse: true,
+                    children: [
+                      {
+                        name: 'Chat',
+                        title: 'Chat',
+                        breadcrumb: 'Chat',
+                        icon: <AiIcon />,
+                        description: 'Chat Home',
+                        collapse: false,
+                      },
+                      {
+                        name: 'Chat Session',
+                        title: 'ChatSession',
+                        breadcrumb: 'Chat Session',
+                        icon: <DocumentScannerRoundedIcon />,
+                        description: 'Chat Sessions',
+                        collapse: false,
+                      },
+                      {
+                        name: 'New Chat',
+                        title: 'NewChat',
+                        breadcrumb: 'New Chat',
+                      },
+                      {
+                        name: 'Chat Mode',
+                        title: 'ChatMode',
+                        breadcrumb: 'Chat Mode',
+                        icon: <AiIcon />,
+                      },
+                      {
+                        name: 'Chat Test',
+                        title: 'ChatTest',
+                        breadcrumb: 'Chat Test',
+                        icon: <AiIcon />,
+                      },
+                    ],
                   },
                 ],
               },
             ],
           },
+          {
+            name: 'CodeEditor',
+            title: 'CodeEditor',
+            breadcrumb: 'CodeEditor',
+            icon: <AiIcon />,
+            collapse: true,
+            children: [
+              {
+                name: 'CodeEditor Home',
+                title: 'CodeEditorHome',
+                breadcrumb: 'CodeEditor Home',
+                icon: <HomeIcon />,
+                description: 'Code Editor',
+                collapse: false,
+              },
+            ],
+          },
         ],
       },
+      // Auth Routes Config
       {
-        name: 'CodeEditor',
-        title: 'CodeEditor',
-        path: 'codeEditor',
-        breadcrumb: 'CodeEditor',
-        element: (
-          <Suspense fallback={<LoadingIndicator />}>
-            <BlankLayout />
-          </Suspense>
-        ),
-        icon: <AiIcon />,
+        name: 'Auth',
+        title: 'Auth',
+        breadcrumb: 'Auth',
+        icon: <LockIcon />,
         collapse: true,
+        type: 'layout',
         children: [
+          {},
           {
-            index: true,
-            name: 'CodeEditor Home',
-            title: 'CodeEditorHome',
-            path: 'codeEditor-home',
-            breadcrumb: 'CodeEditor Home',
-            element: (
-              <Suspense fallback={<LoadingIndicator />}>
-                <CodeEditor />
-              </Suspense>
-            ),
-            icon: <HomeIcon />,
-            description: 'Code Editor',
+            name: 'Auth Default',
+            title: 'Auth Default',
+            breadcrumb: 'Auth',
+            icon: <LockIcon />,
+            collapse: false,
+          },
+          {
+            name: 'Sign In',
+            title: 'SignIn',
+            breadcrumb: 'Sign In',
+            icon: <LockIcon />,
+            collapse: false,
+          },
+          {
+            name: 'Sign Up',
+            title: 'SignUp',
+            breadcrumb: 'Sign Up',
+            icon: <PersonAddIcon />,
+            collapse: false,
+          },
+          {
+            name: 'SetUp',
+            title: 'SetUp',
+            breadcrumb: 'SetUp',
+            icon: <PersonAddIcon />,
+            collapse: false,
+          },
+          {
+            name: 'Logout',
+            title: 'Logout',
+            breadcrumb: 'Logout',
+            icon: <PersonAddIcon />,
             collapse: false,
           },
         ],
@@ -340,119 +267,271 @@ const adminRoutes = [
     ],
   },
 ];
+
 // =========================================================
-// Auth Routes
+// Simplified Routes
 // =========================================================
-const authRoutes = [
+const routes = [
   {
-    type: 'layout',
-    name: 'Auth',
-    title: 'Auth',
-    path: '/auth',
-    breadcrumb: 'Auth',
-    element: (
-      <Suspense fallback={<LoadingIndicator />}>
-        <AuthLayout />
-      </Suspense>
-    ),
-    errorElement: <ErrorElement />,
-    icon: <LockIcon />,
-    collapse: true,
-    children: [
-      {
-        index: true,
-        element: <Navigate to="auth-default" replace />,
-      },
-      {
-        name: 'Auth Default',
-        title: 'Auth Default',
-        path: 'auth-default',
-        breadcrumb: 'Auth',
-        element: <AuthDefault />,
-        icon: <LockIcon />,
-        collapse: false,
-      },
-      {
-        name: 'Sign In',
-        title: 'SignIn',
-        path: 'sign-in',
-        breadcrumb: 'Sign In',
-        element: <SignInMain />,
-        icon: <LockIcon />,
-        collapse: false,
-        action: (token, userData) => {
-          console.log('AUTH_DATA', token, userData);
-          // localStorage.setItem('userToken', token);
-          localStorage.setItem('user', JSON.stringify(userData));
-          dispatch(setField({ field: 'isAuthenticated', value: true }));
-        },
-      },
-      {
-        name: 'Sign Up',
-        title: 'SignUp',
-        path: 'sign-up',
-        breadcrumb: 'Sign Up',
-        element: <SignUpMain />,
-        icon: <PersonAddIcon />,
-        collapse: false,
-        action: (token, userData) => {
-          console.log('AUTH_DATA', token, userData);
-          // localStorage.setItem('userToken', token);
-          localStorage.setItem('user', JSON.stringify(userData));
-          dispatch(setField({ field: 'isAuthenticated', value: true }));
-        },
-      },
-      {
-        name: 'SetUp',
-        title: 'SetUp',
-        path: 'setup',
-        breadcrumb: 'SetUp',
-        element: <SetUpMain />,
-        icon: <PersonAddIcon />,
-        collapse: false,
-      },
-      {
-        name: 'Logout',
-        title: 'Logout',
-        path: 'logout',
-        breadcrumb: 'Logout',
-        element: <Navigate to="/" />,
-        collapse: false,
-        icon: <PersonAddIcon />,
-        action: logoutAction,
-        // async action() {
-        //   console.log('Logging out');
-        //   return redirect('/');
-        // },
-      },
-    ],
-  },
-];
-// =========================================================
-// Root Routes
-// =========================================================
-const rootRoutes = [
-  {
-    type: 'root',
-    name: 'Root',
-    title: 'Root',
-    hide: true,
     path: '/',
     element: <RouterLayout />,
     errorElement: <ErrorElement />,
     children: [
       {
         index: true,
-        element: <Navigate to="/land/reedAi" />, // Redirect to '/land/heroDocs'
+        element: <Navigate to="/land/reedAi" />,
       },
-      ...baseRoutes,
-      ...adminRoutes,
-      ...authRoutes,
+      // Base Routes
+      {
+        path: '/land',
+        element: (
+          <Suspense fallback={<LoadingIndicator />}>
+            <BlankLayout />
+          </Suspense>
+        ),
+        errorElement: <ErrorElement />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="/land/reedAi" />,
+          },
+          {
+            path: 'reedAi',
+            element: <ReedAiLanding />,
+          },
+          {
+            path: 'testAi',
+            element: <TestAiLanding />,
+          },
+        ],
+      },
+      // Admin Routes
+      {
+        path: '/admin',
+        element: (
+          <Suspense fallback={<LoadingIndicator />}>
+            <AdminLayout />
+          </Suspense>
+        ),
+        errorElement: <ErrorElement />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="/admin/dashboard" />,
+          },
+          {
+            index: true,
+            path: 'dashboard',
+            element: <MainDashboard />,
+          },
+          {
+            path: 'profile',
+            element: <UserProfile />,
+          },
+          {
+            path: 'workspaces',
+            element: (
+              <Suspense fallback={<LoadingIndicator />}>
+                <ChatLayout />
+              </Suspense>
+            ),
+            children: [
+              {
+                index: true,
+                element: <Navigate to="/admin/workspaces/home" />,
+              },
+              {
+                path: 'home',
+                element: (
+                  <Suspense fallback={<LoadingIndicator />}>
+                    <WorkspaceActive />
+                  </Suspense>
+                ),
+                loader: homeWorkspaceLoader,
+              },
+              {
+                path: ':workspaceId',
+                element: (
+                  <Suspense fallback={<LoadingIndicator />}>
+                    <WorkspaceActive />
+                  </Suspense>
+                ),
+                loader: workspaceLoader,
+                children: [
+                  {
+                    path: 'chat',
+                    element: (
+                      <Suspense fallback={<LoadingIndicator />}>
+                        <ChatDefault />
+                      </Suspense>
+                    ),
+                    children: [
+                      {
+                        path: 'default',
+                        element: (
+                          <Suspense fallback={<LoadingIndicator />}>
+                            <ChatDefault />
+                          </Suspense>
+                        ),
+                        loader: chatSessionLoader,
+                      },
+                      {
+                        path: ':sessionId',
+                        element: (
+                          <Suspense fallback={<LoadingIndicator />}>
+                            <ChatActive />
+                          </Suspense>
+                        ),
+                        loader: chatSessionLoader,
+                      },
+                      {
+                        path: 'new',
+                        element: (
+                          <Suspense fallback={<LoadingIndicator />}>
+                            <NewChat />
+                          </Suspense>
+                        ),
+                        action: createChatAction,
+                      },
+                      {
+                        path: ':modeId',
+                        element: (
+                          <Suspense fallback={<LoadingIndicator />}>
+                            <ChatActive />
+                          </Suspense>
+                        ),
+                        loader: async ({ params }) => {
+                          const { workspaceId, modeId } = params;
+                          return { modeId };
+                        },
+                      },
+                      {
+                        path: 'test',
+                        element: (
+                          <Suspense fallback={<LoadingIndicator />}>
+                            <ChatActive />
+                          </Suspense>
+                        ),
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            path: 'codeEditor',
+            element: (
+              <Suspense fallback={<LoadingIndicator />}>
+                <BlankLayout />
+              </Suspense>
+            ),
+            children: [
+              {
+                index: true,
+                path: 'codeEditor-home',
+                element: (
+                  <Suspense fallback={<LoadingIndicator />}>
+                    <CodeEditor />
+                  </Suspense>
+                ),
+              },
+            ],
+          },
+        ],
+      },
+      // Auth Routes
+      {
+        path: '/auth',
+        element: (
+          <Suspense fallback={<LoadingIndicator />}>
+            <AuthLayout />
+          </Suspense>
+        ),
+        errorElement: <ErrorElement />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="auth-default" replace />,
+          },
+          {
+            path: 'auth-default',
+            element: <AuthDefault />,
+          },
+          {
+            path: 'sign-in',
+            element: <SignInMain />,
+            action: (token, userData) => {
+              console.log('AUTH_DATA', token, userData);
+              localStorage.setItem('user', JSON.stringify(userData));
+              dispatch(setField({ field: 'isAuthenticated', value: true }));
+            },
+          },
+          {
+            path: 'sign-up',
+            element: <SignUpMain />,
+            action: (token, userData) => {
+              console.log('AUTH_DATA', token, userData);
+              localStorage.setItem('user', JSON.stringify(userData));
+              dispatch(setField({ field: 'isAuthenticated', value: true }));
+            },
+          },
+          {
+            path: 'setup',
+            element: <SetUpMain />,
+          },
+          {
+            path: 'logout',
+            element: <Navigate to="/" />,
+            action: logoutAction,
+          },
+        ],
+      },
     ],
   },
 ];
-const routes = [...rootRoutes];
 
-export const Router = createBrowserRouter(routes, { history: customHistory });
+// =========================================================
+// Function to Merge Route Configurations
+// =========================================================
+const applyRouteConfig = (routes, config) => {
+  const nonRouterKeys = [
+    'name',
+    'title',
+    'breadcrumb',
+    'icon',
+    'collapse',
+    'invisible',
+    'description',
+    'items',
+    'hide',
+    'type',
+  ];
 
-export default routes;
+  const mergeConfigs = (routesArray, configArray) => {
+    return routesArray.map((route, index) => {
+      const routeConfig = configArray[index] || {};
+      nonRouterKeys.forEach(key => {
+        if (routeConfig[key] !== undefined) {
+          route[key] = routeConfig[key];
+        }
+      });
+      if (route.children && routeConfig.children) {
+        route.children = mergeConfigs(route.children, routeConfig.children);
+      }
+      return route;
+    });
+  };
+
+  return mergeConfigs(routes, config);
+};
+
+// Apply the configuration to the simplified routes
+const routesData = applyRouteConfig(routes, routeConfig);
+
+// Export the router
+export const Router = createBrowserRouter(routesData, {
+  history: customHistory,
+});
+
+export default routesData;

@@ -1,0 +1,105 @@
+/* Sidebar theme overrides */
+.sidebar {
+  --sidebar-background: 0 0% 0%;
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-primary: 0 0% 100%;
+  --sidebar-primary-foreground: 0 0% 0%;
+  --sidebar-accent: 0 0% 15%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 0 0% 20%;
+  --sidebar-ring: 0 0% 80%;
+  --sidebar-muted: 0 0% 40%;
+}
+
+/* Sidebar base styles */
+.sidebar {
+  background-color: hsl(var(--sidebar-background));
+  color: hsl(var(--sidebar-foreground));
+  border-right: 1px solid hsl(var(--sidebar-border));
+}
+
+/* Sidebar header */
+.sidebar [data-sidebar='header'] {
+  border-bottom: 1px solid hsl(var(--sidebar-border));
+}
+
+/* Sidebar menu items */
+.sidebar [data-sidebar='menu-button'] {
+  color: hsl(var(--sidebar-foreground));
+}
+
+.sidebar [data-sidebar='menu-button']:hover {
+  background-color: hsl(var(--sidebar-accent));
+  color: hsl(var(--sidebar-accent-foreground));
+}
+
+.sidebar [data-sidebar='menu-button'][data-active='true'] {
+  background-color: hsl(var(--sidebar-accent));
+  color: hsl(var(--sidebar-accent-foreground));
+}
+
+/* Sidebar group labels */
+.sidebar [data-sidebar='group-label'] {
+  color: hsl(var(--sidebar-muted));
+}
+
+/* Sidebar footer */
+.sidebar [data-sidebar='footer'] {
+  border-top: 1px solid hsl(var(--sidebar-border));
+}
+
+/* Sidebar dropdown menus */
+.sidebar .dropdown-menu {
+  background-color: hsl(var(--sidebar-background));
+  border: 1px solid hsl(var(--sidebar-border));
+}
+
+.sidebar .dropdown-menu-item {
+  color: hsl(var(--sidebar-foreground));
+}
+
+.sidebar .dropdown-menu-item:hover {
+  background-color: hsl(var(--sidebar-accent));
+  color: hsl(var(--sidebar-accent-foreground));
+}
+
+/* Sidebar icons */
+.sidebar svg {
+  color: hsl(var(--sidebar-muted));
+}
+
+/* Sidebar scrollbar */
+.sidebar ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar ::-webkit-scrollbar-track {
+  background: hsl(var(--sidebar-background));
+}
+
+.sidebar ::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--sidebar-muted));
+  border-radius: 4px;
+}
+
+.sidebar ::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--sidebar-foreground));
+}
+
+/* Sidebar toggle button */
+.sidebar-toggle-button {
+  background-color: hsl(var(--sidebar-background));
+  color: hsl(var(--sidebar-foreground));
+  border: 1px solid hsl(var(--sidebar-border));
+}
+
+.sidebar-toggle-button:hover {
+  background-color: hsl(var(--sidebar-accent));
+  color: hsl(var(--sidebar-accent-foreground));
+}
+
+/* Ensure sidebar transitions smoothly */
+.sidebar,
+.sidebar * {
+  transition: all 0.3s ease-in-out;
+}

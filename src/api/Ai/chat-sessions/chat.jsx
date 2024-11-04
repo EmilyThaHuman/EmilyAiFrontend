@@ -1,7 +1,7 @@
 /* eslint-disable no-constant-condition */
 import { createParser } from 'eventsource-parser';
 
-import { apiUtils } from '@/lib/apiUtils';
+import { apiUtils } from '@/lib/utils/apiUtils';
 import { toast } from '@/services/toastService';
 
 export const chatApi = {

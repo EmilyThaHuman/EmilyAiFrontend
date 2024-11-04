@@ -19,8 +19,8 @@ import React, {
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 
 import { SidebarContent, SidebarTabs } from 'components';
-import { SIDEBAR_CONFIG } from 'config/data-configs/sidebar'; // Move sidebar configuration to separate file
-import { useAppStore, useChatStore, useUserStore } from 'contexts/index'; // Consolidated imports
+import { SIDEBAR_CONFIG } from 'config/data-configs/sidebar';
+import { useAppStore, useChatStore, useUserStore } from 'contexts/index';
 import { useMode } from 'hooks/app';
 
 const MotionDrawer = motion(Drawer);

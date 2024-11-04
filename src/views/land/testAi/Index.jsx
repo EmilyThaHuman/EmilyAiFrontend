@@ -1,7 +1,7 @@
 import { Header } from './Header';
 import { Hero } from './Hero';
 import { Tests } from './Tests';
-import '../../../../index.css';
+import '@/app/globals.css';
 
 export const TestAi = () => {
   return (

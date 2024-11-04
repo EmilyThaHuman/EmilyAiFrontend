@@ -28,3 +28,5 @@ export const generateRecommendations = async (
     return { error: 'Failed to generate recommendations' };
   }
 };
+
+export default generateRecommendations;

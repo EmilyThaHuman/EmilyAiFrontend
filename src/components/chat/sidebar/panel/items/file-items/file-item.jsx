@@ -3,7 +3,7 @@ import InputLabel from '@mui/material/InputLabel';
 import TextField from '@mui/material/TextField';
 import React, { useState } from 'react';
 
-import { FileIcon } from '@/lib/fileUtils';
+import { FileIcon } from '@/lib/utils/fileUtils';
 import constants from 'config';
 
 import SidebarItem from '../REVIEW/sidebar-display-item';

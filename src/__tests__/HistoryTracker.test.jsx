@@ -1,6 +1,6 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { HistoryTracker } from '../components/HistoryTracker';
+import React from 'react';
+import { HistoryTracker } from '../routes/components/HistoryTracker';
 
 test('renders HistoryTracker component', () => {
   render(<HistoryTracker />);

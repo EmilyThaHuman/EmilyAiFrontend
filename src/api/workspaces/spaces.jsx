@@ -1,4 +1,4 @@
-import { apiUtils } from '@/lib/apiUtils';
+import { apiUtils } from '@/lib/utils/apiUtils';
 const baseUrl = '/chat/workspaces';
 const baseUrlSpaceWithParams = params => baseUrl + `/${params}`;
 const baseUrlSpace = () =>

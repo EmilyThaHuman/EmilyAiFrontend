@@ -1,6 +1,6 @@
 import Portkey from 'portkey-ai';
 
-import { REACT_AGENT_CONFIG } from '@/config/data-configs/agent';
+import { REACT_AGENT_CONFIG } from '@/config/ai/agent';
 
 export async function portKeyAIGatewayTogetherAI(
   mentionTool,
@@ -45,3 +45,5 @@ export async function portKeyAIGatewayTogetherAI(
   }
   return;
 }
+
+export default portKeyAIGatewayTogetherAI;

@@ -26,7 +26,8 @@ import { useMode } from 'hooks';
 
 // ==============================|| CHAT PROMPT DISPLAY ||============================== //
 
-const ChatPromptDisplay = ({ promptData }) => {
+const ChatPromptDisplay = props => {
+  const { promptData } = props;
   const columns = useMemo(
     () => [
       { Header: 'Name', accessor: 'name' },

@@ -1,6 +1,5 @@
 // client/src/contexts/ErrorContext.js
-import { Snackbar, Alert } from '@mui/material';
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext } from 'react';
 
 import { useToastStore } from './ToastProvider';
 

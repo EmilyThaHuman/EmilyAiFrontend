@@ -13,3 +13,10 @@ export const compareDataSets = data => {
 export const generatePredictions = data => {
   return { predictions: [], confidence: 0.75, factors: [] };
 };
+
+export default {
+  calculateStatistics,
+  analyzeTrends,
+  compareDataSets,
+  generatePredictions,
+};

@@ -53,3 +53,5 @@ export const searchKnowledgeBase = async (query, category = 'general') => {
       item.content.toLowerCase().includes(query.toLowerCase())
   );
 };
+
+export default searchKnowledgeBase;

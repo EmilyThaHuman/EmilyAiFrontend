@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-import { apiUtils } from '@/lib/apiUtils';
+import { apiUtils } from '@/lib/utils/apiUtils';
 
 export const staticDataApi = {
   getProfileImage: async imgWithExt => {

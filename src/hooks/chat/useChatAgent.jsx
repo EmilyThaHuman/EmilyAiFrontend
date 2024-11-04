@@ -1,7 +1,8 @@
 import { useChat } from 'ai/react';
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
-import { analyzeUserSentiment, getDeviceContext } from './tools';
+import { analyzeUserSentiment } from '@/api/Ai/chat-hosted/agent/mentionFunctions/analyzeUserSentiment';
+import { getDeviceContext } from '@/api/Ai/chat-hosted/agent/mentionFunctions/getDeviceContext';
 
 const useChatAgent = () => {
   const [response, setResponse] = useState('');

@@ -1,5 +1,5 @@
 // settings.js
-import { apiUtils } from '@/lib/apiUtils';
+import { apiUtils } from '@/lib/utils/apiUtils';
 const baseUrl = '/chat';
 const baseUrlSpaceWithParams = params => baseUrl + `/${params}`;
 const COLLECTIONS = baseUrlSpaceWithParams('collections');

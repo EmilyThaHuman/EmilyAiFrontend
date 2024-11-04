@@ -17,7 +17,7 @@ import IconBox from 'assets/humanIcons/utils/IconBox';
 import { Card, PaperCard } from 'components/index';
 import Menu from 'components/themed/CommonUi/menu/MainMenu.jsx';
 
-export const Tasks = () => {
+export const Tasks = props => {
   const { theme } = useMode();
   const textColor = '#1B2559';
   const boxBg = '#F4F7FE';

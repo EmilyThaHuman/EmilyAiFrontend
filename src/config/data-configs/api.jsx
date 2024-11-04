@@ -25,7 +25,7 @@ const error500Props = {
   subTextA: 'Routing Error: ',
   subTextB: ' ~ insert error details here ~ ',
 };
-export const errorProps = {
+export const ERROR_PROPS = {
   errorTypes: {
     404: error404Props,
     500: error500Props,

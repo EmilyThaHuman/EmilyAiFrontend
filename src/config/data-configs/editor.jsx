@@ -8,6 +8,32 @@ export const LANGUAGE_VERSIONS = {
   php: '8.2.3',
 };
 
+export const PROGRAMMING_LANGUAGES = {
+  javascript: '.js',
+  python: '.py',
+  java: '.java',
+  c: '.c',
+  cpp: '.cpp',
+  'c++': '.cpp',
+  'c#': '.cs',
+  ruby: '.rb',
+  php: '.php',
+  swift: '.swift',
+  'objective-c': '.m',
+  kotlin: '.kt',
+  typescript: '.ts',
+  go: '.go',
+  perl: '.pl',
+  rust: '.rs',
+  scala: '.scala',
+  haskell: '.hs',
+  lua: '.lua',
+  shell: '.sh',
+  sql: '.sql',
+  html: '.html',
+  css: '.css',
+};
+
 export const CODE_SNIPPETS = {
   javascript: `\nfunction greet(name) {\n\tconsole.log("Hello, " + name + "!");\n}\n\ngreet("Alex");\n`,
   typescript: `\ntype Params = {\n\tname: string;\n}\n\nfunction greet(data: Params) {\n\tconsole.log("Hello, " + data.name + "!");\n}\n\ngreet({ name: "Alex" });\n`,

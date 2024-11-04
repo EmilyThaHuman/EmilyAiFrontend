@@ -1,7 +1,7 @@
 import { Features } from './Features';
 import { Header } from './Header';
 import { Hero } from './Hero';
-import '../../../../index.css';
+import '@/app/globals.css';
 
 export const ReedAi = () => {
   return (

@@ -18,9 +18,9 @@ import {
 import { useState, useEffect, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import DEFAULT_MENU_ITEMS from '@/config/data-configs/menu';
 import { banner } from 'assets/img/auth';
 import { MainMenu } from 'components';
-import DEFAULT_MENU_ITEMS from '@/config/data-configs/menu';
 import { useUserStore } from 'contexts/UserProvider';
 
 import {

@@ -128,11 +128,14 @@ export default defineConfig(({ mode }) => {
       alias: createAliases(path.resolve(__dirname, 'src'), DIRECTORIES),
     },
     define: {
-      ...Object.fromEntries(
-        Object.entries(env).map(([key, value]) => [
-          `process.env.${key}`,
-          JSON.stringify(value),
-        ])
+      // Modified define configuration
+      'process.env': Object.fromEntries(
+        Object.entries(env)
+          .filter(([key]) => {
+            // Filter out problematic environment variables
+            return !key.includes('(') && !key.includes(')');
+          })
+          .map(([key, value]) => [key, JSON.stringify(value)])
       ),
     },
     build: {
@@ -142,6 +145,11 @@ export default defineConfig(({ mode }) => {
       sourcemap: isDev,
       minify: !isDev,
       chunkSizeWarningLimit: 1000, // Increased from default
+      // Add these options
+      commonjsOptions: {
+        transformMixedEsModules: true,
+      },
+      target: 'es2015',
     },
     server: {
       port: 3000,
@@ -160,6 +168,10 @@ export default defineConfig(({ mode }) => {
     },
     optimizeDeps: {
       include: ['react', 'react-dom'],
+    },
+    // Add esbuild options
+    esbuild: {
+      logOverride: { 'this-is-undefined-in-esm': 'silent' },
     },
   };
 });

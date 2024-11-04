@@ -1,17 +1,18 @@
+export * from './ToastProvider';
 export * from './AppProvider';
 export * from './ChatProvider';
-// export * from './ColorModeProvider';
-export * from './Providers';
-export * from './SidebarProvider';
-export * from './UserProvider';
-export * from './ToastProvider';
+export * from './CustomThemeProvider';
 export * from './ErrorProvider';
 export * from './LoadingProvider';
-export * from './CustomThemeProvider';
+export * from './Providers';
+export * from './SupabaseChatProvider';
+export * from './UserProvider';
+export * from './EditorProvider';
 
 import { useAppStore } from './AppProvider';
 import { useChatStore } from './ChatProvider';
 import { useColorMode } from './CustomThemeProvider';
+import { useEditorStore } from './EditorProvider';
 import { useErrorStore } from './ErrorProvider';
 import { useLoadingStore } from './LoadingProvider';
 import { useToastStore } from './ToastProvider';
@@ -25,4 +26,5 @@ export default {
   useColorMode,
   useErrorStore,
   useLoadingStore,
+  useEditorStore,
 };

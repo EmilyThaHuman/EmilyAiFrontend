@@ -1,6 +1,6 @@
 import Portkey from 'portkey-ai';
 
-import { REACT_AGENT_CONFIG } from '@/config/data-configs/agent';
+import { REACT_AGENT_CONFIG } from '@/config/ai/agent';
 
 export async function portKeyAIGateway(mentionTool, userMessage, streamable) {
   if (REACT_AGENT_CONFIG.usePortkey) {
@@ -41,3 +41,5 @@ export async function portKeyAIGateway(mentionTool, userMessage, streamable) {
   }
   return;
 }
+
+export default portKeyAIGateway;

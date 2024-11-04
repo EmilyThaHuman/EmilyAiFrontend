@@ -3,7 +3,7 @@ import { styled } from '@mui/system';
 import * as React from 'react';
 
 // Utility function to combine class names
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/styleUtils';
 
 // Define custom styled components for the Tooltip content
 const CustomTooltip = styled(({ className, ...props }) => (

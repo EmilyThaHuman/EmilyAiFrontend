@@ -1,10 +1,10 @@
 import { OllamaEmbeddings } from '@langchain/community/embeddings/ollama';
 import { OpenAIEmbeddings } from '@langchain/openai';
-import cheerio from 'cheerio';
+import { Cheerio } from 'cheerio';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { MemoryVectorStore } from 'langchain/vectorstores/memory';
 
-import { REACT_AGENT_CONFIG } from '@/config/data-configs/agent';
+import { REACT_AGENT_CONFIG } from '@/config/ai/agent';
 
 let embeddings;
 if (REACT_AGENT_CONFIG.useOllamaEmbeddings) {
@@ -40,7 +40,7 @@ export async function get10BlueLinksContents(sources) {
 
   function extractMainContent(html) {
     try {
-      const $ = cheerio.load(html);
+      const $ = Cheerio.load(html);
       $('script, style, head, nav, footer, iframe, img').remove();
       return $('body').text().replace(/\s+/g, ' ').trim();
     } catch (error) {

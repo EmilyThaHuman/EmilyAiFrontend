@@ -1,5 +1,4 @@
 // Importing actions from profileSlice
-import apiReducer, { logApiRequest } from './apiSlice';
 import appReducer, {
   setSidebarOpen,
   setTheme,
@@ -13,7 +12,6 @@ import toastReducer, {
 } from './toastSlice';
 
 export {
-  logApiRequest,
   setSidebarOpen,
   setTheme,
   setPageLoading,
@@ -23,4 +21,4 @@ export {
   removeToast,
 };
 
-export { apiReducer, appReducer, toastReducer };
+export { appReducer, toastReducer };

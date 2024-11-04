@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect } from 'react';
 import { Outlet, useLocation, useNavigation } from 'react-router-dom';
 
-import { HistoryTracker } from 'components/HistoryTracker';
+import { HistoryTracker } from '@/routes/components/HistoryTracker';
 import { Transition } from 'components/Transition';
 import { useAppStore } from 'contexts/AppProvider';
 import { useLoadingStore } from 'contexts/LoadingProvider';

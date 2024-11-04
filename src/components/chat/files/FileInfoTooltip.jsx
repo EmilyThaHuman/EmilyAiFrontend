@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import { formatFileSize } from '@/lib/fileUtils';
+import { formatFileSize } from '@/lib/utils/fileUtils';
 
 /**
  * Displays file information inside a tooltip.

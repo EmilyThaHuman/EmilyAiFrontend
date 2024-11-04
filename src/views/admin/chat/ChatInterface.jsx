@@ -3,9 +3,9 @@
 import { Box, CircularProgress } from '@mui/material';
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 
+import { CODE_PROMPT_OPTIONS } from '@/config/ai';
 import { useChatHandler, useMenu } from '@/hooks';
 import { MessageInput, MessageBox } from 'components/chat';
-import { CODE_PROMPT_OPTIONS } from 'config/data-configs';
 import { useChatStore } from 'contexts/ChatProvider';
 import 'styles/ChatStyles.css';
 
@@ -75,15 +75,16 @@ export const ChatInterface = ({ chatSession }) => {
           </Box>
         )}
       </Box>
-      <Box
+      <MessageInput disabled={chatDisabled || chatLoading || isStreaming} />
+      {/* <Box
         sx={{
           width: '100%',
           backgroundColor: '#26242C',
           borderTop: '1px solid #444',
+          borderRadius: '0 0 10px 10px',
         }}
       >
-        <MessageInput disabled={chatDisabled || chatLoading || isStreaming} />
-      </Box>
+      </Box> */}
     </Box>
   );
 };

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
 // @mentionFunctions
-import { AI_TOOL_CONFIG } from '@/config/data-configs/agent';
+import { AI_TOOL_CONFIG } from '@/config/ai/agent';
 
 import { analyzeUserSentiment } from './mentionFunctions/analyzeUserSentiment';
 import { brightDataWebScraper } from './mentionFunctions/brightDataWebScraper';
@@ -61,3 +61,5 @@ lookupTool.propTypes = {
   streamable: PropTypes.any.isRequired,
   file: PropTypes.string,
 };
+
+export default lookupTool;

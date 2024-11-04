@@ -1,6 +1,6 @@
-const { REACT_AGENT_CONFIG } = require('config/data-configs/agent');
+const { REACT_AGENT_CONFIG } = require('@/config/ai/agent');
 
-const fetchJson = async (url, options) => {
+export const fetchJson = async (url, options) => {
   try {
     const response = await fetch(url, options);
     if (!response.ok) {
@@ -28,7 +28,7 @@ export async function getSearchResults(userMessage) {
   }
 }
 
-async function braveSearch(
+export async function braveSearch(
   message,
   numberOfPagesToScan = REACT_AGENT_CONFIG.numberOfPagesToScan
 ) {
@@ -51,7 +51,7 @@ async function braveSearch(
   }));
 }
 
-async function googleSearch(
+export async function googleSearch(
   message,
   numberOfPagesToScan = REACT_AGENT_CONFIG.numberOfPagesToScan
 ) {
@@ -67,7 +67,7 @@ async function googleSearch(
   }));
 }
 
-async function serperSearch(
+export async function serperSearch(
   message,
   numberOfPagesToScan = REACT_AGENT_CONFIG.numberOfPagesToScan
 ) {

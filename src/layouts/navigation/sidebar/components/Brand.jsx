@@ -5,9 +5,9 @@ import { useMode } from '@/hooks';
 import { CustomLogoIcon } from 'assets/humanIcons/custom/custom-logo';
 import { LoadingIndicator, RCFlex } from 'components';
 
-export const NavbarLogo = () => (
+export const NavbarLogo = props => (
   <Suspense fallback={<LoadingIndicator />}>
-    <CustomLogoIcon />
+    <CustomLogoIcon {...props} />
   </Suspense>
 );
 

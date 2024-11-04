@@ -1,4 +1,3 @@
-import { toast } from '@/services/toastService';
 import { Editor } from '@monaco-editor/react';
 import {
   Box,
@@ -17,6 +16,7 @@ import { styled } from '@mui/system';
 import React, { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid'; // Make sure to install uuid
 
+import { toast } from '@/services/toastService';
 import { attachmentsApi } from 'api/Ai/chat-sessions';
 import { CODE_SNIPPETS, CODE_SNIPPETS_FILES } from 'config/data-configs/editor';
 

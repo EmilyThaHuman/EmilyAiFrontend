@@ -1,8 +1,8 @@
 // components/FileForm.js
-import { Button, InputLabel, TextField, Box } from '@mui/material';
+import { Box, Button, InputLabel } from '@mui/material';
 import React from 'react';
 
-import { formatFileSize } from '@/lib/fileUtils';
+import { formatFileSize } from '@/lib/utils/fileUtils';
 import { TextAreaAutosizeSection, TextFieldSection } from 'components/themed';
 
 export const FileForm = ({

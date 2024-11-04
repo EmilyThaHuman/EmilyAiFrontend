@@ -1,15 +1,19 @@
 import { BasePromptGenerator } from 'components/chat';
-import {
-  apiChatModelSystemPromptTemplate,
-  apiAssistantPromptTemplate,
-  functionsToolsPromptTemplate,
-  enhancedQueryPromptTemplate,
-} from './prompts';
+import ReedAiLib from './prompts';
 
+const {
+  meta: { system, assistant, tools, user },
+  generative: {
+    pineconeAssistant,
+    componentGen,
+    clineArtifacts,
+    openArtifacts,
+  },
+} = ReedAiLib;
 export const APIModelSystemPromptGenerator = ({ onTest }) => {
   return (
     <BasePromptGenerator
-      promptTemplate={apiChatModelSystemPromptTemplate}
+      promptTemplate={system}
       generatorTitle="API Chat Model Prompt Generator"
       label="System"
       onTest={onTest}
@@ -20,7 +24,7 @@ export const APIModelSystemPromptGenerator = ({ onTest }) => {
 export const APIAssistantInstructionsGenerator = ({ onTest }) => {
   return (
     <BasePromptGenerator
-      promptTemplate={apiAssistantPromptTemplate}
+      promptTemplate={assistant}
       generatorTitle="API Assistant Instructions Generator"
       label="Assistant"
       onTest={onTest}
@@ -31,7 +35,7 @@ export const APIAssistantInstructionsGenerator = ({ onTest }) => {
 export const FunctionsToolsGenerator = ({ onTest }) => {
   return (
     <BasePromptGenerator
-      promptTemplate={functionsToolsPromptTemplate}
+      promptTemplate={tools}
       generatorTitle="Functions and Tools Generator"
       label="Function"
       onTest={onTest}
@@ -42,7 +46,7 @@ export const FunctionsToolsGenerator = ({ onTest }) => {
 export const EnhancedQueryOptimizerGenerator = ({ onTest }) => {
   return (
     <BasePromptGenerator
-      promptTemplate={enhancedQueryPromptTemplate}
+      promptTemplate={user}
       generatorTitle="Enhanced Query Optimizer"
       label="Query Optimizer"
       onTest={onTest}

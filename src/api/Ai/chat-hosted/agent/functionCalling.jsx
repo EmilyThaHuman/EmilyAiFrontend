@@ -1,6 +1,8 @@
-const { default: OpenAI } = require("openai");
+import { SpotifyApi } from '@spotify/web-api-ts-sdk';
 
-import { REACT_AGENT_CONFIG } from '@/config/data-configs/agent';
+import { REACT_AGENT_CONFIG } from '@/config/ai/agent';
+
+const { default: OpenAI } = require('openai');
 
 const client = new OpenAI({
   baseURL: REACT_AGENT_CONFIG.nonOllamaBaseURL,
@@ -13,7 +15,18 @@ const api = SpotifyApi.withClientCredentials(
   process.env.SPOTIFY_CLIENT_SECRET
 );
 
-const functionCalling = async query => {
+export const searchSong = async query => {
+  const items = await api.search(query, ['track']);
+  const track = items.tracks.items[0];
+  if (track) {
+    const trackId = track.uri.replace('spotify:track:', '');
+    return JSON.stringify({ trackId: trackId });
+  } else {
+    return JSON.stringify({ error: 'No matching song found.' });
+  }
+};
+
+export const functionCalling = async query => {
   try {
     const messages = [
       {
@@ -113,9 +126,9 @@ const functionCalling = async query => {
     const toolCalls = responseMessage.tool_calls;
     if (toolCalls) {
       const availableFunctions = {
-        getTickers: getTickers,
-        searchPlaces: searchPlaces,
-        goShopping: goShopping,
+        // getTickers: getTickers,
+        // searchPlaces: searchPlaces,
+        // goShopping: goShopping,
         searchSong: searchSong,
       };
       messages.push(responseMessage);
@@ -125,16 +138,17 @@ const functionCalling = async query => {
         const functionArgs = JSON.parse(toolCall.function.arguments);
         let functionResponse;
         try {
-          if (functionName === 'getTickers') {
-            functionResponse = await functionToCall(functionArgs.ticker);
-          } else if (functionName === 'searchPlaces') {
-            functionResponse = await functionToCall(
-              functionArgs.query,
-              functionArgs.location
-            );
-          } else if (functionName === 'goShopping') {
-            functionResponse = await functionToCall(functionArgs.query);
-          } else if (functionName === 'searchSong') {
+          // if (functionName === 'getTickers') {
+          //   functionResponse = await functionToCall(functionArgs.ticker);
+          // } else if (functionName === 'searchPlaces') {
+          //   functionResponse = await functionToCall(
+          //     functionArgs.query,
+          //     functionArgs.location
+          //   );
+          // } else if (functionName === 'goShopping') {
+          //   functionResponse = await functionToCall(functionArgs.query);
+          // } else
+          if (functionName === 'searchSong') {
             functionResponse = await functionToCall(functionArgs.query);
           }
           return JSON.parse(functionResponse);

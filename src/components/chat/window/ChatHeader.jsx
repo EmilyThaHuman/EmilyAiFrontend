@@ -1,3 +1,4 @@
+import { Code, Maximize2, Minimize2, Settings2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -8,8 +9,6 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Input } from "./ui/input";
-import { Code, Maximize2, Minimize2, Settings2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface ChatHeaderProps {
   title: string;

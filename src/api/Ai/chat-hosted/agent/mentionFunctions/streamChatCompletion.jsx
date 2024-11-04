@@ -1,6 +1,6 @@
 import { OpenAI } from 'openai';
 
-import { REACT_AGENT_CONFIG } from '@/config/data-configs/agent';
+import { REACT_AGENT_CONFIG } from '@/config/ai/agent';
 
 let openai;
 if (REACT_AGENT_CONFIG.useOllamaInference) {

@@ -1,11 +1,11 @@
-import * as fal from '@fal-ai/serverless-client';
+import { fal } from '@fal-ai/client';
 import PropTypes from 'prop-types';
 
-export async function falAiStableDiffusion3Medium(
+export const falAiStableDiffusion3Medium = async (
   mentionTool,
   userMessage,
   streamable
-) {
+) => {
   const result = await fal.subscribe('fal-ai/stable-diffusion3-medium', {
     input: {
       prompt: userMessage,
@@ -30,7 +30,7 @@ export async function falAiStableDiffusion3Medium(
     streamable.done({ llmResponseEnd: true });
   }
   return;
-}
+};
 
 falAiStableDiffusion3Medium.propTypes = {
   mentionTool: PropTypes.string.isRequired,

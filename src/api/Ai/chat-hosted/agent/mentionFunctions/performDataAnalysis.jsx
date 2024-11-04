@@ -1,6 +1,6 @@
 import {
-  calculateStatistics,
   analyzeTrends,
+  calculateStatistics,
   compareDataSets,
   generatePredictions,
 } from './dataAnalysis';
@@ -27,3 +27,5 @@ export const performDataAnalysis = async (data, analysisType) => {
     return { error: 'Failed to analyze data' };
   }
 };
+
+export default performDataAnalysis;

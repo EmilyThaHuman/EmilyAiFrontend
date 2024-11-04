@@ -1,8 +1,23 @@
+import { Alert } from '@mui/material';
 import { useChat } from 'ai/react/dist';
-import React, { useState } from 'react';
+import { AlertCircle } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { coy } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+import { analyzeUserSentiment } from '@/api/Ai/chat-hosted/agent/mentionFunctions/analyzeUserSentiment';
+import { getDeviceContext } from '@/api/Ai/chat-hosted/agent/mentionFunctions/getDeviceContext';
+import { AlertDialogDescription } from '@/components/ui/alert-dialog';
+import { REACT_AGENT_CONFIG } from '@/config/ai/agent';
+
+const { default: OpenAI } = require('openai');
+
+const client = new OpenAI({
+  baseURL: REACT_AGENT_CONFIG.nonOllamaBaseURL,
+  apiKey: REACT_AGENT_CONFIG.inferenceAPIKey,
+});
+const MODEL = REACT_AGENT_CONFIG.inferenceModel;
 
 const useChatAgent = () => {
   const [response, setResponse] = useState('');
@@ -13,14 +28,13 @@ const useChatAgent = () => {
     initialMessages: [
       {
         role: 'system',
-        content: `You are an advanced AI agent capable of understanding user context, analyzing data, 
-                 and providing personalized assistance. Use your available tools to provide the most 
-                 relevant and helpful responses.`,
+        content: `You are an advanced AI agent capable of understanding user context, analyzing data, and providing personalized assistance. Use your available tools to provide the most relevant and helpful responses.`,
       },
     ],
     onResponse: res => setResponse(res),
     onError: err => setError(err.message),
   });
+  const [deviceInfo, setDeviceInfo] = useState(null);
 
   // Enhanced agent function with better error handling and tool management
   const runAgent = useCallback(
@@ -31,7 +45,85 @@ const useChatAgent = () => {
       try {
         const messageHistory = [...messages];
         messageHistory.push({ role: 'user', content: input });
-
+        const tools = [
+          {
+            type: 'function',
+            function: {
+              name: 'getTickers',
+              description:
+                'Get a single market name and stock ticker if the user mentions a public company',
+              parameters: {
+                type: 'object',
+                properties: {
+                  ticker: {
+                    type: 'string',
+                    description:
+                      'The stock ticker symbol and market name, example NYSE:K or NASDAQ:AAPL',
+                  },
+                },
+                required: ['ticker'],
+              },
+            },
+          },
+          {
+            type: 'function',
+            function: {
+              name: 'searchPlaces',
+              description:
+                'ONLY SEARCH for places using the given query and location',
+              parameters: {
+                type: 'object',
+                properties: {
+                  query: {
+                    type: 'string',
+                    description: 'The search query for places',
+                  },
+                  location: {
+                    type: 'string',
+                    description: 'The location to search for places',
+                  },
+                },
+                required: ['query', 'location'],
+              },
+            },
+          },
+          {
+            type: 'function',
+            function: {
+              name: 'goShopping',
+              description: 'Search for shopping items using the given query',
+              parameters: {
+                type: 'object',
+                properties: {
+                  query: {
+                    type: 'string',
+                    description: 'The search query for shopping items',
+                  },
+                },
+                required: ['query'],
+              },
+            },
+          },
+          {
+            type: 'function',
+            function: {
+              name: 'searchSong',
+              description:
+                'Searches for a song on Spotify based on the provided search query and returns the track ID.',
+              parameters: {
+                type: 'object',
+                properties: {
+                  query: {
+                    type: 'string',
+                    description:
+                      'The search query to find a song on Spotify, such as the song title or artist name.',
+                  },
+                },
+                required: ['query'],
+              },
+            },
+          },
+        ];
         // Get device context at the start of interaction
         const deviceContext = await getDeviceContext();
         setDeviceInfo(deviceContext);
@@ -40,7 +132,7 @@ const useChatAgent = () => {
         const sentiment = await analyzeUserSentiment(input);
 
         for (let i = 0; i < 5; i++) {
-          const response = await openai.chat.completions.create({
+          const response = await client.chat.completions.create({
             model: 'gpt-4',
             messages: messageHistory,
             tools: tools,
@@ -50,9 +142,15 @@ const useChatAgent = () => {
           const { finish_reason, message } = response.choices[0];
 
           if (finish_reason === 'tool_calls' && message.tool_calls) {
+            const availableFunctions = {
+              // getTickers: getTickers,
+              // searchPlaces: searchPlaces,
+              // goShopping: goShopping,
+              // searchSong: searchSong,
+            };
             const toolCall = message.tool_calls[0];
             const functionName = toolCall.function.name;
-            const functionToCall = availableTools[functionName];
+            const functionToCall = availableFunctions[functionName];
             const functionArgs = JSON.parse(toolCall.function.arguments);
 
             // Add context to function calls
@@ -141,9 +239,10 @@ const Markdown = ({ content }) => (
 const ErrorAlert = ({ error }) => (
   <Alert variant="destructive">
     <AlertCircle className="h-4 w-4" />
-    <AlertDescription>{error}</AlertDescription>
+    <AlertDialogDescription>{error}</AlertDialogDescription>
   </Alert>
 );
+
 const ChatInput = ({ onSend, loading }) => {
   const [input, setInput] = useState('');
 
@@ -166,12 +265,7 @@ const ChatInput = ({ onSend, loading }) => {
     </div>
   );
 };
-const ResponseDisplay = ({ response }) => (
-  <div className="bg-white p-6 rounded-lg shadow-sm border">
-    <h3 className="font-semibold text-lg">Response:</h3>
-    <p className="text-gray-700 whitespace-pre-wrap">{response}</p>
-  </div>
-);
+
 const ReactAgent = () => {
   const { response, error, loading, runAgent } = useChatAgent();
 
